@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "dgSpecHash": "KhoUONEGJys=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\szymo\\source\\repos\\HexHyperion\\rawinator\\rawinator.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\szymo\\.nuget\\packages\\microsoft.win32.systemevents\\8.0.0\\microsoft.win32.systemevents.8.0.0.nupkg.sha512",
+    "C:\\Users\\szymo\\.nuget\\packages\\sdcb.libraw\\0.21.1.6\\sdcb.libraw.0.21.1.6.nupkg.sha512",
+    "C:\\Users\\szymo\\.nuget\\packages\\sdcb.libraw.runtime.win64\\0.21.1\\sdcb.libraw.runtime.win64.0.21.1.nupkg.sha512",
+    "C:\\Users\\szymo\\.nuget\\packages\\system.drawing.common\\8.0.10\\system.drawing.common.8.0.10.nupkg.sha512"
+  ],
+  "logs": []
+}
