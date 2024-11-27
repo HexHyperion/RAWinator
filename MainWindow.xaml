@@ -5,9 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:rawinator"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="750" Width="1300">
     <Grid>
-        <Image Name="imaze" HorizontalAlignment="Left" Height="1000" Margin="0,0,0,0" VerticalAlignment="Top" Width="1000"/>
+        <Image Name="imaze" HorizontalAlignment="Left" Height="740" VerticalAlignment="Top" Width="550" Margin="0,10,0,0"/>
 
+        <Label Name="meta" Margin="550,10,0,0"/>
+        <Button Name="expo" Margin="925,461,0,168" Click="expo_Click">zigger</Button>
+        <Button Name="export" Content="export" Margin="925,571,0,0" Click="export_Click"></Button>
     </Grid>
 </Window>
