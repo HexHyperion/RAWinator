@@ -14,6 +14,7 @@ using System.IO;
 using static System.Net.Mime.MediaTypeNames;
 using Sdcb.LibRaw.Natives;
 using Microsoft.Win32;
+using System.Collections;
 
 namespace rawinator
 {
@@ -22,49 +23,9 @@ namespace rawinator
     /// </summary>
     public partial class MainWindow : Window
     {
-        RawContext r = RawContext.OpenFile("C:\\Users\\szymo\\source\\repos\\HexHyperion\\rawinator\\img\\DSC6717.NEF");
-
         public MainWindow()
         {
-            InitializeComponent();
-
-            
-        }
-
-
-        Bitmap ProcessedImageToBitmap(ProcessedImage rgbImage)
-        {
-            rgbImage.SwapRGB();
-            using Bitmap bmp = new Bitmap(rgbImage.Width, rgbImage.Height, rgbImage.Width * 3, System.Drawing.Imaging.PixelFormat.Format24bppRgb, rgbImage.DataPointer);
-            return new Bitmap(bmp);
-        }
-
-        BitmapImage BitmapToImageSource(Bitmap bitmap)
-        {
-            using (MemoryStream memory = new MemoryStream())
-            {
-                bitmap.Save(memory, System.Drawing.Imaging.ImageFormat.Bmp);
-                memory.Position = 0;
-                BitmapImage bitmapimage = new BitmapImage();
-                bitmapimage.BeginInit();
-                bitmapimage.StreamSource = memory;
-                bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapimage.EndInit();
-
-                return bitmapimage;
-            }
-        }
-
-        public static Bitmap ByteToImage(byte[] blob)
-        {
-            using (MemoryStream mStream = new MemoryStream())
-            {
-                mStream.Write(blob, 0, blob.Length);
-                mStream.Seek(0, SeekOrigin.Begin);
-
-                Bitmap bm = new Bitmap(mStream);
-                return bm;
-            }
+            InitializeComponent();            
         }
 
         private void Library_Import_Click(object sender, RoutedEventArgs e)
@@ -74,10 +35,39 @@ namespace rawinator
             openFileDialog.Multiselect = true;
             if (openFileDialog.ShowDialog() == true)
             {
-                // foreach here add to list
+                foreach (string file in openFileDialog.FileNames)
+                {
+                    Library_Image_List.Items.Add(file);
+                    RawImage rawImage = new RawImage(file);
+                    MessageBox.Show(rawImage.Filename);
+                    Library_Image_Thumbnail.Source = RawImageHelpers.BitmapToImageSource(rawImage.Thumbnail);
+                }
             }
         }
 
+        private void Library_Image_List_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Delete && Library_Image_List.SelectedItems != null)
+            {
+                int selectedNumber = Library_Image_List.SelectedItems.Count;
+                if (selectedNumber > 1)
+                {
+                    MessageBoxResult result = MessageBox.Show($"Are you sure you want to delete {selectedNumber} images from library? (files on disk won't be modified)", "Delete images", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        IList itemsToDelete = Library_Image_List.SelectedItems.Cast<string>().ToList();
+                        foreach (string file in itemsToDelete)
+                        {
+                            Library_Image_List.Items.Remove(file);
+                        }
+                    }
+                }
+                else
+                {
+                    Library_Image_List.Items.Remove(Library_Image_List.SelectedItem);
+                }
+            }
+        }
 
         private void Menu_File_Open_Click(object sender, RoutedEventArgs e)
         {

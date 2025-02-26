@@ -27,8 +27,11 @@
         <TabControl Margin="0,20,0,0">
             <TabItem Header="Library">
                 <Grid Background="#FFE5E5E5">
-                    <ListView Name="Library_Image_List" Margin="10,10,10,45"/>
-                    <Button Content="Import..." Click="Library_Import_Click" Height="30" Width="100" Margin="1184,646,10,10"/>
+                    <ListView Name="Library_Image_List" Margin="10,10,0,45" KeyDown="Library_Image_List_KeyDown" HorizontalAlignment="Left" Width="914">
+
+                    </ListView>
+                    <Image Name="Library_Image_Thumbnail" HorizontalAlignment="Left" Height="631" Margin="929,10,0,0" VerticalAlignment="Top" Width="355"/>
+                    <Button Content="Import..." Click="Library_Import_Click" Height="30" Margin="0,0,10,10" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="100"/>
                 </Grid>
             </TabItem>
             <TabItem Header="View">
