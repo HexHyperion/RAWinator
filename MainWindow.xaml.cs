@@ -25,8 +25,11 @@ namespace rawinator
     {
         public MainWindow()
         {
-            InitializeComponent();            
+            InitializeComponent();
         }
+
+        public List<RawImage> importedImages { get; set; } = new List<RawImage>();
+        public RawImage? selectedImage { get; set; } = null;
 
         private void Library_Import_Click(object sender, RoutedEventArgs e)
         {
@@ -39,8 +42,9 @@ namespace rawinator
                 {
                     Library_Image_List.Items.Add(file);
                     RawImage rawImage = new RawImage(file);
-                    MessageBox.Show(rawImage.Filename);
+                    importedImages.Add(rawImage);
                     Library_Image_Thumbnail.Source = RawImageHelpers.BitmapToImageSource(rawImage.Thumbnail);
+                    Library_Image_Metadata.Content = rawImage.GetMetadataString();
                 }
             }
         }
@@ -68,6 +72,20 @@ namespace rawinator
                 }
             }
         }
+
+        private void Library_Image_List_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (Library_Image_List.SelectedItem != null)
+            {
+                string? selectedFile = Library_Image_List.SelectedItem.ToString();
+                if (selectedFile == null) return;
+                RawImage? selectedImage = importedImages.Find(x => x.Path == selectedFile);
+                if (selectedImage == null) return;
+                Library_Image_Thumbnail.Source = RawImageHelpers.BitmapToImageSource(selectedImage.Thumbnail);
+                Library_Image_Metadata.Content = selectedImage.GetMetadataString();
+            }
+        }
+
 
         private void Menu_File_Open_Click(object sender, RoutedEventArgs e)
         {
