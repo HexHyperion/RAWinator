@@ -1,27 +1,28 @@
-﻿using Sdcb.LibRaw;
+﻿using MetadataExtractor;
+using MetadataExtractor.Formats.Exif;
+using Sdcb.LibRaw;
 using System.Drawing;
 using System.IO;
+using System.Windows;
 using System.Windows.Media.Imaging;
 
 namespace rawinator
 {
     static class RawImageHelpers
     {
-        public static Bitmap ProcessedImageToBitmap(ProcessedImage rgbImage)
+
+        public static Bitmap RawToBitmap(RawImage raw)
         {
+            ProcessedImage rgbImage = raw.GetProcessedImage();
             rgbImage.SwapRGB();
             using Bitmap bmp = new Bitmap(rgbImage.Width, rgbImage.Height, rgbImage.Width * 3, System.Drawing.Imaging.PixelFormat.Format24bppRgb, rgbImage.DataPointer);
 
-            //// Correct the orientation based on EXIF data
-            //if (rgbImage.Orientation != 1)
-            //{
-            //    RotateFlipType rotateFlipType = GetRotateFlipType(rgbImage.Orientation);
-            //    bmp.RotateFlip(rotateFlipType);
-            //}
+            var metadata = raw.GetMetadata();
+            var exifData = metadata.OfType<ExifSubIfdDirectory>().FirstOrDefault();
+            var exifOrientation = exifData?.GetDescription(ExifDirectoryBase.TagOrientation) ?? "1";
+            bmp.RotateFlip(GetRotateFlipType(int.Parse(exifOrientation)));
 
-            // Create a new bitmap with the correct size
             Bitmap resizedBmp = new Bitmap(bmp);
-
             return resizedBmp;
         }
 
@@ -39,7 +40,6 @@ namespace rawinator
                 _ => RotateFlipType.RotateNoneFlipNone,
             };
         }
-
 
         public static BitmapImage BitmapToImageSource(Bitmap bitmap)
         {

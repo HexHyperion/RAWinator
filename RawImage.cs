@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MetadataExtractor;
 using Sdcb.LibRaw;
 using Sdcb.LibRaw.Natives;
 
@@ -23,7 +24,7 @@ namespace rawinator
             Filename = System.IO.Path.GetFileName(path);
             Raw = RawContext.OpenFile(path);
             Raw.UnpackThumbnail();
-            Thumbnail = RawImageHelpers.ProcessedImageToBitmap(Raw.MakeDcrawMemoryThumbnail());
+            Thumbnail = RawImageHelpers.RawToBitmap(this);
         }
 
         public ProcessedImage GetProcessedImage()
@@ -47,6 +48,11 @@ namespace rawinator
                    $"ISO: {otherParams.IsoSpeed}\n" +
                    $"Aperture: f/{otherParams.Aperture}\n" +
                    $"Shutter speed: {(otherParams.Shutter < 1 ? $"1/{1 / otherParams.Shutter:F0}" : otherParams.Shutter)} s\n";
+        }
+
+        public IEnumerable<Directory> GetMetadata()
+        {
+            return ImageMetadataReader.ReadMetadata(Path);
         }
     }
 }
