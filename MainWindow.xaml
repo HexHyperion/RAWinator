@@ -7,10 +7,42 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="750" Width="1300">
     <Grid>
-        <Image Name="imaze" HorizontalAlignment="Left" Height="740" VerticalAlignment="Top" Width="550" Margin="0,10,0,0"/>
+        <DockPanel>
+            <Menu DockPanel.Dock="Top">
+                <MenuItem Header="_File">
+                    <MenuItem Header="_Open" Click="Menu_File_Open_Click"/>
+                    <MenuItem Header="_Save" Click="Menu_File_Save_Click"/>
+                    <MenuItem Header="_Exit" Click="Menu_File_Exit_Click"/>
+                </MenuItem>
+                <MenuItem Header="_Edit">
+                    <MenuItem Header="_Undo" Click="Menu_Edit_Undo_Click"/>
+                    <MenuItem Header="_Redo" Click="Menu_Edit_Redo_Click"/>
+                </MenuItem>
+                <MenuItem Header="_Help">
+                    <MenuItem Header="_About" Click="Menu_Help_About_Click"/>
+                </MenuItem>
+            </Menu>
+            <StackPanel></StackPanel>
+        </DockPanel>
+        <TabControl Margin="0,20,0,0">
+            <TabItem Header="Library">
+                <Grid Background="#FFE5E5E5">
+                    <ListView Name="Library_Image_List" Margin="10,10,0,45" KeyDown="Library_Image_List_KeyDown" SelectionChanged="Library_Image_List_SelectionChanged" HorizontalAlignment="Left" Width="914">
 
-        <Label Name="meta" Margin="550,10,0,0"/>
-        <Button Name="expo" Margin="925,461,0,168" Click="expo_Click">zigger</Button>
-        <Button Name="export" Content="export" Margin="925,571,0,0" Click="export_Click"></Button>
+                    </ListView>
+                    <Image Name="Library_Image_Thumbnail" HorizontalAlignment="Left" Height="230" Margin="929,10,0,0" VerticalAlignment="Top" Width="355"/>
+                    <Label Name="Library_Image_Metadata" HorizontalAlignment="Left" Margin="929,245,0,0" VerticalAlignment="Top" Height="396" Width="355"/>
+                    <Button Content="Import..." Click="Library_Import_Click" Height="30" Margin="0,0,10,10" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="100"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="View">
+                <Grid Background="#FFE5E5E5"/>
+            </TabItem>
+            <TabItem Header="Develop">
+                <Grid Background="#FFE5E5E5"/>
+            </TabItem>
+        </TabControl>
+
+
     </Grid>
 </Window>

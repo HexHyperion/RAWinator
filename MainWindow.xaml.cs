@@ -13,6 +13,8 @@ using Sdcb.LibRaw;
 using System.IO;
 using static System.Net.Mime.MediaTypeNames;
 using Sdcb.LibRaw.Natives;
+using Microsoft.Win32;
+using System.Collections;
 
 namespace rawinator
 {
@@ -21,83 +23,98 @@ namespace rawinator
     /// </summary>
     public partial class MainWindow : Window
     {
-        RawContext r = RawContext.OpenFile("C:\\Users\\szymo\\source\\repos\\HexHyperion\\rawinator\\img\\DSC6717.NEF");
-
         public MainWindow()
         {
             InitializeComponent();
-
-            r.Unpack();
-            r.DcrawProcess();
-            ProcessedImage image = r.MakeDcrawMemoryImage();
-            Bitmap bmp = ProcessedImageToBitmap(image);
-            imaze.Source = BitmapToImageSource(bmp);
-
-            LibRawImageParams imageParams = r.ImageParams;
-            LibRawImageOtherParams otherParams = r.ImageOtherParams;
-            LibRawLensInfo lensInfo = r.LensInfo;
-
-            meta.Content += ($"Camera: {imageParams.Model}\n");
-            meta.Content += ($"Version: {imageParams.Software}\n");
-            meta.Content += ($"ISO: {otherParams.IsoSpeed}\n");
-            meta.Content += ($"Shutter Speed: 1/{1 / otherParams.Shutter:F0}s\n");
-            meta.Content += ($"Focal Length: {otherParams.FocalLength}mm\n");
-            meta.Content += ($"Artist Tag: {otherParams.Artist}\n");
-            meta.Content += ($"Shot Date: {new DateTime(1970, 1, 1, 8, 0, 0).AddSeconds(otherParams.Timestamp)}\n");
-            meta.Content += ($"Lens Name: {lensInfo.Lens}");
         }
 
-        Bitmap ProcessedImageToBitmap(ProcessedImage rgbImage)
-        {
-            rgbImage.SwapRGB();
-            using Bitmap bmp = new Bitmap(rgbImage.Width, rgbImage.Height, rgbImage.Width * 3, System.Drawing.Imaging.PixelFormat.Format24bppRgb, rgbImage.DataPointer);
-            return new Bitmap(bmp);
-        }
+        public List<RawImage> importedImages { get; set; } = new List<RawImage>();
+        public RawImage? selectedImage { get; set; } = null;
 
-        BitmapImage BitmapToImageSource(Bitmap bitmap)
+        private void Library_Import_Click(object sender, RoutedEventArgs e)
         {
-            using (MemoryStream memory = new MemoryStream())
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "RAW files|*.arw;*.cr2;*.cr3;*.nef;*.nrw;*.orf;*.pef;*.raf;*.rw2;*.srw;*.dng;*.k25;*.kdc;*.srf;*.sr2;*.mos;*.3fr;*.fff;*.rwl;*.iiq";
+            openFileDialog.Multiselect = true;
+            if (openFileDialog.ShowDialog() == true)
             {
-                bitmap.Save(memory, System.Drawing.Imaging.ImageFormat.Bmp);
-                memory.Position = 0;
-                BitmapImage bitmapimage = new BitmapImage();
-                bitmapimage.BeginInit();
-                bitmapimage.StreamSource = memory;
-                bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapimage.EndInit();
-
-                return bitmapimage;
+                foreach (string file in openFileDialog.FileNames)
+                {
+                    Library_Image_List.Items.Add(file);
+                    RawImage rawImage = new RawImage(file);
+                    importedImages.Add(rawImage);
+                    Library_Image_Thumbnail.Source = RawImageHelpers.BitmapToImageSource(rawImage.Thumbnail);
+                    Library_Image_Metadata.Content = rawImage.GetMetadataString();
+                }
             }
         }
 
-        public static Bitmap ByteToImage(byte[] blob)
+        private void Library_Image_List_KeyDown(object sender, KeyEventArgs e)
         {
-            using (MemoryStream mStream = new MemoryStream())
+            if (e.Key == Key.Delete && Library_Image_List.SelectedItems != null)
             {
-                mStream.Write(blob, 0, blob.Length);
-                mStream.Seek(0, SeekOrigin.Begin);
+                int selectedNumber = Library_Image_List.SelectedItems.Count;
+                if (selectedNumber > 1)
+                {
+                    MessageBoxResult result = MessageBox.Show($"Are you sure you want to delete {selectedNumber} images from library? (files on disk won't be modified)", "Delete images", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        IList itemsToDelete = Library_Image_List.SelectedItems.Cast<string>().ToList();
+                        foreach (string file in itemsToDelete)
+                        {
+                            Library_Image_List.Items.Remove(file);
+                        }
+                    }
+                }
+                else
+                {
+                    Library_Image_List.Items.Remove(Library_Image_List.SelectedItem);
+                }
+            }
+        }
 
-                Bitmap bm = new Bitmap(mStream);
-                return bm;
+        private void Library_Image_List_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (Library_Image_List.SelectedItem != null)
+            {
+                string? selectedFile = Library_Image_List.SelectedItem.ToString();
+                if (selectedFile == null) return;
+                RawImage? selectedImage = importedImages.Find(x => x.Path == selectedFile);
+                if (selectedImage == null) return;
+                Library_Image_Thumbnail.Source = RawImageHelpers.BitmapToImageSource(selectedImage.Thumbnail);
+                Library_Image_Metadata.Content = selectedImage.GetMetadataString();
             }
         }
 
 
-        private void expo_Click(object sender, RoutedEventArgs e)
+        private void Menu_File_Open_Click(object sender, RoutedEventArgs e)
         {
-            r.DcrawProcess(c =>
-            {
-                c.HalfSize = true;
-                c.Brightness = 2.5F;
-            });
-            using ProcessedImage rgbImage = r.MakeDcrawMemoryImage();
-            Bitmap bmp = ProcessedImageToBitmap(rgbImage);
-            imaze.Source = BitmapToImageSource(bmp);
+
         }
 
-        private void export_Click(object sender, RoutedEventArgs e)
+        private void Menu_File_Save_Click(object sender, RoutedEventArgs e)
         {
-            r.SaveRawImage("C:\\Users\\szymo\\Desktop\\DSC6717.tiff");
+
+        }
+
+        private void Menu_File_Exit_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Menu_Edit_Undo_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Menu_Edit_Redo_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Menu_Help_About_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

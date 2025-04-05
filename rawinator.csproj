@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MetadataExtractor" Version="2.8.1" />
     <PackageReference Include="Sdcb.LibRaw" Version="0.21.1.6" />
     <PackageReference Include="Sdcb.LibRaw.runtime.win64" Version="0.21.1" />
     <PackageReference Include="System.Drawing.Common" Version="8.0.10" />
