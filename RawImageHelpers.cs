@@ -26,7 +26,7 @@ namespace rawinator
             return resizedBmp;
         }
 
-        private static RotateFlipType GetRotateFlipType(int exifOrientation)
+        public static RotateFlipType GetRotateFlipType(int exifOrientation)
         {
             return exifOrientation switch
             {

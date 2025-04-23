@@ -4,7 +4,10 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Media;
 using MetadataExtractor;
+using MetadataExtractor.Formats.Exif;
 using Sdcb.LibRaw;
 using Sdcb.LibRaw.Natives;
 
@@ -14,7 +17,7 @@ namespace rawinator
     {
         public string Filename { get; set; }
         public string Path { get; set; }
-        public Bitmap Thumbnail { get; set; }
+        public ImageSource Thumbnail { get; set; }
         public RawContext Raw { get; set; }
 
         public RawImage() { }
@@ -23,9 +26,55 @@ namespace rawinator
             Path = path;
             Filename = System.IO.Path.GetFileName(path);
             Raw = RawContext.OpenFile(path);
+
             Raw.UnpackThumbnail();
-            Thumbnail = RawImageHelpers.RawToBitmap(this);
+            ProcessedImage fullSizePreview;
+            // fullSizePreview = Raw.MakeDcrawMemoryImage();
+            fullSizePreview = Raw.MakeDcrawMemoryThumbnail();
+
+            fullSizePreview.SwapRGB();
+
+            Bitmap previewBitmap = new Bitmap(
+                fullSizePreview.Width,
+                fullSizePreview.Height,
+                fullSizePreview.Width * 3,
+                System.Drawing.Imaging.PixelFormat.Format24bppRgb,
+                fullSizePreview.DataPointer
+            );
+
+
+            var metadata = GetMetadata();
+            var exifData = metadata.OfType<ExifSubIfdDirectory>().FirstOrDefault();
+            var exifOrientation = exifData?.GetDescription(ExifDirectoryBase.TagOrientation) ?? "1";
+            previewBitmap.RotateFlip(RawImageHelpers.GetRotateFlipType(int.Parse(exifOrientation)));
+
+            //// Messagebox each metadata directory
+            //foreach (var directory in metadata)
+            //{
+            //    StringBuilder stringBuilder = new StringBuilder();
+            //    foreach (var tag in directory.Tags)
+            //    {
+            //        stringBuilder.AppendLine($"{tag.Name}: {tag.Description}");
+            //    }
+            //    MessageBox.Show(stringBuilder.ToString(), directory.Name);
+            //}
+
+            // Messagebox orientation, but not from ExifSubIfdDirectory or exifOrientation
+            string orientation = metadata.OfType<ExifIfd0Directory>().FirstOrDefault()?.GetDescription(ExifDirectoryBase.TagOrientation) ?? "";
+            MessageBox.Show($"Orientation: {orientation}", "Orientation");
+
+            // Find number in the orientation string (there is only one, but it can be in the middle of the string) symbolising angle
+            int angle = 0;
+            try
+            {
+                angle = int.Parse(new string(orientation.Where(char.IsDigit).ToArray()));
+            }
+            catch {}
+             MessageBox.Show($"Angle: {angle}", "Angle");
+
+            Thumbnail = RawImageHelpers.BitmapToImageSource(previewBitmap);
         }
+
 
         public ProcessedImage GetProcessedImage()
         {

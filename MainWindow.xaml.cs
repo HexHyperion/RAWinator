@@ -43,7 +43,7 @@ namespace rawinator
                     Library_Image_List.Items.Add(file);
                     RawImage rawImage = new RawImage(file);
                     importedImages.Add(rawImage);
-                    Library_Image_Thumbnail.Source = RawImageHelpers.BitmapToImageSource(rawImage.Thumbnail);
+                    Library_Image_Thumbnail.Source = rawImage.Thumbnail;
                     Library_Image_Metadata.Content = rawImage.GetMetadataString();
                 }
             }
@@ -81,7 +81,7 @@ namespace rawinator
                 if (selectedFile == null) return;
                 RawImage? selectedImage = importedImages.Find(x => x.Path == selectedFile);
                 if (selectedImage == null) return;
-                Library_Image_Thumbnail.Source = RawImageHelpers.BitmapToImageSource(selectedImage.Thumbnail);
+                Library_Image_Thumbnail.Source = selectedImage.Thumbnail;
                 Library_Image_Metadata.Content = selectedImage.GetMetadataString();
             }
         }
