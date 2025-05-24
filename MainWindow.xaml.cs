@@ -14,6 +14,7 @@ using static System.Net.Mime.MediaTypeNames;
 using Microsoft.Win32;
 using System.Collections;
 using ImageMagick;
+using System.Windows.Controls.Primitives;
 
 namespace rawinator
 {
@@ -30,7 +31,7 @@ namespace rawinator
         public List<RawImage> importedImages { get; set; } = new List<RawImage>();
         public RawImage? selectedImage { get; set; } = null;
         private RawImage? developImage = null;
-        private double exposure = 0, highlights = 0, shadows = 0, whiteBalance = 0, whiteBalanceTint = 0, contrast = 0, saturation = 0;
+        private RawImageProcessParams developImageParams = new(0, 0, 0, 0, 0, 0, 0);
 
         private void Library_Import_Click(object sender, RoutedEventArgs e)
         {
@@ -98,16 +99,36 @@ namespace rawinator
             }
         }
 
-        private void Develop_Slider_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void Develop_Slider_Changed(object sender, DragCompletedEventArgs e)
         {
-            exposure = Develop_Slider_Exposure?.Value ?? 0;
-            highlights = Develop_Slider_Highlights?.Value ?? 0;
-            shadows = Develop_Slider_Shadows?.Value ?? 0;
-            whiteBalance = Develop_Slider_WhiteBalance?.Value ?? 0;
-            whiteBalanceTint = Develop_Slider_WhiteBalanceTint?.Value ?? 0;
-            contrast = Develop_Slider_Contrast?.Value ?? 0;
-            saturation = Develop_Slider_Saturation?.Value ?? 0;
-            UpdateDevelopImage();
+            if (sender is Slider slider)
+            {
+                switch (slider.Name)
+                {
+                    case nameof(Develop_Slider_Exposure):
+                        developImageParams.Exposure = slider.Value;
+                        break;
+                    case nameof(Develop_Slider_Highlights):
+                        developImageParams.Highlights = slider.Value;
+                        break;
+                    case nameof(Develop_Slider_Shadows):
+                        developImageParams.Shadows = slider.Value;
+                        break;
+                    case nameof(Develop_Slider_WhiteBalance):
+                        developImageParams.Temperature = slider.Value;
+                        break;
+                    case nameof(Develop_Slider_WhiteBalanceTint):
+                        developImageParams.TemperatureTint = slider.Value;
+                        break;
+                    case nameof(Develop_Slider_Contrast):
+                        developImageParams.Contrast = slider.Value;
+                        break;
+                    case nameof(Develop_Slider_Saturation):
+                        developImageParams.Saturation = slider.Value;
+                        break;
+                }
+                UpdateDevelopImage();
+            }
         }
 
         private void UpdateDevelopImage()
@@ -115,13 +136,7 @@ namespace rawinator
             if (developImage == null) return;
             var adjusted = RawImageHelpers.ApplyAdjustments(
                 developImage.FullImage,
-                exposure,
-                highlights,
-                shadows,
-                whiteBalance,
-                whiteBalanceTint,
-                contrast,
-                saturation
+                developImageParams
             );
             Develop_Image.Source = RawImageHelpers.MagickImageToBitmapImage(adjusted);
         }

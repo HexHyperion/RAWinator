@@ -1,6 +1,4 @@
-﻿using MetadataExtractor;
-using MetadataExtractor.Formats.Exif;
-using ImageMagick;
+﻿using ImageMagick;
 using System.IO;
 using System.Windows.Media.Imaging;
 
@@ -22,61 +20,88 @@ namespace rawinator
 
         public static MagickImage ApplyAdjustments(
             MagickImage baseImage,
-            double exposure,
-            double highlights,
-            double shadows,
-            double temperature,
-            double temperatureTint,
-            double contrast,
-            double saturation)
+            RawImageProcessParams developSettings)
         {
-            var img = baseImage.Clone();
+            var editedImage = baseImage.Clone();
 
-            // Exposure
-            img.Evaluate(Channels.RGB, EvaluateOperator.Add, exposure);
+            // Exposure - really just brightness adjustment for now, TODO implement proper exposure adjustment
+            editedImage.Evaluate(Channels.RGB, EvaluateOperator.Add, developSettings.Exposure);
 
-            // Contrast (broken rn)
-            if (contrast > 0)
+            // Contrast
+            if (developSettings.Contrast > 0)
             {
-                for (int i = 0; i < (int)contrast; i++)
+                for (int i = 0; i < (int)developSettings.Contrast; i++)
                 {
-                    img.Contrast();
+                    editedImage.Contrast();
                 }
             }
-            else if (contrast < 0)
+            else if (developSettings.Contrast < 0)
             {
-                for (int i = 0; i < (int)(-contrast); i++)
+                for (int i = 0; i < (int)(-developSettings.Contrast); i++)
                 {
-                    img.InverseContrast();
+                    editedImage.InverseContrast();
                 }
             }
 
             // Saturation
-            img.Modulate((Percentage)100, (Percentage)(100 + saturation), (Percentage)100);
+            editedImage.Modulate((Percentage)100, (Percentage)(100 + developSettings.Saturation), (Percentage)100);
 
             // White balance (temperature)
-            if (temperature != 0)
+            if (developSettings.Temperature != 0)
             {
-                img.Evaluate(Channels.Red, EvaluateOperator.Add, temperature);
-                img.Evaluate(Channels.Blue, EvaluateOperator.Subtract, temperature);
+                editedImage.Evaluate(Channels.Red, EvaluateOperator.Add, developSettings.Temperature);
+                editedImage.Evaluate(Channels.Blue, EvaluateOperator.Subtract, developSettings.Temperature);
             }
-            if (temperatureTint != 0)
+            if (developSettings.TemperatureTint != 0)
             {
-                img.Evaluate(Channels.Blue, EvaluateOperator.Add, temperatureTint);
-                img.Evaluate(Channels.Green, EvaluateOperator.Subtract, temperatureTint);
-            }
-
-            // Highlights/Shadows (broken rn, todo figure out)
-            if (highlights != 0)
-            {
-                img.Level(0, (byte)(Quantum.Max - (int)highlights));
-            }
-            if (shadows != 0)
-            {
-                img.Level((byte)(int)shadows, Quantum.Max);
+                editedImage.Evaluate(Channels.Blue, EvaluateOperator.Add, developSettings.TemperatureTint);
+                editedImage.Evaluate(Channels.Green, EvaluateOperator.Subtract, developSettings.TemperatureTint);
             }
 
-            return (MagickImage)img;
+            // Shadows - right now they literally work like highlights in LR, like wtf
+            // Probably need to adjust the numbers a bit
+            if (developSettings.Shadows != 0)
+            {
+                using (var shadowMask = editedImage.Clone())
+                {
+                    shadowMask.ColorSpace = ColorSpace.Gray;
+
+                    shadowMask.Level(0, (byte)(Quantum.Max * 0.5));
+                    shadowMask.SigmoidalContrast(6, 0.25, Channels.Gray);
+
+                    using (var shadowsAdjusted = editedImage.Clone())
+                    {
+                        var modValue = 100 + developSettings.Shadows;
+                        shadowsAdjusted.Modulate(new Percentage(modValue), new Percentage(100), new Percentage(100));
+
+                        shadowsAdjusted.Composite(shadowMask, CompositeOperator.CopyAlpha);
+                        editedImage.Composite(shadowsAdjusted, CompositeOperator.Over);
+                    }
+                }
+            }
+
+            // Highlights - seems like they work only on *really* bright areas rn
+            if (developSettings.Highlights != 0)
+            {
+                using (var highlightMask = editedImage.Clone())
+                {
+                    highlightMask.ColorSpace = ColorSpace.Gray;
+
+                    highlightMask.Level((byte)(Quantum.Max * 0.5), Quantum.Max);
+                    highlightMask.SigmoidalContrast(6, 0.75, Channels.Gray);
+
+                    using (var highlightsAdjusted = editedImage.Clone())
+                    {
+                        var modValue = 100 - developSettings.Highlights;
+                        highlightsAdjusted.Modulate(new Percentage(modValue), new Percentage(100), new Percentage(100));
+
+                        highlightsAdjusted.Composite(highlightMask, CompositeOperator.CopyAlpha);
+                        editedImage.Composite(highlightsAdjusted, CompositeOperator.Over);
+                    }
+                }
+            }
+
+            return (MagickImage)editedImage;
         }
     }
 }
