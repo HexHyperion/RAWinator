@@ -9,12 +9,11 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Drawing;
-using Sdcb.LibRaw;
 using System.IO;
 using static System.Net.Mime.MediaTypeNames;
-using Sdcb.LibRaw.Natives;
 using Microsoft.Win32;
 using System.Collections;
+using ImageMagick;
 
 namespace rawinator
 {
@@ -30,6 +29,8 @@ namespace rawinator
 
         public List<RawImage> importedImages { get; set; } = new List<RawImage>();
         public RawImage? selectedImage { get; set; } = null;
+        private RawImage? developImage = null;
+        private double exposure = 0, highlights = 0, shadows = 0, whiteBalance = 0, whiteBalanceTint = 0, contrast = 0, saturation = 0;
 
         private void Library_Import_Click(object sender, RoutedEventArgs e)
         {
@@ -45,6 +46,12 @@ namespace rawinator
                     importedImages.Add(rawImage);
                     Library_Image_Thumbnail.Source = rawImage.Thumbnail;
                     Library_Image_Metadata.Content = rawImage.GetMetadataString();
+                }
+                if (Library_Image_List.SelectedItem == null && Library_Image_List.Items.Count > 0)
+                {
+                    Library_Image_List.SelectedIndex = Library_Image_List.Items.Count - 1;
+                    selectedImage = importedImages[Library_Image_List.Items.Count-1];
+                    developImage = selectedImage;
                 }
             }
         }
@@ -83,9 +90,52 @@ namespace rawinator
                 if (selectedImage == null) return;
                 Library_Image_Thumbnail.Source = selectedImage.Thumbnail;
                 Library_Image_Metadata.Content = selectedImage.GetMetadataString();
+
+                // Set up for Develop tab
+                developImage = selectedImage;
+                ResetSliders();
+                UpdateDevelopImage();
             }
         }
 
+        private void Develop_Slider_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            exposure = Develop_Slider_Exposure?.Value ?? 0;
+            highlights = Develop_Slider_Highlights?.Value ?? 0;
+            shadows = Develop_Slider_Shadows?.Value ?? 0;
+            whiteBalance = Develop_Slider_WhiteBalance?.Value ?? 0;
+            whiteBalanceTint = Develop_Slider_WhiteBalanceTint?.Value ?? 0;
+            contrast = Develop_Slider_Contrast?.Value ?? 0;
+            saturation = Develop_Slider_Saturation?.Value ?? 0;
+            UpdateDevelopImage();
+        }
+
+        private void UpdateDevelopImage()
+        {
+            if (developImage == null) return;
+            var adjusted = RawImageHelpers.ApplyAdjustments(
+                developImage.FullImage,
+                exposure,
+                highlights,
+                shadows,
+                whiteBalance,
+                whiteBalanceTint,
+                contrast,
+                saturation
+            );
+            Develop_Image.Source = RawImageHelpers.MagickImageToBitmapImage(adjusted);
+        }
+
+        private void ResetSliders()
+        {
+            Develop_Slider_Exposure.Value = 0;
+            Develop_Slider_Highlights.Value = 0;
+            Develop_Slider_Shadows.Value = 0;
+            Develop_Slider_WhiteBalance.Value = 0;
+            Develop_Slider_WhiteBalanceTint.Value = 0;
+            Develop_Slider_Contrast.Value = 0;
+            Develop_Slider_Saturation.Value = 0;
+        }
 
         private void Menu_File_Open_Click(object sender, RoutedEventArgs e)
         {

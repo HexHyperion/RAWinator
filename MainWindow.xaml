@@ -25,7 +25,7 @@
             <StackPanel></StackPanel>
         </DockPanel>
         <TabControl Margin="0,20,0,0">
-            <TabItem Header="Library">
+            <TabItem Header="Library" x:Name="Tabs_Library">
                 <Grid Background="#FFE5E5E5">
                     <ListView Name="Library_Image_List" Margin="10,10,0,45" KeyDown="Library_Image_List_KeyDown" SelectionChanged="Library_Image_List_SelectionChanged" HorizontalAlignment="Left" Width="914">
 
@@ -35,14 +35,34 @@
                     <Button Content="Import..." Click="Library_Import_Click" Height="30" Margin="0,0,10,10" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="100"/>
                 </Grid>
             </TabItem>
-            <TabItem Header="View">
+            <TabItem Header="View" x:Name="Tabs_View">
                 <Grid Background="#FFE5E5E5"/>
             </TabItem>
-            <TabItem Header="Develop">
-                <Grid Background="#FFE5E5E5"/>
+            <TabItem Header="Develop" x:Name="Tabs_Develop">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*" />
+                        <ColumnDefinition Width="2*" />
+                    </Grid.ColumnDefinitions>
+                    <Image x:Name="Develop_Image" Grid.Column="0" Stretch="Uniform" />
+                    <StackPanel Grid.Column="1" Margin="10">
+                        <TextBlock Text="Exposure" />
+                        <Slider x:Name="Develop_Slider_Exposure" Minimum="-5" Maximum="5" Value="0" TickFrequency="0.1" ValueChanged="Develop_Slider_Changed"/>
+                        <TextBlock Text="White Balance (Temp)" />
+                        <Slider x:Name="Develop_Slider_WhiteBalance" Minimum="-90" Maximum="90" Value="0" TickFrequency="1" ValueChanged="Develop_Slider_Changed"/>
+                        <TextBlock Text="White Balance (Tint)" />
+                        <Slider x:Name="Develop_Slider_WhiteBalanceTint" Minimum="-90" Maximum="90" Value="0" TickFrequency="1" ValueChanged="Develop_Slider_Changed"/>
+                        <TextBlock Text="Contrast" />
+                        <Slider x:Name="Develop_Slider_Contrast" Minimum="-5" Maximum="5" Value="0" TickFrequency="1" ValueChanged="Develop_Slider_Changed"/>
+                        <TextBlock Text="Highlights" />
+                        <Slider x:Name="Develop_Slider_Highlights" Minimum="-100" Maximum="100" Value="0" TickFrequency="1" ValueChanged="Develop_Slider_Changed"/>
+                        <TextBlock Text="Shadows" />
+                        <Slider x:Name="Develop_Slider_Shadows" Minimum="-100" Maximum="100" Value="0" TickFrequency="1" ValueChanged="Develop_Slider_Changed"/>
+                        <TextBlock Text="Saturation" />
+                        <Slider x:Name="Develop_Slider_Saturation" Minimum="-100" Maximum="100" Value="0" TickFrequency="1" ValueChanged="Develop_Slider_Changed"/>
+                    </StackPanel>
+                </Grid>
             </TabItem>
         </TabControl>
-
-
     </Grid>
 </Window>

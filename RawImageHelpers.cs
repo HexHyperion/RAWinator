@@ -1,72 +1,82 @@
 ﻿using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
-using Sdcb.LibRaw;
-using System.Drawing;
+using ImageMagick;
 using System.IO;
-using System.Windows;
 using System.Windows.Media.Imaging;
 
 namespace rawinator
 {
     static class RawImageHelpers
     {
-
-        public static Bitmap RawToBitmap(RawImage raw)
+        public static BitmapImage MagickImageToBitmapImage(MagickImage image)
         {
-            ProcessedImage rgbImage = raw.GetProcessedImage();
-            rgbImage.SwapRGB();
-            using Bitmap bmp = new Bitmap(rgbImage.Width, rgbImage.Height, rgbImage.Width * 3, System.Drawing.Imaging.PixelFormat.Format24bppRgb, rgbImage.DataPointer);
-
-            var metadata = raw.GetMetadata();
-            var exifData = metadata.OfType<ExifSubIfdDirectory>().FirstOrDefault();
-            var exifOrientation = exifData?.GetDescription(ExifDirectoryBase.TagOrientation) ?? "1";
-            bmp.RotateFlip(GetRotateFlipType(int.Parse(exifOrientation)));
-
-            Bitmap resizedBmp = new Bitmap(bmp);
-            return resizedBmp;
+            using var ms = new MemoryStream();
+            var bitmapImage = new BitmapImage();
+            image.Write(ms, MagickFormat.Bmp);
+            bitmapImage.BeginInit();
+            bitmapImage.StreamSource = ms;
+            bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+            bitmapImage.EndInit();
+            return bitmapImage;
         }
 
-        public static RotateFlipType GetRotateFlipType(int exifOrientation)
+        public static MagickImage ApplyAdjustments(
+            MagickImage baseImage,
+            double exposure,
+            double highlights,
+            double shadows,
+            double temperature,
+            double temperatureTint,
+            double contrast,
+            double saturation)
         {
-            return exifOrientation switch
-            {
-                2 => RotateFlipType.RotateNoneFlipX,
-                3 => RotateFlipType.Rotate180FlipNone,
-                4 => RotateFlipType.Rotate180FlipX,
-                5 => RotateFlipType.Rotate90FlipX,
-                6 => RotateFlipType.Rotate90FlipNone,
-                7 => RotateFlipType.Rotate270FlipX,
-                8 => RotateFlipType.Rotate270FlipNone,
-                _ => RotateFlipType.RotateNoneFlipNone,
-            };
-        }
+            var img = baseImage.Clone();
 
-        public static BitmapImage BitmapToImageSource(Bitmap bitmap)
-        {
-            using (MemoryStream memory = new MemoryStream())
-            {
-                bitmap.Save(memory, System.Drawing.Imaging.ImageFormat.Bmp);
-                memory.Position = 0;
-                BitmapImage bitmapimage = new BitmapImage();
-                bitmapimage.BeginInit();
-                bitmapimage.StreamSource = memory;
-                bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapimage.EndInit();
+            // Exposure
+            img.Evaluate(Channels.RGB, EvaluateOperator.Add, exposure);
 
-                return bitmapimage;
+            // Contrast (broken rn)
+            if (contrast > 0)
+            {
+                for (int i = 0; i < (int)contrast; i++)
+                {
+                    img.Contrast();
+                }
             }
-        }
-
-        public static Bitmap ByteToImage(byte[] blob)
-        {
-            using (MemoryStream mStream = new MemoryStream())
+            else if (contrast < 0)
             {
-                mStream.Write(blob, 0, blob.Length);
-                mStream.Seek(0, SeekOrigin.Begin);
-
-                Bitmap bm = new Bitmap(mStream);
-                return bm;
+                for (int i = 0; i < (int)(-contrast); i++)
+                {
+                    img.InverseContrast();
+                }
             }
+
+            // Saturation
+            img.Modulate((Percentage)100, (Percentage)(100 + saturation), (Percentage)100);
+
+            // White balance (temperature)
+            if (temperature != 0)
+            {
+                img.Evaluate(Channels.Red, EvaluateOperator.Add, temperature);
+                img.Evaluate(Channels.Blue, EvaluateOperator.Subtract, temperature);
+            }
+            if (temperatureTint != 0)
+            {
+                img.Evaluate(Channels.Blue, EvaluateOperator.Add, temperatureTint);
+                img.Evaluate(Channels.Green, EvaluateOperator.Subtract, temperatureTint);
+            }
+
+            // Highlights/Shadows (broken rn, todo figure out)
+            if (highlights != 0)
+            {
+                img.Level(0, (byte)(Quantum.Max - (int)highlights));
+            }
+            if (shadows != 0)
+            {
+                img.Level((byte)(int)shadows, Quantum.Max);
+            }
+
+            return (MagickImage)img;
         }
     }
 }
