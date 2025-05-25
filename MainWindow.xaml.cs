@@ -15,6 +15,7 @@ using Microsoft.Win32;
 using System.Collections;
 using ImageMagick;
 using System.Windows.Controls.Primitives;
+using System.Collections.ObjectModel;
 
 namespace rawinator
 {
@@ -28,7 +29,7 @@ namespace rawinator
             InitializeComponent();
         }
 
-        public List<RawImage> importedImages { get; set; } = new List<RawImage>();
+        public ObservableCollection<RawImage> importedImages { get; set; } = new();
         public RawImage? selectedImage { get; set; } = null;
         private RawImage? developImage = null;
         private RawImageProcessParams developImageParams = new(0, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -42,52 +43,44 @@ namespace rawinator
             {
                 foreach (string file in openFileDialog.FileNames)
                 {
-                    Library_Image_List.Items.Add(file);
-                    RawImage rawImage = new RawImage(file);
+                    var rawImage = new RawImage(file);
                     importedImages.Add(rawImage);
-                    Library_Image_Thumbnail.Source = rawImage.Thumbnail;
-                    Library_Image_Metadata.Content = rawImage.GetMetadataString();
                 }
             }
         }
 
-        private void Library_Image_List_KeyDown(object sender, KeyEventArgs e)
+        private void Library_Image_Grid_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Delete && Library_Image_List.SelectedItems != null)
+            if (e.Key == Key.Delete && Library_Image_Grid.SelectedItems != null)
             {
-                int selectedNumber = Library_Image_List.SelectedItems.Count;
+                int selectedNumber = Library_Image_Grid.SelectedItems.Count;
                 if (selectedNumber > 1)
                 {
                     MessageBoxResult result = MessageBox.Show($"Are you sure you want to delete {selectedNumber} images from library? (files on disk won't be modified)", "Delete images", MessageBoxButton.YesNo, MessageBoxImage.Question);
                     if (result == MessageBoxResult.Yes)
                     {
-                        IList itemsToDelete = Library_Image_List.SelectedItems.Cast<string>().ToList();
-                        foreach (string file in itemsToDelete)
-                        {
-                            Library_Image_List.Items.Remove(file);
-                        }
+                        var itemsToDelete = Library_Image_Grid.SelectedItems.Cast<RawImage>().ToList();
+                        foreach (var img in itemsToDelete)
+                            importedImages.Remove(img);
                     }
                 }
-                else
+                else if (Library_Image_Grid.SelectedItem is RawImage img)
                 {
-                    Library_Image_List.Items.Remove(Library_Image_List.SelectedItem);
+                    importedImages.Remove(img);
                 }
             }
         }
 
-        private void Library_Image_List_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void Library_Image_Grid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (Library_Image_List.SelectedItem != null)
+            if (Library_Image_Grid.SelectedItem is RawImage selectedImage)
             {
-                string? selectedFile = Library_Image_List.SelectedItem.ToString();
-                if (selectedFile == null) return;
-                RawImage? selectedImage = importedImages.Find(x => x.Path == selectedFile);
-                if (selectedImage == null) return;
                 Library_Image_Thumbnail.Source = selectedImage.Thumbnail;
                 Library_Image_Metadata.Content = selectedImage.GetMetadataString();
 
                 // Set up for Develop tab
                 developImage = selectedImage;
+                Develop_Image.Source = RawImageHelpers.MagickImageToBitmapImage(developImage.FullImage);    // For now
                 ResetSliders();
                 //UpdateDevelopImage();
             }
