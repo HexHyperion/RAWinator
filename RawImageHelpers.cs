@@ -24,38 +24,30 @@ namespace rawinator
         {
             var editedImage = baseImage.Clone();
 
-            // Exposure - really just brightness adjustment for now, TODO implement proper exposure adjustment
-            editedImage.Evaluate(Channels.RGB, EvaluateOperator.Add, developSettings.Exposure);
+            // Exposure
+            double exposureFactor = Math.Pow(2, developSettings.Exposure);
+            editedImage.Evaluate(Channels.RGB, EvaluateOperator.Multiply, exposureFactor);
+
+            // Brightness, saturation and hue
+            editedImage.Modulate(
+                new Percentage(100 + developSettings.Brightness),
+                new Percentage(100 + developSettings.Saturation),
+                new Percentage(100 + developSettings.Hue / 1.8)
+            );
 
             // Contrast
-            if (developSettings.Contrast > 0)
-            {
-                for (int i = 0; i < (int)developSettings.Contrast; i++)
-                {
-                    editedImage.Contrast();
-                }
-            }
-            else if (developSettings.Contrast < 0)
-            {
-                for (int i = 0; i < (int)(-developSettings.Contrast); i++)
-                {
-                    editedImage.InverseContrast();
-                }
-            }
+            editedImage.BrightnessContrast(new Percentage(0), new Percentage(developSettings.Contrast));
 
-            // Saturation
-            editedImage.Modulate((Percentage)100, (Percentage)(100 + developSettings.Saturation), (Percentage)100);
-
-            // White balance (temperature)
-            if (developSettings.Temperature != 0)
+            // White balance
+            if (developSettings.WbTemperature != 0)
             {
-                editedImage.Evaluate(Channels.Red, EvaluateOperator.Add, developSettings.Temperature);
-                editedImage.Evaluate(Channels.Blue, EvaluateOperator.Subtract, developSettings.Temperature);
+                editedImage.Evaluate(Channels.Red, EvaluateOperator.Add, developSettings.WbTemperature);
+                editedImage.Evaluate(Channels.Blue, EvaluateOperator.Subtract, developSettings.WbTemperature);
             }
-            if (developSettings.TemperatureTint != 0)
+            if (developSettings.WbTint != 0)
             {
-                editedImage.Evaluate(Channels.Blue, EvaluateOperator.Add, developSettings.TemperatureTint);
-                editedImage.Evaluate(Channels.Green, EvaluateOperator.Subtract, developSettings.TemperatureTint);
+                editedImage.Evaluate(Channels.Blue, EvaluateOperator.Add, developSettings.WbTint);
+                editedImage.Evaluate(Channels.Green, EvaluateOperator.Subtract, developSettings.WbTint);
             }
 
             // Shadows - right now they literally work like highlights in LR, like wtf

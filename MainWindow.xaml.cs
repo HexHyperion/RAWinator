@@ -31,7 +31,7 @@ namespace rawinator
         public List<RawImage> importedImages { get; set; } = new List<RawImage>();
         public RawImage? selectedImage { get; set; } = null;
         private RawImage? developImage = null;
-        private RawImageProcessParams developImageParams = new(0, 0, 0, 0, 0, 0, 0);
+        private RawImageProcessParams developImageParams = new(0, 0, 0, 0, 0, 0, 0, 0, 0);
 
         private void Library_Import_Click(object sender, RoutedEventArgs e)
         {
@@ -108,6 +108,9 @@ namespace rawinator
                     case nameof(Develop_Slider_Exposure):
                         developImageParams.Exposure = slider.Value;
                         break;
+                    case nameof(Develop_Slider_Brightness):
+                        developImageParams.Brightness = slider.Value;
+                        break;
                     case nameof(Develop_Slider_Highlights):
                         developImageParams.Highlights = slider.Value;
                         break;
@@ -115,16 +118,19 @@ namespace rawinator
                         developImageParams.Shadows = slider.Value;
                         break;
                     case nameof(Develop_Slider_WhiteBalance):
-                        developImageParams.Temperature = slider.Value;
+                        developImageParams.WbTemperature = slider.Value;
                         break;
                     case nameof(Develop_Slider_WhiteBalanceTint):
-                        developImageParams.TemperatureTint = slider.Value;
+                        developImageParams.WbTint = slider.Value;
                         break;
                     case nameof(Develop_Slider_Contrast):
                         developImageParams.Contrast = slider.Value;
                         break;
                     case nameof(Develop_Slider_Saturation):
                         developImageParams.Saturation = slider.Value;
+                        break;
+                    case nameof(Develop_Slider_Hue):
+                        developImageParams.Hue = slider.Value;
                         break;
                 }
                 UpdateDevelopImage();
@@ -144,12 +150,14 @@ namespace rawinator
         private void ResetSliders()
         {
             Develop_Slider_Exposure.Value = 0;
+            Develop_Slider_Brightness.Value = 0;
             Develop_Slider_Highlights.Value = 0;
             Develop_Slider_Shadows.Value = 0;
             Develop_Slider_WhiteBalance.Value = 0;
             Develop_Slider_WhiteBalanceTint.Value = 0;
             Develop_Slider_Contrast.Value = 0;
             Develop_Slider_Saturation.Value = 0;
+            Develop_Slider_Hue.Value = 0;
         }
 
         private void Menu_File_Open_Click(object sender, RoutedEventArgs e)

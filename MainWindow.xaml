@@ -6,6 +6,9 @@
         xmlns:local="clr-namespace:rawinator"
         mc:Ignorable="d"
         Title="MainWindow" Height="750" Width="1300">
+    <Window.Resources>
+        <local:PlusSignValueConverter x:Key="PlusSignValueConverter"/>
+    </Window.Resources>
     <Grid>
         <DockPanel>
             <Menu DockPanel.Dock="Top">
@@ -46,20 +49,68 @@
                     </Grid.ColumnDefinitions>
                     <Image x:Name="Develop_Image" Grid.Column="0" Stretch="Uniform" />
                     <StackPanel Grid.Column="1" Margin="10">
-                        <TextBlock Text="Exposure" />
-                        <Slider x:Name="Develop_Slider_Exposure" Minimum="-100" Maximum="100" Value="0" TickFrequency="1" Thumb.DragCompleted="Develop_Slider_Changed"/>
-                        <TextBlock Text="White Balance (Temp)" />
-                        <Slider x:Name="Develop_Slider_WhiteBalance" Minimum="-90" Maximum="90" Value="0" TickFrequency="1" Thumb.DragCompleted="Develop_Slider_Changed"/>
-                        <TextBlock Text="White Balance (Tint)" />
-                        <Slider x:Name="Develop_Slider_WhiteBalanceTint" Minimum="-90" Maximum="90" Value="0" TickFrequency="1" Thumb.DragCompleted="Develop_Slider_Changed"/>
-                        <TextBlock Text="Contrast" />
-                        <Slider x:Name="Develop_Slider_Contrast" Minimum="-5" Maximum="5" Value="0" TickFrequency="1" Thumb.DragCompleted="Develop_Slider_Changed"/>
-                        <TextBlock Text="Highlights" />
-                        <Slider x:Name="Develop_Slider_Highlights" Minimum="-100" Maximum="100" Value="0" TickFrequency="1" Thumb.DragCompleted="Develop_Slider_Changed"/>
-                        <TextBlock Text="Shadows" />
-                        <Slider x:Name="Develop_Slider_Shadows" Minimum="-100" Maximum="100" Value="0" TickFrequency="1" Thumb.DragCompleted="Develop_Slider_Changed"/>
-                        <TextBlock Text="Saturation" />
-                        <Slider x:Name="Develop_Slider_Saturation" Minimum="-100" Maximum="100" Value="0" TickFrequency="1" Thumb.DragCompleted="Develop_Slider_Changed"/>
+                        <!-- Exposure -->
+                        <Grid Margin="0,0,0,0">
+                            <TextBlock Text="Exposure" Grid.Column="0" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding ElementName=Develop_Slider_Exposure, Path=Value, Converter={StaticResource PlusSignValueConverter}, ConverterParameter=2}" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        </Grid>
+                        <Slider x:Name="Develop_Slider_Exposure" Minimum="-5" Maximum="5" Value="0" TickFrequency="0.1" Thumb.DragCompleted="Develop_Slider_Changed" TickPlacement="BottomRight" IsSnapToTickEnabled="True" LargeChange="0.3"/>
+                        
+                        <!-- Brightness -->
+                        <Grid Margin="0,0,0,0">
+                            <TextBlock Text="Brightness" Grid.Column="0" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding ElementName=Develop_Slider_Brightness, Path=Value, Converter={StaticResource PlusSignValueConverter}}" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        </Grid>
+                        <Slider x:Name="Develop_Slider_Brightness" Minimum="-100" Maximum="100" Value="0" TickFrequency="1" Thumb.DragCompleted="Develop_Slider_Changed" TickPlacement="BottomRight" IsSnapToTickEnabled="True" LargeChange="5"/>
+                        
+                        <!-- White Balance (Temp) -->
+                        <Grid Margin="0,0,0,0">
+                            <TextBlock Text="White Balance (Temp)" Grid.Column="0" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding ElementName=Develop_Slider_WhiteBalance, Path=Value, Converter={StaticResource PlusSignValueConverter}}" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        </Grid>
+                        <Slider x:Name="Develop_Slider_WhiteBalance" Minimum="-90" Maximum="90" Value="0" TickFrequency="1" Thumb.DragCompleted="Develop_Slider_Changed" TickPlacement="BottomRight" IsSnapToTickEnabled="True" LargeChange="5"/>
+                        
+                        <!-- White Balance (Tint) -->
+                        <Grid Margin="0,0,0,0">
+                            <TextBlock Text="White Balance (Tint)" Grid.Column="0" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding ElementName=Develop_Slider_WhiteBalanceTint, Path=Value, Converter={StaticResource PlusSignValueConverter}}" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        </Grid>
+                        <Slider x:Name="Develop_Slider_WhiteBalanceTint" Minimum="-90" Maximum="90" Value="0" TickFrequency="1" Thumb.DragCompleted="Develop_Slider_Changed" TickPlacement="BottomRight" IsSnapToTickEnabled="True" LargeChange="5"/>
+                        
+                        <!-- Contrast -->
+                        <Grid Margin="0,0,0,0">
+                            <TextBlock Text="Contrast" Grid.Column="0" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding ElementName=Develop_Slider_Contrast, Path=Value, Converter={StaticResource PlusSignValueConverter}}" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        </Grid>
+                        <Slider x:Name="Develop_Slider_Contrast" Minimum="-100" Maximum="100" Value="0" TickFrequency="1" Thumb.DragCompleted="Develop_Slider_Changed" TickPlacement="BottomRight" IsSnapToTickEnabled="True" LargeChange="5"/>
+                        
+                        <!-- Highlights -->
+                        <Grid Margin="0,0,0,0">
+                            <TextBlock Text="Highlights" Grid.Column="0" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding ElementName=Develop_Slider_Highlights, Path=Value, Converter={StaticResource PlusSignValueConverter}}" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        </Grid>
+                        <Slider x:Name="Develop_Slider_Highlights" Minimum="-100" Maximum="100" Value="0" TickFrequency="1" Thumb.DragCompleted="Develop_Slider_Changed" TickPlacement="BottomRight" IsSnapToTickEnabled="True" LargeChange="5"/>
+                        
+                        <!-- Shadows -->
+                        <Grid Margin="0,0,0,0">
+                            <TextBlock Text="Shadows" Grid.Column="0" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding ElementName=Develop_Slider_Shadows, Path=Value, Converter={StaticResource PlusSignValueConverter}}" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        </Grid>
+                        <Slider x:Name="Develop_Slider_Shadows" Minimum="-100" Maximum="100" Value="0" TickFrequency="1" Thumb.DragCompleted="Develop_Slider_Changed" TickPlacement="BottomRight" IsSnapToTickEnabled="True" LargeChange="5"/>
+                        
+                        <!-- Saturation -->
+                        <Grid Margin="0,0,0,0">
+                            <TextBlock Text="Saturation" Grid.Column="0" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding ElementName=Develop_Slider_Saturation, Path=Value, Converter={StaticResource PlusSignValueConverter}}" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        </Grid>
+                        <Slider x:Name="Develop_Slider_Saturation" Minimum="-100" Maximum="100" Value="0" TickFrequency="1" Thumb.DragCompleted="Develop_Slider_Changed" TickPlacement="BottomRight" IsSnapToTickEnabled="True" LargeChange="5"/>
+                        
+                        <!-- Hue -->
+                        <Grid Margin="0,0,0,0">
+                            <TextBlock Text="Hue" Grid.Column="0" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding ElementName=Develop_Slider_Hue, Path=Value, Converter={StaticResource PlusSignValueConverter}}" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        </Grid>
+                        <Slider x:Name="Develop_Slider_Hue" Minimum="-180" Maximum="180" Value="0" TickFrequency="1" Thumb.DragCompleted="Develop_Slider_Changed" TickPlacement="BottomRight" IsSnapToTickEnabled="True" LargeChange="5"/>
                     </StackPanel>
                 </Grid>
             </TabItem>
