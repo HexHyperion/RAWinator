@@ -48,12 +48,6 @@ namespace rawinator
                     Library_Image_Thumbnail.Source = rawImage.Thumbnail;
                     Library_Image_Metadata.Content = rawImage.GetMetadataString();
                 }
-                if (Library_Image_List.SelectedItem == null && Library_Image_List.Items.Count > 0)
-                {
-                    Library_Image_List.SelectedIndex = Library_Image_List.Items.Count - 1;
-                    selectedImage = importedImages[Library_Image_List.Items.Count-1];
-                    developImage = selectedImage;
-                }
             }
         }
 
@@ -95,7 +89,7 @@ namespace rawinator
                 // Set up for Develop tab
                 developImage = selectedImage;
                 ResetSliders();
-                UpdateDevelopImage();
+                //UpdateDevelopImage();
             }
         }
 
