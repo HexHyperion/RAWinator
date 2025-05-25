@@ -22,11 +22,9 @@ namespace rawinator
             MagickImage baseImage,
             RawImageProcessParams developSettings)
         {
+            // Clone the base image for highlight/shadow masking before exposure is applied
+            var maskBaseImage = baseImage.Clone();
             var editedImage = baseImage.Clone();
-
-            // Exposure
-            double exposureFactor = Math.Pow(2, developSettings.Exposure);
-            editedImage.Evaluate(Channels.RGB, EvaluateOperator.Multiply, exposureFactor);
 
             // Brightness, saturation and hue
             editedImage.Modulate(
@@ -54,10 +52,9 @@ namespace rawinator
             // Probably need to adjust the numbers a bit
             if (developSettings.Shadows != 0)
             {
-                using (var shadowMask = editedImage.Clone())
+                using (var shadowMask = maskBaseImage.Clone())
                 {
                     shadowMask.ColorSpace = ColorSpace.Gray;
-
                     shadowMask.Level(0, (byte)(Quantum.Max * 0.5));
                     shadowMask.SigmoidalContrast(6, 0.25, Channels.Gray);
 
@@ -75,10 +72,9 @@ namespace rawinator
             // Highlights - seems like they work only on *really* bright areas rn
             if (developSettings.Highlights != 0)
             {
-                using (var highlightMask = editedImage.Clone())
+                using (var highlightMask = maskBaseImage.Clone())
                 {
                     highlightMask.ColorSpace = ColorSpace.Gray;
-
                     highlightMask.Level((byte)(Quantum.Max * 0.5), Quantum.Max);
                     highlightMask.SigmoidalContrast(6, 0.75, Channels.Gray);
 
@@ -92,6 +88,10 @@ namespace rawinator
                     }
                 }
             }
+
+            // Exposure (apply last, so highlight/shadow masks are not affected by it)
+            double exposureFactor = Math.Pow(2, developSettings.Exposure);
+            editedImage.Evaluate(Channels.RGB, EvaluateOperator.Multiply, exposureFactor);
 
             return (MagickImage)editedImage;
         }

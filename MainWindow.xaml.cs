@@ -46,6 +46,7 @@ namespace rawinator
                     var rawImage = new RawImage(file);
                     importedImages.Add(rawImage);
                 }
+                Library_Image_Grid.SelectedIndex = 0;
             }
         }
 

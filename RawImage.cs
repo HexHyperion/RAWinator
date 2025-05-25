@@ -30,7 +30,9 @@ namespace rawinator
             var defines = new DngReadDefines
             { 
                 ReadThumbnail = true,
-                UseCameraWhitebalance = true
+                UseCameraWhitebalance = true,
+                DisableAutoBrightness = true,
+                InterpolationQuality = DngInterpolation.Ahd
             };
             FullImage = new MagickImage();
             FullImage.Settings.SetDefines(defines);
