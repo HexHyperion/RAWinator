@@ -62,7 +62,9 @@ namespace rawinator
                     {
                         var itemsToDelete = Library_Image_Grid.SelectedItems.Cast<RawImage>().ToList();
                         foreach (var img in itemsToDelete)
+                        {
                             importedImages.Remove(img);
+                        }
                     }
                 }
                 else if (Library_Image_Grid.SelectedItem is RawImage img)
@@ -76,12 +78,12 @@ namespace rawinator
         {
             if (Library_Image_Grid.SelectedItem is RawImage selectedImage)
             {
-                Library_Image_Thumbnail.Source = selectedImage.Thumbnail;
+                Library_Image_Thumbnail.Source = selectedImage.SmallThumbnail;
                 Library_Image_Metadata.Content = selectedImage.GetMetadataString();
 
                 // Set up for Develop tab
                 developImage = selectedImage;
-                Develop_Image.Source = RawImageHelpers.MagickImageToBitmapImage(developImage.FullImage);    // For now
+                //Develop_Image.Source = RawImageHelpers.MagickImageToBitmapImage(new MagickImage(developImage.Path));
                 ResetSliders();
                 //UpdateDevelopImage();
             }
@@ -129,7 +131,7 @@ namespace rawinator
         {
             if (developImage == null) return;
             var adjusted = RawImageHelpers.ApplyAdjustments(
-                developImage.FullImage,
+                new MagickImage(developImage.Path),
                 developImageParams
             );
             Develop_Image.Source = RawImageHelpers.MagickImageToBitmapImage(adjusted);

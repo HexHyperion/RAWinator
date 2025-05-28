@@ -1,5 +1,8 @@
 ﻿using ImageMagick;
+using System.Diagnostics;
+using System.DirectoryServices;
 using System.IO;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace rawinator
@@ -8,13 +11,17 @@ namespace rawinator
     {
         public static BitmapImage MagickImageToBitmapImage(MagickImage image)
         {
-            using var ms = new MemoryStream();
-            var bitmapImage = new BitmapImage();
+            using MemoryStream ms = new();
             image.Write(ms, MagickFormat.Bmp);
+            ms.Position = 0;
+
+            var bitmapImage = new BitmapImage();
             bitmapImage.BeginInit();
-            bitmapImage.StreamSource = ms;
             bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+            bitmapImage.StreamSource = ms;
             bitmapImage.EndInit();
+            bitmapImage.StreamSource = null;
+            bitmapImage.Freeze();
             return bitmapImage;
         }
 
@@ -23,7 +30,7 @@ namespace rawinator
             RawImageProcessParams developSettings)
         {
             // Clone the base image for highlight/shadow masking before exposure is applied
-            var maskBaseImage = baseImage.Clone();
+            using var maskBaseImage = baseImage.Clone();
             var editedImage = baseImage.Clone();
 
             // Brightness, saturation and hue

@@ -70,7 +70,7 @@
                             <DataTemplate DataType="{x:Type local:RawImage}">
                                 <StackPanel Margin="8"
                                             Width="120">
-                                    <Image Source="{Binding Thumbnail}"
+                                    <Image Source="{Binding SmallThumbnail}"
                                            Width="100"
                                            Height="100"
                                            Stretch="Uniform"/>

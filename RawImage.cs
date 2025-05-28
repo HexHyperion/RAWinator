@@ -1,15 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using MetadataExtractor;
-using MetadataExtractor.Formats.Exif;
-using ImageMagick;
+﻿using ImageMagick;
 using ImageMagick.Formats;
-using MetadataExtractor.Formats.Exif.Makernotes;
-using System.Text;
-using System.Windows;
+using MetadataExtractor;
+using System.Windows.Media;
 
 namespace rawinator
 {
@@ -17,8 +9,7 @@ namespace rawinator
     {
         public string Filename { get; set; }
         public string Path { get; set; }
-        public MagickImage FullImage { get; set; }
-        public ImageSource Thumbnail { get; set; }
+        public ImageSource SmallThumbnail { get; set; }
         public IEnumerable<Directory> Metadata { get; set; }
 
         public RawImage() { }
@@ -26,26 +17,34 @@ namespace rawinator
         {
             Path = path;
             Filename = System.IO.Path.GetFileName(path);
-
-            var defines = new DngReadDefines
-            { 
-                ReadThumbnail = true,
-                UseCameraWhitebalance = true,
-                DisableAutoBrightness = true,
-                InterpolationQuality = DngInterpolation.Ahd
-            };
-            FullImage = new MagickImage();
-            FullImage.Settings.SetDefines(defines);
-            FullImage.Read(path);
-            FullImage.AutoOrient();
             Metadata = ImageMetadataReader.ReadMetadata(Path);
 
-            var thumbnailData = FullImage.GetProfile("dng:thumbnail")?.ToByteArray();
-            if (thumbnailData != null && thumbnailData.Length > 0)
+            var defines = new DngReadDefines { ReadThumbnail = true };
+            using (var image = new MagickImage())
             {
-                using var thumbnailImage = new MagickImage(thumbnailData);
-                thumbnailImage.AutoOrient();
-                Thumbnail = RawImageHelpers.MagickImageToBitmapImage(thumbnailImage);
+                image.Settings.SetDefines(defines);
+                image.Ping(Path);
+
+                var thumbnailData = image.GetProfile("dng:thumbnail")?.ToByteArray();
+                if (thumbnailData != null && thumbnailData.Length > 0)
+                {
+                    using var thumbnailImage = new MagickImage(thumbnailData);
+                    thumbnailImage.AutoOrient();
+
+                    // Resize so the longest edge is at most 500px
+                    int width = thumbnailImage.Width;
+                    int height = thumbnailImage.Height;
+                    int maxEdge = Math.Max(width, height);
+                    if (maxEdge > 500)
+                    {
+                        double scale = 500.0 / maxEdge;
+                        int newWidth = (int)Math.Round(width * scale);
+                        int newHeight = (int)Math.Round(height * scale);
+                        thumbnailImage.Resize(newWidth, newHeight);
+                    }
+
+                    SmallThumbnail = RawImageHelpers.MagickImageToBitmapImage(thumbnailImage);
+                }
             }
 
             //// Messagebox each metadata directory
