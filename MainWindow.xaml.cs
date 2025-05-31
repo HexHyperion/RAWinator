@@ -1,5 +1,6 @@
 ﻿using ImageMagick;
 using Microsoft.Win32;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -95,13 +96,25 @@ namespace rawinator
             if (Library_Image_Grid.SelectedItem is RawImage selectedImage)
             {
                 Library_Image_Thumbnail.Source = selectedImage.SmallThumbnail;
-                Library_Image_Metadata.Content = selectedImage.GetMetadataString();
 
-                // Set up for Develop tab
+                var imageDimensions = selectedImage.GetMetadata(MetadataTagLists.ImageDimensions);
+
+                var metadataString = new StringBuilder();
+                metadataString.AppendLine($"Filename: {selectedImage.Filename}");
+                metadataString.AppendLine($"Image Size: {imageDimensions[0].Item2} x {imageDimensions[1].Item2} pixels\n");
+
+                foreach (var tag in selectedImage.GetMetadata(MetadataTagLists.General))
+                {
+                    if (string.IsNullOrEmpty(tag.Item1))
+                    {
+                        metadataString.AppendLine("");
+                        continue;
+                    }
+                    metadataString.AppendLine($"{tag.Item1}: {tag.Item2}");
+                }
+                Library_Image_Metadata_Text.Text = metadataString.ToString();
+
                 developImage = selectedImage;
-                //Develop_Image.Source = RawImageHelpers.MagickImageToBitmapImage(new MagickImage(developImage.Path));
-                ResetSliders();
-                //UpdateDevelopImage();
             }
         }
 

@@ -1,6 +1,7 @@
 ﻿using ImageMagick;
 using ImageMagick.Formats;
 using MetadataExtractor;
+using MetadataExtractor.Formats.Exif;
 using System.Windows.Media;
 
 namespace rawinator
@@ -9,10 +10,9 @@ namespace rawinator
     {
         public string Filename { get; set; }
         public string Path { get; set; }
-        public ImageSource SmallThumbnail { get; set; }
+        public ImageSource? SmallThumbnail { get; set; }
         public IEnumerable<Directory> Metadata { get; set; }
 
-        public RawImage() { }
         public RawImage(string path)
         {
             Path = path;
@@ -47,7 +47,7 @@ namespace rawinator
                 }
             }
 
-            //// Messagebox each metadata directory
+            // Messagebox each metadata directory
             //foreach (var directory in Metadata)
             //{
             //    StringBuilder stringBuilder = new StringBuilder();
@@ -59,9 +59,49 @@ namespace rawinator
             //}
         }
 
-        public string GetMetadataString()
+        public List<(string, string)> GetMetadata(int?[] tags)
         {
-            return "no metadata for you o.o";
+            var result = new List<(string, string)>();
+            foreach (var tag in tags)
+            {
+                if (tag != null)
+                {
+                    var tagName = Metadata.Select(d => d.GetTagName((int)tag)).FirstOrDefault() ?? "Unknown";
+                    if (tag == ExifDirectoryBase.TagImageHeight || tag == ExifDirectoryBase.TagImageWidth)
+                    {
+                        // Special handling for image dimensions to return the maximum value,
+                        // as some cameras have multiple values for different thumbnails.
+                        var tagDescription = Metadata
+                            .Select(d => d.GetDescription((int)tag))
+                            .Where(desc => !string.IsNullOrEmpty(desc))
+                            .Select(desc => {
+                                var firstPart = desc!.Split(' ')[0];
+                                if (int.TryParse(firstPart, out int value))
+                                    return value;
+                                return (int?)null;
+                            })
+                            .Where(val => val.HasValue)
+                            .Max();
+
+                        result.Add((tagName, tagDescription?.ToString() ?? "Unknown"));
+                    }
+                    else
+                    {
+                        var tagDescription = Metadata
+                            .Select(d => d.GetDescription((int)tag))
+                            .FirstOrDefault(desc =>
+                                !string.IsNullOrEmpty(desc)
+                            );
+
+                        result.Add((tagName, tagDescription ?? "Unknown"));
+                    }
+                }
+                else
+                {
+                    result.Add(("", ""));
+                }
+            }
+            return result;
         }
     }
 }
