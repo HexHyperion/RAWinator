@@ -36,7 +36,9 @@
             </Menu>
             <StackPanel></StackPanel>
         </DockPanel>
-        <TabControl Margin="0,20,0,0">
+        <TabControl x:Name="App_TabControl"
+					Margin="0,20,0,0"
+                    SelectionChanged="App_TabControl_SelectionChanged">
             <TabItem Header="Library"
                      x:Name="Tabs_Library">
                 <Grid Background="#FFE5E5E5">

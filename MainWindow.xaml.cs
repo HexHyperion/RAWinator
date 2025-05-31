@@ -19,6 +19,7 @@ namespace rawinator
         private RawImage? developImage = null;
         private RawImageProcessParams developImageParams = new(0, 0, 0, 0, 0, 0, 0, 0, 0);
         private Thread imageImportThread;
+        private Thread imageProcessThread;
 
         private void ImportImages(string[] filenames)
         {
@@ -118,6 +119,26 @@ namespace rawinator
             }
         }
 
+        private void App_TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (App_TabControl.SelectedItem is TabItem selectedTab)
+            {
+                if (selectedTab.Name == "Tabs_Develop")
+                {
+                    if (developImage != null)
+                    {
+                        ResetSliders();
+                        UpdateDevelopImage();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Please select an image from the library to develop.", "No Image Selected", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        App_TabControl.SelectedItem = Tabs_Library;
+                    }
+                }
+            }
+        }
+
         private void Develop_Slider_Changed(object sender, DragCompletedEventArgs e)
         {
             if (sender is Slider slider)
@@ -159,11 +180,19 @@ namespace rawinator
         private void UpdateDevelopImage()
         {
             if (developImage == null) return;
-            var adjusted = RawImageHelpers.ApplyAdjustments(
-                new MagickImage(developImage.Path),
-                developImageParams
-            );
-            Develop_Image.Source = RawImageHelpers.MagickImageToBitmapImage(adjusted);
+            imageProcessThread = new Thread(() =>
+            {
+                var adjusted = RawImageHelpers.ApplyAdjustments(
+                    new MagickImage(developImage.Path),
+                    developImageParams
+                );
+
+                Dispatcher.Invoke(() =>
+                {
+                    Develop_Image.Source = RawImageHelpers.MagickImageToBitmapImage(adjusted);
+                });
+            });
+            imageProcessThread.Start();
         }
 
         private void ResetSliders()

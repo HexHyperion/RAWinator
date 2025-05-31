@@ -1,6 +1,7 @@
 ﻿using ImageMagick;
 using System.IO;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 namespace rawinator
 {
@@ -96,6 +97,9 @@ namespace rawinator
             // Exposure (apply last, so highlight/shadow masks are not affected by it)
             double exposureFactor = Math.Pow(2, developSettings.Exposure);
             editedImage.Evaluate(Channels.RGB, EvaluateOperator.Multiply, exposureFactor);
+
+            editedImage.AutoOrient();
+            editedImage.Strip();
 
             return (MagickImage)editedImage;
         }
