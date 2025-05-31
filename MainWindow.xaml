@@ -45,7 +45,8 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="5" />
-                        <ColumnDefinition Width="300" MinWidth="150" />
+                        <ColumnDefinition Width="300"
+                                          MinWidth="150" />
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
@@ -103,7 +104,8 @@
                           Margin="10"
                           VerticalAlignment="Top">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="200" MinHeight="50"/>
+                            <RowDefinition Height="200"
+                                           MinHeight="50"/>
                             <RowDefinition Height="5"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
@@ -123,7 +125,8 @@
                                       VerticalScrollBarVisibility="Auto"
                                       Margin="0,10,0,0"
                                       Grid.Row="2">
-                            <TextBlock x:Name="Library_Image_Metadata_Text" TextWrapping="Wrap"/>
+                            <TextBlock x:Name="Library_Image_Metadata_Text"
+                                       TextWrapping="Wrap"/>
                         </ScrollViewer>
                     </Grid>
 
@@ -144,8 +147,10 @@
                                Visibility="Collapsed">
 	                    <TextBlock.Text>
 		                    <MultiBinding Converter="{StaticResource ProgressConverter}">
-			                    <Binding ElementName="Library_Import_ProgressBar" Path="Value"/>
-			                    <Binding ElementName="Library_Import_ProgressBar" Path="Maximum"/>
+			                    <Binding ElementName="Library_Import_ProgressBar"
+			                             Path="Value"/>
+			                    <Binding ElementName="Library_Import_ProgressBar"
+			                             Path="Maximum"/>
 		                    </MultiBinding>
 	                    </TextBlock.Text>
                     </TextBlock>
@@ -171,13 +176,59 @@
                      x:Name="Tabs_Develop">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="3*" />
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="5" />
+                        <ColumnDefinition Width="4*" />
+                        <ColumnDefinition Width="5" />
                         <ColumnDefinition Width="2*" />
                     </Grid.ColumnDefinitions>
-                    <Image x:Name="Develop_Image"
-                           Grid.Column="0"
-                           Stretch="Uniform" />
-                    <StackPanel Grid.Column="1"
+
+                    <!-- Placeholder, probably a preset selector or history in the future -->
+                    <ListBox Grid.Column="0" Margin="8">
+                        <ListBoxItem>Item 1</ListBoxItem>
+                        <ListBoxItem>Item 2</ListBoxItem>
+                        <ListBoxItem>Item 3</ListBoxItem>
+                        <ListBoxItem>Item 4</ListBoxItem>
+                    </ListBox>
+
+                    <GridSplitter Grid.Column="1"
+                                  Width="5"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Stretch"
+                                  Background="Transparent"
+                                  ResizeBehavior="PreviousAndNext"
+                                  ResizeDirection="Columns"/>
+
+                    <Grid x:Name="Develop_Image_Container" Grid.Column="2">
+                        <Image x:Name="Develop_Image"
+                               Stretch="Uniform" />
+                        <Grid x:Name="Develop_Loader_Overlay"
+                              Background="#80000000"
+                              Visibility="Collapsed"
+                              IsHitTestVisible="False">
+                            <StackPanel HorizontalAlignment="Center"
+                                        VerticalAlignment="Center">
+                                <ProgressBar IsIndeterminate="True"
+                                             Width="100"
+                                             Height="20"/>
+                                <TextBlock Text="Processing..."
+                                           Foreground="White"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,10,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+
+                    <GridSplitter Grid.Column="3"
+                                  Width="5"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Stretch"
+                                  Background="Transparent"
+                                  ResizeBehavior="PreviousAndNext"
+                                  ResizeDirection="Columns"/>
+
+
+                    <StackPanel Grid.Column="4"
                                 Margin="10">
                         <!-- Exposure -->
                         <Grid Margin="0,0,0,0">

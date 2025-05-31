@@ -180,6 +180,9 @@ namespace rawinator
         private void UpdateDevelopImage()
         {
             if (developImage == null) return;
+
+            Dispatcher.Invoke(() => Develop_Loader_Overlay.Visibility = Visibility.Visible);
+
             imageProcessThread = new Thread(() =>
             {
                 var adjusted = RawImageHelpers.ApplyAdjustments(
@@ -190,6 +193,7 @@ namespace rawinator
                 Dispatcher.Invoke(() =>
                 {
                     Develop_Image.Source = RawImageHelpers.MagickImageToBitmapImage(adjusted);
+                    Develop_Loader_Overlay.Visibility = Visibility.Collapsed;
                 });
             });
             imageProcessThread.Start();
