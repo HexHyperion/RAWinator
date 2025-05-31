@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace rawinator
+﻿namespace rawinator
 {
     struct RawImageProcessParams(double exposure, double brightness, double highlights, double shadows, double wbTemperature, double wbTint, double contrast, double saturation, double hue)
     {
