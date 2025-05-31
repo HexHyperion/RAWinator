@@ -1,6 +1,5 @@
 ﻿using ImageMagick;
 using Microsoft.Win32;
-using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -8,9 +7,6 @@ using System.Windows.Input;
 
 namespace rawinator
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         public MainWindow()
@@ -18,7 +14,7 @@ namespace rawinator
             InitializeComponent();
         }
 
-        public ObservableCollection<RawImage> importedImages { get; set; } = [];
+        public SparseObservableList<RawImage> importedImages { get; set; } = [];
         private RawImage? developImage = null;
         private RawImageProcessParams developImageParams = new(0, 0, 0, 0, 0, 0, 0, 0, 0);
         private Thread imageImportThread;
@@ -26,14 +22,16 @@ namespace rawinator
         private void ImportImages(string[] filenames)
         {
             Dispatcher.Invoke(() => {
+                importedImages.Clear();
                 Library_Import_Button.Content = "Importing...";
                 Library_Import_Button.IsEnabled = false;
             });
+            var parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = (int)(Environment.ProcessorCount / 1.5) };
             // Parallelism for faster import
-            Parallel.ForEach(filenames, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, filename => {
-                var image = new RawImage(filename);
+            Parallel.For(0, filenames.Length, parallelOptions, i => {
+                var image = new RawImage(filenames[i]);
                 Dispatcher.Invoke(() => {
-                    importedImages.Add(image);
+                    importedImages[i] = image;
                 });
             });
 
