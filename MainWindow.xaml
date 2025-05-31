@@ -98,7 +98,8 @@
 
                     <!-- Import button -->
                     <Button Content="Import..."
-                            Click="Library_Import_Click"
+                            x:Name="Library_Import_Button"
+                            Click="Library_Import_Button_Click"
                             Height="30"
                             Width="100"
                             Grid.Row="1"
