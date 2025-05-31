@@ -60,7 +60,8 @@ namespace rawinator
                 using (var shadowMask = maskBaseImage.Clone())
                 {
                     shadowMask.ColorSpace = ColorSpace.Gray;
-                    shadowMask.Level(0, (byte)(Quantum.Max * 0.5));
+                    // Use Quantum.Max directly for 16-bit, no cast to byte
+                    shadowMask.Level(0, (ushort)(Quantum.Max * 0.5));
                     shadowMask.SigmoidalContrast(6, 0.25, Channels.Gray);
 
                     using (var shadowsAdjusted = editedImage.Clone())
@@ -80,7 +81,7 @@ namespace rawinator
                 using (var highlightMask = maskBaseImage.Clone())
                 {
                     highlightMask.ColorSpace = ColorSpace.Gray;
-                    highlightMask.Level((byte)(Quantum.Max * 0.5), Quantum.Max);
+                    highlightMask.Level((ushort)(Quantum.Max * 0.5), Quantum.Max);
                     highlightMask.SigmoidalContrast(6, 0.75, Channels.Gray);
 
                     using (var highlightsAdjusted = editedImage.Clone())

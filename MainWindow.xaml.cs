@@ -181,7 +181,11 @@ namespace rawinator
         {
             if (developImage == null) return;
 
-            Dispatcher.Invoke(() => Develop_Loader_Overlay.Visibility = Visibility.Visible);
+            Dispatcher.Invoke(() => {
+                Develop_Process_ProgressBar.IsIndeterminate = true;
+                Develop_Process_Text.Visibility = Visibility.Visible;
+                SetDevelopSlidersEnabled(false);
+            });
 
             imageProcessThread = new Thread(() =>
             {
@@ -193,7 +197,9 @@ namespace rawinator
                 Dispatcher.Invoke(() =>
                 {
                     Develop_Image.Source = RawImageHelpers.MagickImageToBitmapImage(adjusted);
-                    Develop_Loader_Overlay.Visibility = Visibility.Collapsed;
+                    Develop_Process_ProgressBar.IsIndeterminate = false;
+                    Develop_Process_Text.Visibility = Visibility.Collapsed;
+                    SetDevelopSlidersEnabled(true);
                 });
             });
             imageProcessThread.Start();
@@ -210,6 +216,19 @@ namespace rawinator
             Develop_Slider_Contrast.Value = 0;
             Develop_Slider_Saturation.Value = 0;
             Develop_Slider_Hue.Value = 0;
+        }
+
+        private void SetDevelopSlidersEnabled(bool enabled)
+        {
+            Develop_Slider_Exposure.IsEnabled = enabled;
+            Develop_Slider_Brightness.IsEnabled = enabled;
+            Develop_Slider_Highlights.IsEnabled = enabled;
+            Develop_Slider_Shadows.IsEnabled = enabled;
+            Develop_Slider_WhiteBalance.IsEnabled = enabled;
+            Develop_Slider_WhiteBalanceTint.IsEnabled = enabled;
+            Develop_Slider_Contrast.IsEnabled = enabled;
+            Develop_Slider_Saturation.IsEnabled = enabled;
+            Develop_Slider_Hue.IsEnabled = enabled;
         }
 
         private void Menu_File_Open_Click(object sender, RoutedEventArgs e)
