@@ -53,7 +53,7 @@
                     <ListBox x:Name="Library_Image_Grid"
                              Grid.Row="0"
                              Grid.Column="0"
-                             ItemsSource="{Binding importedImages, RelativeSource={RelativeSource AncestorType=Window}}"
+                             ItemsSource="{Binding ImportedImages, RelativeSource={RelativeSource AncestorType=Window}}"
                              SelectionMode="Extended"
                              SelectionChanged="Library_Image_Grid_SelectionChanged"
                              KeyDown="Library_Image_Grid_KeyDown"
