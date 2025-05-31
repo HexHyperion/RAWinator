@@ -27,7 +27,8 @@ namespace rawinator
             }
         }
 
-        public int Count => maxIndex + 1;
+        public int Length => maxIndex + 1;  // Length of the list including empty slots
+        public int Count => items.Count;    // Count of items actually stored in the list
 
         public bool IsReadOnly => false;
 

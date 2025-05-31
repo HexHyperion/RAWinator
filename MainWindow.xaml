@@ -10,6 +10,7 @@
         Width="1300">
     <Window.Resources>
         <local:PlusSignValueConverter x:Key="PlusSignValueConverter"/>
+        <local:ProgressConverter x:Key="ProgressConverter" />
     </Window.Resources>
     <Grid>
         <DockPanel>
@@ -95,6 +96,30 @@
                         <Label Name="Library_Image_Metadata"
                                VerticalAlignment="Top"/>
                     </StackPanel>
+
+                    <!-- Import progress bar -->
+                    <ProgressBar x:Name="Library_Import_ProgressBar"
+                                 Grid.Row="1"
+                                 Grid.Column="0"
+                                 Margin="10,0,0,0"
+                                 Height="30"
+                                 Visibility="Visible"
+                                 Minimum="0"
+                                 Maximum="1"/>
+                    <TextBlock x:Name="Library_Import_Status"
+                               Grid.Row="1"
+                               Grid.Column="0"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Visibility="Collapsed">
+	                    <TextBlock.Text>
+		                    <MultiBinding Converter="{StaticResource ProgressConverter}">
+			                    <Binding ElementName="Library_Import_ProgressBar" Path="Value"/>
+			                    <Binding ElementName="Library_Import_ProgressBar" Path="Maximum"/>
+		                    </MultiBinding>
+	                    </TextBlock.Text>
+                    </TextBlock>
+
 
                     <!-- Import button -->
                     <Button Content="Import..."

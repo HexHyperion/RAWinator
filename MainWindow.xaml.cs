@@ -14,7 +14,7 @@ namespace rawinator
             InitializeComponent();
         }
 
-        public SparseObservableList<RawImage> importedImages { get; set; } = [];
+        public SparseObservableList<RawImage> ImportedImages { get; set; } = [];
         private RawImage? developImage = null;
         private RawImageProcessParams developImageParams = new(0, 0, 0, 0, 0, 0, 0, 0, 0);
         private Thread imageImportThread;
@@ -22,31 +22,41 @@ namespace rawinator
         private void ImportImages(string[] filenames)
         {
             Dispatcher.Invoke(() => {
-                importedImages.Clear();
-                Library_Import_Button.Content = "Importing...";
+                ImportedImages.Clear();
+                Library_Import_ProgressBar.Maximum = filenames.Length;
+                Library_Import_Status.Visibility = Visibility.Visible;
+                Library_Import_Button.Content = $"Importing...";
                 Library_Import_Button.IsEnabled = false;
             });
-            var parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = (int)(Environment.ProcessorCount / 1.5) };
-            // Parallelism for faster import
+
+            // Parallelism for faster import, but with a limit to avoid overwhelming the system
+            var parallelOptions = new ParallelOptions {
+                MaxDegreeOfParallelism = (int)Math.Round(Environment.ProcessorCount / 1.5)
+            };
             Parallel.For(0, filenames.Length, parallelOptions, i => {
                 var image = new RawImage(filenames[i]);
                 Dispatcher.Invoke(() => {
-                    importedImages[i] = image;
+                    ImportedImages[i] = image;
+                    Library_Import_ProgressBar.Value++;
                 });
             });
 
             Dispatcher.Invoke(() => {
                 Library_Image_Grid.SelectedIndex = 0;
+                Library_Import_Status.Visibility = Visibility.Collapsed;
                 Library_Import_Button.Content = "Import...";
                 Library_Import_Button.IsEnabled = true;
+                Library_Import_ProgressBar.Value = 0;
+                Library_Import_ProgressBar.Maximum = 1;
             });
         }
 
         private void Library_Import_Button_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "RAW files|*.arw;*.cr2;*.cr3;*.nef;*.nrw;*.orf;*.pef;*.raf;*.rw2;*.srw;*.dng;*.k25;*.kdc;*.srf;*.sr2;*.mos;*.3fr;*.fff;*.rwl;*.iiq";
-            openFileDialog.Multiselect = true;
+            OpenFileDialog openFileDialog = new() {
+                Filter = "RAW files|*.arw;*.cr2;*.cr3;*.nef;*.nrw;*.orf;*.pef;*.raf;*.rw2;*.srw;*.dng;*.k25;*.kdc;*.srf;*.sr2;*.mos;*.3fr;*.fff;*.rwl;*.iiq",
+                Multiselect = true
+            };
             if (openFileDialog.ShowDialog() == true && openFileDialog.FileNames != null)
             {
                 imageImportThread = new Thread(() => {
@@ -69,13 +79,13 @@ namespace rawinator
                         var itemsToDelete = Library_Image_Grid.SelectedItems.Cast<RawImage>().ToList();
                         foreach (var img in itemsToDelete)
                         {
-                            importedImages.Remove(img);
+                            ImportedImages.Remove(img);
                         }
                     }
                 }
                 else if (Library_Image_Grid.SelectedItem is RawImage img)
                 {
-                    importedImages.Remove(img);
+                    ImportedImages.Remove(img);
                 }
             }
         }
