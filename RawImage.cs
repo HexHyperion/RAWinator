@@ -59,6 +59,24 @@ namespace rawinator
             //}
         }
 
+        public ImageSource? GetFullThumbnail()
+        {
+            var defines = new DngReadDefines { ReadThumbnail = true };
+            using var image = new MagickImage();
+            image.Settings.SetDefines(defines);
+            image.Ping(Path);
+
+            var thumbnailData = image.GetProfile("dng:thumbnail")?.ToByteArray();
+            if (thumbnailData != null && thumbnailData.Length > 0)
+            {
+                using var thumbnailImage = new MagickImage(thumbnailData);
+                thumbnailImage.AutoOrient();
+
+                return RawImageHelpers.MagickImageToBitmapImage(thumbnailImage);
+            }
+            return null;
+        }
+
         public List<(string, string)> GetMetadata(int?[] tags)
         {
             var result = new List<(string, string)>();

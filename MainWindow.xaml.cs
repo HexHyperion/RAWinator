@@ -13,10 +13,11 @@ namespace rawinator
         public MainWindow()
         {
             InitializeComponent();
+            DataContext = this;
         }
 
         public SparseObservableList<RawImage> ImportedImages { get; set; } = [];
-        private RawImage? developImage = null;
+        public RawImage? CurrentImage = null;
         private RawImageProcessParams developImageParams = new(0, 0, 0, 0, 0, 0, 0, 0, 0);
         private Thread imageImportThread;
         private Thread imageProcessThread;
@@ -116,7 +117,7 @@ namespace rawinator
                 }
                 Library_Image_Metadata_Text.Text = metadataString.ToString();
 
-                developImage = selectedImage;
+                CurrentImage = selectedImage;
             }
         }
 
@@ -126,7 +127,7 @@ namespace rawinator
             {
                 if (selectedTab.Name == "Tabs_Develop")
                 {
-                    if (developImage != null)
+                    if (CurrentImage != null)
                     {
                         ResetSliders();
                         UpdateDevelopImage();
@@ -137,6 +138,22 @@ namespace rawinator
                         App_TabControl.SelectedItem = Tabs_Library;
                     }
                 }
+                else if (selectedTab.Name == "Tabs_View")
+                {
+                    if (CurrentImage != null)
+                    {
+                        View_Image.Source = CurrentImage.GetFullThumbnail();
+                    }
+                }
+            }
+        }
+
+        private void View_Image_List_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (View_Image_List.SelectedItem is RawImage selected)
+            {
+                CurrentImage = selected;
+                View_Image.Source = CurrentImage.GetFullThumbnail();
             }
         }
 
@@ -191,7 +208,7 @@ namespace rawinator
 
         private void UpdateDevelopImage()
         {
-            if (developImage == null) return;
+            if (CurrentImage == null) return;
 
             Dispatcher.Invoke(() => {
                 Develop_Process_ProgressBar.IsIndeterminate = true;
@@ -202,7 +219,7 @@ namespace rawinator
             imageProcessThread = new Thread(() =>
             {
                 var adjusted = RawImageHelpers.ApplyAdjustments(
-                    new MagickImage(developImage.Path),
+                    new MagickImage(CurrentImage.Path),
                     developImageParams
                 );
 

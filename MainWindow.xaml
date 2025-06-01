@@ -170,7 +170,90 @@
             </TabItem>
             <TabItem Header="View"
                      x:Name="Tabs_View">
-                <Grid Background="#FFE5E5E5"/>
+                <Grid Background="#FFE5E5E5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="5" />
+                        <RowDefinition Height="80" MaxHeight="500" MinHeight="40" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="5" />
+                        <ColumnDefinition Width="3*" />
+                        <ColumnDefinition Width="5" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+	                <ListBox Grid.Column="0" Margin="10">
+		                <ListBoxItem>Item 1</ListBoxItem>
+		                <ListBoxItem>Item 2</ListBoxItem>
+		                <ListBoxItem>Item 3</ListBoxItem>
+		                <ListBoxItem>Item 4</ListBoxItem>
+	                </ListBox>
+
+                    <GridSplitter Grid.Column="1"
+	                              Width="5"
+	                              HorizontalAlignment="Stretch"
+	                              VerticalAlignment="Stretch"
+	                              Background="Transparent"
+	                              ResizeBehavior="PreviousAndNext"
+	                              ResizeDirection="Columns"/>
+
+                    <Image x:Name="View_Image"
+                           Grid.Row="0"
+                           Grid.Column="2"
+                           Stretch="Uniform" />
+
+                    <GridSplitter Grid.Column="3"
+	                              Width="5"
+	                              HorizontalAlignment="Stretch"
+	                              VerticalAlignment="Stretch"
+	                              Background="Transparent"
+	                              ResizeBehavior="PreviousAndNext"
+	                              ResizeDirection="Columns"/>
+
+                    <ListBox Grid.Column="4" Margin="10">
+	                    <ListBoxItem>Item 1</ListBoxItem>
+	                    <ListBoxItem>Item 2</ListBoxItem>
+	                    <ListBoxItem>Item 3</ListBoxItem>
+	                    <ListBoxItem>Item 4</ListBoxItem>
+                    </ListBox>
+
+                    <GridSplitter Grid.Row="1"
+                                  Grid.ColumnSpan="5"
+	                              Height="5"
+	                              HorizontalAlignment="Stretch"
+	                              VerticalAlignment="Stretch"
+	                              Background="Transparent"
+	                              ResizeBehavior="PreviousAndNext"
+	                              ResizeDirection="Rows"/>
+
+                    <ListBox x:Name="View_Image_List"
+                             Grid.Row="2"
+                             Grid.ColumnSpan="5"
+                             ItemsSource="{Binding ImportedImages, RelativeSource={RelativeSource AncestorType=Window}}"
+                             SelectedItem="{Binding CurrentImage, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=Window}}"
+                             SelectionChanged="View_Image_List_SelectionChanged"
+                             ScrollViewer.HorizontalScrollBarVisibility="Visible"
+                             ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                             Height="Auto"
+                             BorderThickness="0"
+                             Background="Transparent"
+                             HorizontalAlignment="Stretch"
+                             VerticalAlignment="Bottom"
+                             Margin="0,0,0,0">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Image Source="{Binding SmallThumbnail}" Height="Auto" Stretch="Uniform"/>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
             </TabItem>
             <TabItem Header="Develop"
                      x:Name="Tabs_Develop">
@@ -189,7 +272,7 @@
                     </Grid.ColumnDefinitions>
 
                     <!-- Placeholder, probably a preset selector or history in the future -->
-                    <ListBox Grid.Column="0" Margin="8">
+                    <ListBox Grid.Column="0" Margin="10">
                         <ListBoxItem>Item 1</ListBoxItem>
                         <ListBoxItem>Item 2</ListBoxItem>
                         <ListBoxItem>Item 3</ListBoxItem>
