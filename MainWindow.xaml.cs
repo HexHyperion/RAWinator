@@ -1,4 +1,5 @@
 ﻿using ImageMagick;
+using ImageMagick.Formats;
 using Microsoft.Win32;
 using System.ComponentModel;
 using System.Windows;
@@ -240,8 +241,18 @@ namespace rawinator
             });
 
             Task.Run(() => {
+                MagickImage image = new();
+                DngReadDefines defines = new() {
+                    UseAutoWhitebalance = false,
+                    DisableAutoBrightness = false,
+                    UseCameraWhitebalance = true,
+                    InterpolationQuality = DngInterpolation.ModifiedAhd
+                };
+                image.Settings.SetDefines(defines);
+                image.Read(CurrentImage.Path);
+
                 var adjusted = RawImageHelpers.ApplyAdjustments(
-                    new MagickImage(CurrentImage.Path),
+                    image,
                     developImageParams
                 );
 

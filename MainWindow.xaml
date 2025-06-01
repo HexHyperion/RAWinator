@@ -176,7 +176,7 @@
 
     <Grid Background="Black">
         <DockPanel>
-            <Menu DockPanel.Dock="Top" Background="Black" Foreground="White">
+            <Menu DockPanel.Dock="Top" Background="Black" Foreground="White" FontFamily="Consolas">
                 <MenuItem Header="_File">
                     <MenuItem Header="_Open"
                               Click="Menu_File_Open_Click"
@@ -228,42 +228,64 @@
                     </Grid.RowDefinitions>
 
                     <!-- List of images -->
-                    <ListBox x:Name="Library_Image_Grid"
-                             Grid.Row="0"
-                             Grid.Column="0"
-                             ItemsSource="{Binding ImportedImages, RelativeSource={RelativeSource AncestorType=Window}}"
-                             SelectionMode="Extended"
-                             SelectionChanged="Library_Image_Grid_SelectionChanged"
-                             KeyDown="Library_Image_Grid_KeyDown"
-                             HorizontalContentAlignment="Center"
-                             VerticalContentAlignment="Top"
-                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                             Margin="10,10,0,0"
-                             Background="Black"
-                             Foreground="White"
-                             BorderThickness="0">
-                        <ListBox.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <WrapPanel IsItemsHost="True"
-                                           Orientation="Horizontal"/>
-                            </ItemsPanelTemplate>
-                        </ListBox.ItemsPanel>
-                        <ListBox.ItemTemplate>
-                            <DataTemplate DataType="{x:Type local:RawImage}">
-                                <StackPanel Margin="8"
-                                            Width="120">
-                                    <Image Source="{Binding SmallThumbnail}"
-                                           Width="100"
-                                           Height="100"
-                                           Stretch="Uniform"/>
-                                    <TextBlock Text="{Binding Filename}"
-                                               TextAlignment="Center"
-                                               TextTrimming="CharacterEllipsis"
-                                               Margin="0,4,0,0"/>
-                                </StackPanel>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
+                    <Grid Grid.Row="0" Grid.Column="0">
+                        <ListBox x:Name="Library_Image_Grid"
+                                 ItemsSource="{Binding ImportedImages, RelativeSource={RelativeSource AncestorType=Window}}"
+                                 SelectionMode="Extended"
+                                 SelectionChanged="Library_Image_Grid_SelectionChanged"
+                                 KeyDown="Library_Image_Grid_KeyDown"
+                                 HorizontalContentAlignment="Center"
+                                 VerticalContentAlignment="Top"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 Margin="10,10,0,0"
+                                 Background="Black"
+                                 Foreground="White"
+                                 BorderThickness="0">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel IsItemsHost="True"
+                                               Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate DataType="{x:Type local:RawImage}">
+                                    <StackPanel Margin="8"
+                                                Width="120">
+                                        <Image Source="{Binding SmallThumbnail}"
+                                               Width="100"
+                                               Height="100"
+                                               Stretch="Uniform"/>
+                                        <TextBlock Text="{Binding Filename}"
+                                                   TextAlignment="Center"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <!-- Centered message when no images -->
+                        <TextBlock Text="Use the &quot;Import&quot; button to begin..."
+                                   Foreground="White"
+                                   FontSize="16"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   TextAlignment="Center"
+                                   IsHitTestVisible="False">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility"
+                                            Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ImportedImages.Count, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                     Value="0">
+                                            <Setter Property="Visibility"
+                                                    Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Grid>
 
                     <GridSplitter Grid.Row="0"
                                   Grid.Column="1"
@@ -286,11 +308,36 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
-	                    <Image Name="Library_Image_Thumbnail"
-	                           Stretch="Uniform"
-	                           Width="Auto"
-	                           Height="Auto"
-	                           Grid.Row="0"/>
+                        <Grid>
+                            <Image Name="Library_Image_Thumbnail"
+                                   Stretch="Uniform"
+                                   Width="Auto"
+                                   Height="Auto"
+                                   Grid.Row="0"/>
+                            <!-- Message when no image selected -->
+                            <TextBlock Text="[No thumbnail found]"
+                                       Foreground="White"
+                                       FontSize="14"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       TextAlignment="Center"
+                                       IsHitTestVisible="False">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility"
+                                                Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding CurrentImage, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                         Value="{x:Null}">
+                                                <Setter Property="Visibility"
+                                                        Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+
                         <GridSplitter Grid.Row="1"
                                       Height="1"
                                       HorizontalAlignment="Stretch"
@@ -298,6 +345,7 @@
                                       Background="#2a2a2a"
                                       ResizeBehavior="PreviousAndNext"
                                       ResizeDirection="Rows"/>
+
                         <ScrollViewer x:Name="Library_Image_Metadata_Scroll"
                                       VerticalScrollBarVisibility="Auto"
                                       Grid.Row="2"
@@ -319,7 +367,8 @@
                                  Visibility="Visible"
                                  Minimum="0"
                                  Maximum="1"
-                                 Background="Black"/>
+                                 Background="Black"
+                                 BorderBrush="#4a4a4a"/>
                     <TextBlock x:Name="Library_Import_Status"
                                Grid.Row="1"
                                Grid.Column="0"
@@ -734,7 +783,8 @@
                                  Grid.Column="2"
                                  Height="10"
                                  Margin="10,0,10,0"
-                                 Background="Black"/>
+                                 Background="Black"
+                                 BorderBrush="#4a4a4a"/>
                 </Grid>
             </TabItem>
         </TabControl>
