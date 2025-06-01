@@ -44,7 +44,7 @@ namespace rawinator
                 ImportedImages.Clear();
                 Library_Import_ProgressBar.Maximum = filenames.Length;
                 Library_Import_Status.Visibility = Visibility.Visible;
-                Library_Import_Button.Content = $"Importing...";
+                Library_Import_Button.Content = "Importing...";
                 Library_Import_Button.IsEnabled = false;
             });
 

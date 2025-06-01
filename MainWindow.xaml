@@ -7,44 +7,53 @@
         mc:Ignorable="d"
         Title="MainWindow"
         Height="750"
-        Width="1300">
+        Width="1300"
+        FontFamily="Consolas">
     <Window.Resources>
         <local:PlusSignValueConverter x:Key="PlusSignValueConverter"/>
         <local:ProgressConverter x:Key="ProgressConverter" />
     </Window.Resources>
-    <Grid>
+    <Grid Background="Black">
         <DockPanel>
-            <Menu DockPanel.Dock="Top">
+            <Menu DockPanel.Dock="Top" Background="Black" Foreground="White">
                 <MenuItem Header="_File">
                     <MenuItem Header="_Open"
-                              Click="Menu_File_Open_Click"/>
+                              Click="Menu_File_Open_Click"
+                              Background="Black"/>
                     <MenuItem Header="_Save"
-                              Click="Menu_File_Save_Click"/>
+                              Click="Menu_File_Save_Click"
+                              Background="Black"/>
                     <MenuItem Header="_Exit"
-                              Click="Menu_File_Exit_Click"/>
+                              Click="Menu_File_Exit_Click"
+                              Background="Black"/>
                 </MenuItem>
                 <MenuItem Header="_Edit">
                     <MenuItem Header="_Undo"
-                              Click="Menu_Edit_Undo_Click"/>
+                              Click="Menu_Edit_Undo_Click"
+                              Background="Black"/>
                     <MenuItem Header="_Redo"
-                              Click="Menu_Edit_Redo_Click"/>
+                              Click="Menu_Edit_Redo_Click"
+                              Background="Black"/>
                 </MenuItem>
                 <MenuItem Header="_Help">
                     <MenuItem Header="_About"
-                              Click="Menu_Help_About_Click"/>
+                              Click="Menu_Help_About_Click"
+                              Background="Black"/>
                 </MenuItem>
             </Menu>
-            <StackPanel></StackPanel>
         </DockPanel>
         <TabControl x:Name="App_TabControl"
 					Margin="0,20,0,0"
-                    SelectionChanged="App_TabControl_SelectionChanged">
+                    SelectionChanged="App_TabControl_SelectionChanged"
+					Background="Black">
             <TabItem Header="Library"
-                     x:Name="Tabs_Library">
-                <Grid Background="#FFE5E5E5">
+                     x:Name="Tabs_Library"
+                     Background="Black"
+                     Foreground="White">
+                <Grid Background="Black">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="5" />
+                        <ColumnDefinition Width="1" />
                         <ColumnDefinition Width="300"
                                           MinWidth="150" />
                     </Grid.ColumnDefinitions>
@@ -64,7 +73,10 @@
                              HorizontalContentAlignment="Center"
                              VerticalContentAlignment="Top"
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                             Margin="10,10,0,0">
+                             Margin="10,10,0,0"
+                             Background="Black"
+                             Foreground="White"
+                             BorderBrush="White">
                         <ListBox.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <WrapPanel IsItemsHost="True"
@@ -91,10 +103,10 @@
                     <GridSplitter Grid.Row="0"
                                   Grid.Column="1"
                                   Grid.RowSpan="2"
-                                  Width="5"
+                                  Width="1"
                                   HorizontalAlignment="Stretch"
                                   VerticalAlignment="Stretch"
-                                  Background="Transparent"
+                                  Background="White"
                                   ResizeBehavior="PreviousAndNext"
                                   ResizeDirection="Columns"/>
 
@@ -106,19 +118,19 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="200"
                                            MinHeight="50"/>
-                            <RowDefinition Height="5"/>
+                            <RowDefinition Height="1"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
-                        <Image Name="Library_Image_Thumbnail"
-                               Stretch="Uniform"
-                               Width="Auto"
-                               Height="Auto"
-                               Grid.Row="0"/>
+	                    <Image Name="Library_Image_Thumbnail"
+	                           Stretch="Uniform"
+	                           Width="Auto"
+	                           Height="Auto"
+	                           Grid.Row="0"/>
                         <GridSplitter Grid.Row="1"
-                                      Height="5"
+                                      Height="1"
                                       HorizontalAlignment="Stretch"
                                       VerticalAlignment="Stretch"
-                                      Background="Transparent"
+                                      Background="White"
                                       ResizeBehavior="PreviousAndNext"
                                       ResizeDirection="Rows"/>
                         <ScrollViewer x:Name="Library_Image_Metadata_Scroll"
@@ -129,7 +141,8 @@
                                        TextWrapping="Wrap"
                                        Margin="0,5,0,0"
                                        VerticalAlignment="Top"
-                                       HorizontalAlignment="Left"/>
+                                       HorizontalAlignment="Left"
+                                       Foreground="White"/>
                         </ScrollViewer>
                     </Grid>
 
@@ -141,13 +154,15 @@
                                  Height="30"
                                  Visibility="Visible"
                                  Minimum="0"
-                                 Maximum="1"/>
+                                 Maximum="1"
+                                 Background="Black"/>
                     <TextBlock x:Name="Library_Import_Status"
                                Grid.Row="1"
                                Grid.Column="0"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"
-                               Visibility="Collapsed">
+                               Visibility="Collapsed"
+                               Foreground="White">
 	                    <TextBlock.Text>
 		                    <MultiBinding Converter="{StaticResource ProgressConverter}">
 			                    <Binding ElementName="Library_Import_ProgressBar"
@@ -168,38 +183,40 @@
                             Grid.Row="1"
                             Grid.Column="2"
                             HorizontalAlignment="Right"
-                            Margin="0,0,10,10"/>
+                            Margin="0,0,10,10"
+                            Background="Black"
+                            Foreground="White"
+                            FontWeight="Bold"/>
                 </Grid>
             </TabItem>
             <TabItem Header="View"
                      x:Name="Tabs_View"
-                     KeyDown="Tabs_View_KeyDown">
-                <Grid Background="#FFE5E5E5">
+                     KeyDown="Tabs_View_KeyDown"
+                     Background="Black"
+                     Foreground="White">
+                <Grid Background="Black">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
-                        <RowDefinition Height="5" />
+                        <RowDefinition Height="1" />
                         <RowDefinition Height="80" MaxHeight="500" MinHeight="40" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="5" />
+                        <ColumnDefinition Width="1" />
                         <ColumnDefinition Width="3*" />
-                        <ColumnDefinition Width="5" />
+                        <ColumnDefinition Width="1" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
 
-	                <ListBox Grid.Column="0" Margin="10">
-		                <ListBoxItem>Item 1</ListBoxItem>
-		                <ListBoxItem>Item 2</ListBoxItem>
-		                <ListBoxItem>Item 3</ListBoxItem>
-		                <ListBoxItem>Item 4</ListBoxItem>
-	                </ListBox>
+                    <Grid Grid.Column="0">
+
+                    </Grid>
 
                     <GridSplitter Grid.Column="1"
-	                              Width="5"
+	                              Width="1"
 	                              HorizontalAlignment="Stretch"
 	                              VerticalAlignment="Stretch"
-	                              Background="Transparent"
+	                              Background="White"
 	                              ResizeBehavior="PreviousAndNext"
 	                              ResizeDirection="Columns"/>
 
@@ -209,14 +226,14 @@
                            Stretch="Uniform" />
 
                     <GridSplitter Grid.Column="3"
-	                              Width="5"
+	                              Width="1"
 	                              HorizontalAlignment="Stretch"
 	                              VerticalAlignment="Stretch"
-	                              Background="Transparent"
+	                              Background="White"
 	                              ResizeBehavior="PreviousAndNext"
 	                              ResizeDirection="Columns"/>
 
-                    <Grid Grid.Column="4" Background="White">
+                    <Grid Grid.Column="4">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
@@ -228,21 +245,29 @@
                                    Grid.Row="0"/>
                         <ScrollViewer Grid.Row="1"
                                       VerticalScrollBarVisibility="Auto"
-                                      HorizontalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
                                       VerticalAlignment="Stretch"
                                       HorizontalAlignment="Stretch">
                             <ItemsControl x:Name="View_Metadata_Accordions"
                                           ItemsSource="{Binding CurrentImage.Metadata}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Expander Header="{Binding Name}" IsExpanded="False" Margin="8,0,0,8">
+                                        <Expander Header="{Binding Name}"
+                                                  IsExpanded="False"
+                                                  Margin="8,0,0,8"
+                                                  Foreground="White">
                                             <ItemsControl ItemsSource="{Binding Tags}">
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate>
                                                         <StackPanel Orientation="Horizontal">
-                                                            <TextBlock Text="{Binding Name}" FontWeight="Bold"/>
-                                                            <TextBlock Text=": " FontWeight="Bold" />
-                                                            <TextBlock Text="{Binding Description}" />
+                                                            <TextBlock Text="{Binding Name}"
+                                                                       FontWeight="Bold"
+                                                                       Foreground="White"/>
+                                                            <TextBlock Text=": "
+                                                                       FontWeight="Bold"
+                                                                       Foreground="White"/>
+                                                            <TextBlock Text="{Binding Description}"
+                                                                       Foreground="White"/>
                                                         </StackPanel>
                                                     </DataTemplate>
                                                 </ItemsControl.ItemTemplate>
@@ -256,10 +281,10 @@
 
                     <GridSplitter Grid.Row="1"
                                   Grid.ColumnSpan="5"
-	                              Height="5"
+	                              Height="1"
 	                              HorizontalAlignment="Stretch"
 	                              VerticalAlignment="Stretch"
-	                              Background="Transparent"
+	                              Background="White"
 	                              ResizeBehavior="PreviousAndNext"
 	                              ResizeDirection="Rows"/>
 
@@ -273,7 +298,7 @@
                              ScrollViewer.VerticalScrollBarVisibility="Disabled"
                              Height="Auto"
                              BorderThickness="0"
-                             Background="Transparent"
+                             Background="Black"
                              HorizontalAlignment="Stretch"
                              VerticalAlignment="Bottom"
                              Margin="0,0,0,0"
@@ -292,7 +317,9 @@
                 </Grid>
             </TabItem>
             <TabItem Header="Develop"
-                     x:Name="Tabs_Develop">
+                     x:Name="Tabs_Develop"
+                     Background="Black"
+                     Foreground="White">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
@@ -301,28 +328,24 @@
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1*" />
-                        <ColumnDefinition Width="5" />
+                        <ColumnDefinition Width="1" />
                         <ColumnDefinition Width="5*" />
-                        <ColumnDefinition Width="5" />
+                        <ColumnDefinition Width="1" />
                         <ColumnDefinition Width="2*" />
                     </Grid.ColumnDefinitions>
 
                     <!-- Placeholder, probably a preset selector or history in the future -->
-                    <ListBox Grid.Column="0" Margin="10">
+                    <Grid Grid.Column="0" Margin="10">
                         <TextBlock Text="Presets"
                                    FontWeight="Bold"
                                    FontSize="16"/>
-                        <ListBoxItem>Item 1</ListBoxItem>
-                        <ListBoxItem>Item 2</ListBoxItem>
-                        <ListBoxItem>Item 3</ListBoxItem>
-                        <ListBoxItem>Item 4</ListBoxItem>
-                    </ListBox>
+                    </Grid>
 
                     <GridSplitter Grid.Column="1"
-                                  Width="5"
+                                  Width="1"
                                   HorizontalAlignment="Stretch"
                                   VerticalAlignment="Stretch"
-                                  Background="Transparent"
+                                  Background="White"
                                   ResizeBehavior="PreviousAndNext"
                                   ResizeDirection="Columns"/>
 
@@ -332,10 +355,10 @@
                            Stretch="Uniform" />
 
                     <GridSplitter Grid.Column="3"
-                                  Width="5"
+                                  Width="1"
                                   HorizontalAlignment="Stretch"
                                   VerticalAlignment="Stretch"
-                                  Background="Transparent"
+                                  Background="White"
                                   ResizeBehavior="PreviousAndNext"
                                   ResizeDirection="Columns"/>
 
@@ -367,7 +390,7 @@
                                 LargeChange="0.3"/>
 
                         <!-- Brightness -->
-                        <Grid Margin="0,0,0,0">
+                        <Grid Margin="0,8,0,0">
                             <TextBlock Text="Brightness"
                                        Grid.Column="0"
                                        VerticalAlignment="Center"/>
@@ -389,7 +412,7 @@
                                 LargeChange="5"/>
 
                         <!-- White Balance (Temp) -->
-                        <Grid Margin="0,0,0,0">
+                        <Grid Margin="0,8,0,0">
                             <TextBlock Text="White Balance (Temp)"
                                        Grid.Column="0"
                                        VerticalAlignment="Center"/>
@@ -411,7 +434,7 @@
                                 LargeChange="5"/>
 
                         <!-- White Balance (Tint) -->
-                        <Grid Margin="0,0,0,0">
+                        <Grid Margin="0,8,0,0">
                             <TextBlock Text="White Balance (Tint)"
                                        Grid.Column="0"
                                        VerticalAlignment="Center"/>
@@ -433,7 +456,7 @@
                                 LargeChange="5"/>
 
                         <!-- Contrast -->
-                        <Grid Margin="0,0,0,0">
+                        <Grid Margin="0,8,0,0">
                             <TextBlock Text="Contrast"
                                        Grid.Column="0"
                                        VerticalAlignment="Center"/>
@@ -455,7 +478,7 @@
                                 LargeChange="5"/>
 
                         <!-- Highlights -->
-                        <Grid Margin="0,0,0,0">
+                        <Grid Margin="0,8,0,0">
                             <TextBlock Text="Highlights"
                                        Grid.Column="0"
                                        VerticalAlignment="Center"/>
@@ -477,7 +500,7 @@
                                 LargeChange="5"/>
 
                         <!-- Shadows -->
-                        <Grid Margin="0,0,0,0">
+                        <Grid Margin="0,8,0,0">
                             <TextBlock Text="Shadows"
                                        Grid.Column="0"
                                        VerticalAlignment="Center"/>
@@ -499,7 +522,7 @@
                                 LargeChange="5"/>
 
                         <!-- Saturation -->
-                        <Grid Margin="0,0,0,0">
+                        <Grid Margin="0,8,0,0">
                             <TextBlock Text="Saturation"
                                        Grid.Column="0"
                                        VerticalAlignment="Center"/>
@@ -521,7 +544,7 @@
                                 LargeChange="5"/>
 
                         <!-- Hue -->
-                        <Grid Margin="0,0,0,0">
+                        <Grid Margin="0,8,0,0">
                             <TextBlock Text="Hue"
                                        Grid.Column="0"
                                        VerticalAlignment="Center"/>
@@ -550,7 +573,8 @@
                                  Grid.Column="0"
                                  Grid.ColumnSpan="5"
                                  Height="30"
-                                 Margin="10,0,5,10"/>
+                                 Margin="10,0,5,10"
+                                 Background="Black"/>
                     <TextBlock x:Name="Develop_Process_Text"
 							   Text="Processing..."
                                Grid.Row="2"
