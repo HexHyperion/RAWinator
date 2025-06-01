@@ -241,7 +241,8 @@
                              Background="Transparent"
                              HorizontalAlignment="Stretch"
                              VerticalAlignment="Bottom"
-                             Margin="0,0,0,0">
+                             Margin="0,0,0,0"
+                             PreviewMouseWheel="View_Image_List_PreviewMouseWheel">
                         <ListBox.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <StackPanel Orientation="Horizontal"/>

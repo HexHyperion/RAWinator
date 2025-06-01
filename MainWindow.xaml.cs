@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace rawinator
 {
@@ -19,8 +20,6 @@ namespace rawinator
         public SparseObservableList<RawImage> ImportedImages { get; set; } = [];
         public RawImage? CurrentImage = null;
         private RawImageProcessParams developImageParams = new(0, 0, 0, 0, 0, 0, 0, 0, 0);
-        private Thread imageImportThread;
-        private Thread imageProcessThread;
         private bool isSliderDragged = false;
 
         private void ImportImages(string[] filenames)
@@ -63,10 +62,9 @@ namespace rawinator
             };
             if (openFileDialog.ShowDialog() == true && openFileDialog.FileNames != null)
             {
-                imageImportThread = new Thread(() => {
+                Task.Run(() => {
                     ImportImages(openFileDialog.FileNames);
                 });
-                imageImportThread.Start();
             }
         }
 
@@ -142,7 +140,12 @@ namespace rawinator
                 {
                     if (CurrentImage != null)
                     {
-                        View_Image.Source = CurrentImage.GetFullThumbnail();
+                        Task.Run(() => {
+                            var thumbnail = CurrentImage.GetFullThumbnail();
+                            Dispatcher.Invoke(() => {
+                                View_Image.Source = thumbnail;
+                            });
+                        });
                     }
                 }
             }
@@ -153,7 +156,27 @@ namespace rawinator
             if (View_Image_List.SelectedItem is RawImage selected)
             {
                 CurrentImage = selected;
-                View_Image.Source = CurrentImage.GetFullThumbnail();
+                Task.Run(() => {
+                    var thumbnail = CurrentImage.GetFullThumbnail();
+                    Dispatcher.Invoke(() => {
+                        View_Image.Source = thumbnail;
+                    });
+                });
+            }
+        }
+
+        private void View_Image_List_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (sender is ListBox listBox)
+            {
+                if (VisualTreeHelper.GetChild(listBox, 0) is Border border &&
+                    VisualTreeHelper.GetChild(border, 0) is ScrollViewer scrollViewer)
+                {
+                    double scrollAmount = Math.Sign(e.Delta) * 10;
+                    double offset = scrollViewer.HorizontalOffset - scrollAmount;
+                    scrollViewer.ScrollToHorizontalOffset(offset);
+                    e.Handled = true;
+                }
             }
         }
 
@@ -216,22 +239,19 @@ namespace rawinator
                 SetDevelopSlidersEnabled(false);
             });
 
-            imageProcessThread = new Thread(() =>
-            {
+            Task.Run(() => {
                 var adjusted = RawImageHelpers.ApplyAdjustments(
                     new MagickImage(CurrentImage.Path),
                     developImageParams
                 );
 
-                Dispatcher.Invoke(() =>
-                {
+                Dispatcher.Invoke(() => {
                     Develop_Image.Source = RawImageHelpers.MagickImageToBitmapImage(adjusted);
                     Develop_Process_ProgressBar.IsIndeterminate = false;
                     Develop_Process_Text.Visibility = Visibility.Collapsed;
                     SetDevelopSlidersEnabled(true);
                 });
             });
-            imageProcessThread.Start();
         }
 
         private void ResetSliders()
