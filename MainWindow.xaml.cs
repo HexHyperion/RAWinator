@@ -27,9 +27,12 @@ namespace rawinator
                 {
                     _currentImage = value;
                     OnPropertyChanged(nameof(CurrentImage));
+                    OnPropertyChanged(nameof(HasImageSelected));
                 }
             }
         }
+
+        public bool HasImageSelected => CurrentImage != null;
 
         private RawImageProcessParams developImageParams = new();
         private bool isSliderDragged = false;
