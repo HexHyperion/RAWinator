@@ -73,6 +73,7 @@
         </Style>
     </Window.Resources>
 
+
     <Grid Background="Black">
         <DockPanel>
             <Menu DockPanel.Dock="Top" Background="Black" Foreground="White">
@@ -102,15 +103,18 @@
                 </MenuItem>
             </Menu>
         </DockPanel>
+
         <TabControl x:Name="App_TabControl"
 					Margin="0,20,0,0"
                     SelectionChanged="App_TabControl_SelectionChanged"
 					Background="Black">
-            <TabItem Header="Library"
-                     x:Name="Tabs_Library"
-                     Background="Black"
-                     Foreground="White"
-                     Style="{StaticResource TabItemStyle}">
+
+
+	        <TabItem Header="Library"
+	                 x:Name="Tabs_Library"
+	                 Background="Black"
+	                 Foreground="White"
+	                 Style="{StaticResource TabItemStyle}">
                 <Grid Background="Black">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
@@ -137,7 +141,7 @@
                              Margin="10,10,0,0"
                              Background="Black"
                              Foreground="White"
-                             BorderBrush="White">
+                             BorderThickness="0">
                         <ListBox.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <WrapPanel IsItemsHost="True"
@@ -210,8 +214,8 @@
                     <ProgressBar x:Name="Library_Import_ProgressBar"
                                  Grid.Row="1"
                                  Grid.Column="0"
-                                 Margin="10,0,0,0"
-                                 Height="30"
+                                 Margin="10,0,10,0"
+                                 Height="20"
                                  Visibility="Visible"
                                  Minimum="0"
                                  Maximum="1"
@@ -233,7 +237,6 @@
 	                    </TextBlock.Text>
                     </TextBlock>
 
-
                     <!-- Import button -->
                     <Button Content="Import..."
                             x:Name="Library_Import_Button"
@@ -248,6 +251,8 @@
                             Style="{StaticResource ButtonStyle}"/>
                 </Grid>
             </TabItem>
+
+
             <TabItem Header="View"
                      x:Name="Tabs_View"
                      KeyDown="Tabs_View_KeyDown"
@@ -278,6 +283,7 @@
 	                              ResizeBehavior="PreviousAndNext"
 	                              ResizeDirection="Columns"/>
 
+					<!-- Full-sized JPEG preview -->
                     <Image x:Name="View_Image"
                            Grid.Row="0"
                            Grid.Column="2"
@@ -291,6 +297,7 @@
 	                              ResizeBehavior="PreviousAndNext"
 	                              ResizeDirection="Columns"/>
 
+                    <!-- Detailed metadata -->
 	                <ScrollViewer Grid.Column="4">
 	                    <Grid>
 	                        <Grid.RowDefinitions>
@@ -327,6 +334,7 @@
 	                              ResizeBehavior="PreviousAndNext"
 	                              ResizeDirection="Rows"/>
 
+                    <!-- LrC-like horizontal image list -->
                     <ListBox x:Name="View_Image_List"
                              Grid.Row="2"
                              Grid.ColumnSpan="5"
@@ -349,37 +357,41 @@
                         </ListBox.ItemsPanel>
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Image Source="{Binding SmallThumbnail}" Height="Auto" Stretch="Uniform"/>
+                                <Image Source="{Binding SmallThumbnail}" Height="Auto" Stretch="Uniform" Margin="5"/>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
                 </Grid>
             </TabItem>
+
+
             <TabItem Header="Develop"
                      x:Name="Tabs_Develop"
                      Style="{StaticResource TabItemStyle}">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="20"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1*" />
-                        <ColumnDefinition Width="1" />
-                        <ColumnDefinition Width="5*" />
-                        <ColumnDefinition Width="1" />
-                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1"/>
+                        <ColumnDefinition Width="5*"/>
+                        <ColumnDefinition Width="1"/>
+                        <ColumnDefinition Width="300" MinWidth="150"/>
                     </Grid.ColumnDefinitions>
 
                     <!-- Placeholder, probably a preset selector or history in the future -->
-                    <Grid Grid.Column="0" Margin="10">
+                    <Grid Grid.Column="0"
+                          Grid.RowSpan="2"
+                          Margin="10">
                         <TextBlock Text="Presets"
                                    FontWeight="Bold"
                                    FontSize="16"/>
                     </Grid>
 
                     <GridSplitter Grid.Column="1"
+                                  Grid.RowSpan="2"
                                   Width="1"
                                   HorizontalAlignment="Stretch"
                                   VerticalAlignment="Stretch"
@@ -387,12 +399,14 @@
                                   ResizeBehavior="PreviousAndNext"
                                   ResizeDirection="Columns"/>
 
+                    <!-- Actual rendered RAW -->
                     <Image x:Name="Develop_Image"
                            Grid.Row="0"
                            Grid.Column="2"
                            Stretch="Uniform" />
 
                     <GridSplitter Grid.Column="3"
+                                  Grid.RowSpan="2"
                                   Width="1"
                                   HorizontalAlignment="Stretch"
                                   VerticalAlignment="Stretch"
@@ -400,12 +414,19 @@
                                   ResizeBehavior="PreviousAndNext"
                                   ResizeDirection="Columns"/>
 
+                    <!-- Sliders for all adjustments -->
                     <StackPanel x:Name="Develop_Sliders_Panel"
                                 Grid.Row="0"
                                 Grid.Column="4"
+                                Grid.RowSpan="2"
                                 Orientation="Vertical"
                                 Margin="10">
-	                    <!-- Exposure -->
+                        <TextBlock Text="Adjustments"
+                                   Margin="0,0,0,8"
+                                   FontWeight="Bold"
+                                   FontSize="16"/>
+
+                        <!-- Exposure -->
                         <Grid Margin="0,0,0,0">
                             <TextBlock Text="Exposure"
                                        Grid.Column="0"
@@ -423,7 +444,6 @@
                                 ValueChanged="Develop_Slider_ValueChanged"
                                 Thumb.DragStarted="Develop_Slider_DragStarted"
                                 Thumb.DragCompleted="Develop_Slider_DragCompleted"
-                                TickPlacement="BottomRight"
                                 IsSnapToTickEnabled="True"
                                 LargeChange="0.3"/>
 
@@ -445,7 +465,6 @@
                                 ValueChanged="Develop_Slider_ValueChanged"
                                 Thumb.DragStarted="Develop_Slider_DragStarted"
                                 Thumb.DragCompleted="Develop_Slider_DragCompleted"
-                                TickPlacement="BottomRight"
                                 IsSnapToTickEnabled="True"
                                 LargeChange="5"/>
 
@@ -467,7 +486,6 @@
                                 ValueChanged="Develop_Slider_ValueChanged"
                                 Thumb.DragStarted="Develop_Slider_DragStarted"
                                 Thumb.DragCompleted="Develop_Slider_DragCompleted"
-                                TickPlacement="BottomRight"
                                 IsSnapToTickEnabled="True"
                                 LargeChange="5"/>
 
@@ -489,7 +507,6 @@
                                 ValueChanged="Develop_Slider_ValueChanged"
                                 Thumb.DragStarted="Develop_Slider_DragStarted"
                                 Thumb.DragCompleted="Develop_Slider_DragCompleted"
-                                TickPlacement="BottomRight"
                                 IsSnapToTickEnabled="True"
                                 LargeChange="5"/>
 
@@ -511,7 +528,6 @@
                                 ValueChanged="Develop_Slider_ValueChanged"
                                 Thumb.DragStarted="Develop_Slider_DragStarted"
                                 Thumb.DragCompleted="Develop_Slider_DragCompleted"
-                                TickPlacement="BottomRight"
                                 IsSnapToTickEnabled="True"
                                 LargeChange="5"/>
 
@@ -533,7 +549,6 @@
                                 ValueChanged="Develop_Slider_ValueChanged"
                                 Thumb.DragStarted="Develop_Slider_DragStarted"
                                 Thumb.DragCompleted="Develop_Slider_DragCompleted"
-                                TickPlacement="BottomRight"
                                 IsSnapToTickEnabled="True"
                                 LargeChange="5"/>
 
@@ -555,7 +570,6 @@
                                 ValueChanged="Develop_Slider_ValueChanged"
                                 Thumb.DragStarted="Develop_Slider_DragStarted"
                                 Thumb.DragCompleted="Develop_Slider_DragCompleted"
-                                TickPlacement="BottomRight"
                                 IsSnapToTickEnabled="True"
                                 LargeChange="5"/>
 
@@ -577,7 +591,6 @@
                                 ValueChanged="Develop_Slider_ValueChanged"
                                 Thumb.DragStarted="Develop_Slider_DragStarted"
                                 Thumb.DragCompleted="Develop_Slider_DragCompleted"
-                                TickPlacement="BottomRight"
                                 IsSnapToTickEnabled="True"
                                 LargeChange="5"/>
 
@@ -599,7 +612,6 @@
                                 ValueChanged="Develop_Slider_ValueChanged"
                                 Thumb.DragStarted="Develop_Slider_DragStarted"
                                 Thumb.DragCompleted="Develop_Slider_DragCompleted"
-                                TickPlacement="BottomRight"
                                 IsSnapToTickEnabled="True"
                                 LargeChange="5"/>
                     </StackPanel>
@@ -607,21 +619,11 @@
                     <!-- Progress bar active when the adjustments are being computed -->
                     <ProgressBar x:Name="Develop_Process_ProgressBar"
                                  IsIndeterminate="False"
-                                 Grid.Row="2"
-                                 Grid.Column="0"
-                                 Grid.ColumnSpan="5"
-                                 Height="30"
-                                 Margin="10,0,5,10"
+                                 Grid.Row="1"
+                                 Grid.Column="2"
+                                 Height="10"
+                                 Margin="10,0,10,0"
                                  Background="Black"/>
-                    <TextBlock x:Name="Develop_Process_Text"
-							   Text="Processing..."
-                               Grid.Row="2"
-                               Grid.Column="0"
-                               Grid.ColumnSpan="5"
-                               Margin="10,0,5,10"
-                               VerticalAlignment="Center"
-                               HorizontalAlignment="Center"
-                               Visibility="Collapsed"/>
                 </Grid>
             </TabItem>
         </TabControl>

@@ -233,7 +233,6 @@ namespace rawinator
 
             Dispatcher.Invoke(() => {
                 Develop_Process_ProgressBar.IsIndeterminate = true;
-                Develop_Process_Text.Visibility = Visibility.Visible;
                 SetDevelopSlidersEnabled(false);
             });
 
@@ -246,7 +245,6 @@ namespace rawinator
                 Dispatcher.Invoke(() => {
                     Develop_Image.Source = RawImageHelpers.MagickImageToBitmapImage(adjusted);
                     Develop_Process_ProgressBar.IsIndeterminate = false;
-                    Develop_Process_Text.Visibility = Visibility.Collapsed;
                     SetDevelopSlidersEnabled(true);
                 });
             });
