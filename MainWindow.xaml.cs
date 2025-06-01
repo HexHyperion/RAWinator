@@ -20,6 +20,7 @@ namespace rawinator
         private RawImageProcessParams developImageParams = new(0, 0, 0, 0, 0, 0, 0, 0, 0);
         private Thread imageImportThread;
         private Thread imageProcessThread;
+        private bool isSliderDragged = false;
 
         private void ImportImages(string[] filenames)
         {
@@ -139,9 +140,20 @@ namespace rawinator
             }
         }
 
-        private void Develop_Slider_Changed(object sender, DragCompletedEventArgs e)
+        private void Develop_Slider_DragStarted(object sender, DragStartedEventArgs e)
         {
-            if (sender is Slider slider)
+            isSliderDragged = true;
+        }
+
+        private void Develop_Slider_DragCompleted(object sender, DragCompletedEventArgs e)
+        {
+            isSliderDragged = false;
+            Develop_Slider_ValueChanged(sender, new RoutedPropertyChangedEventArgs<double>(0, 0));
+        }
+
+        private void Develop_Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (sender is Slider slider && !isSliderDragged)
             {
                 switch (slider.Name)
                 {
