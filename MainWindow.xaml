@@ -126,7 +126,10 @@
                                       Margin="0,10,0,0"
                                       Grid.Row="2">
                             <TextBlock x:Name="Library_Image_Metadata_Text"
-                                       TextWrapping="Wrap"/>
+                                       TextWrapping="Wrap"
+                                       Margin="0,5,0,0"
+                                       VerticalAlignment="Top"
+                                       HorizontalAlignment="Left"/>
                         </ScrollViewer>
                     </Grid>
 
@@ -169,7 +172,8 @@
                 </Grid>
             </TabItem>
             <TabItem Header="View"
-                     x:Name="Tabs_View">
+                     x:Name="Tabs_View"
+                     KeyDown="Tabs_View_KeyDown">
                 <Grid Background="#FFE5E5E5">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
@@ -212,12 +216,43 @@
 	                              ResizeBehavior="PreviousAndNext"
 	                              ResizeDirection="Columns"/>
 
-                    <ListBox Grid.Column="4" Margin="10">
-	                    <ListBoxItem>Item 1</ListBoxItem>
-	                    <ListBoxItem>Item 2</ListBoxItem>
-	                    <ListBoxItem>Item 3</ListBoxItem>
-	                    <ListBoxItem>Item 4</ListBoxItem>
-                    </ListBox>
+                    <Grid Grid.Column="4" Background="White">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Image metadata"
+                                   FontWeight="Bold"
+                                   FontSize="16"
+                                   Margin="8,8,0,8"
+                                   Grid.Row="0"/>
+                        <ScrollViewer Grid.Row="1"
+                                      VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Auto"
+                                      VerticalAlignment="Stretch"
+                                      HorizontalAlignment="Stretch">
+                            <ItemsControl x:Name="View_Metadata_Accordions"
+                                          ItemsSource="{Binding CurrentImage.Metadata}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Expander Header="{Binding Name}" IsExpanded="False" Margin="8,0,0,8">
+                                            <ItemsControl ItemsSource="{Binding Tags}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="{Binding Name}" FontWeight="Bold"/>
+                                                            <TextBlock Text=": " FontWeight="Bold" />
+                                                            <TextBlock Text="{Binding Description}" />
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </Expander>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
 
                     <GridSplitter Grid.Row="1"
                                   Grid.ColumnSpan="5"
@@ -274,6 +309,9 @@
 
                     <!-- Placeholder, probably a preset selector or history in the future -->
                     <ListBox Grid.Column="0" Margin="10">
+                        <TextBlock Text="Presets"
+                                   FontWeight="Bold"
+                                   FontSize="16"/>
                         <ListBoxItem>Item 1</ListBoxItem>
                         <ListBoxItem>Item 2</ListBoxItem>
                         <ListBoxItem>Item 3</ListBoxItem>
@@ -306,7 +344,7 @@
                                 Grid.Column="4"
                                 Orientation="Vertical"
                                 Margin="10">
-                        <!-- Exposure -->
+	                    <!-- Exposure -->
                         <Grid Margin="0,0,0,0">
                             <TextBlock Text="Exposure"
                                        Grid.Column="0"

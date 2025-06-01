@@ -1,15 +1,16 @@
 ﻿using ImageMagick;
 using Microsoft.Win32;
-using System.Text;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 
 namespace rawinator
 {
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
         public MainWindow()
         {
@@ -18,9 +19,24 @@ namespace rawinator
         }
 
         public SparseObservableList<RawImage> ImportedImages { get; set; } = [];
-        public RawImage? CurrentImage = null;
-        private RawImageProcessParams developImageParams = new(0, 0, 0, 0, 0, 0, 0, 0, 0);
+
+        private RawImage? _currentImage;
+        public RawImage? CurrentImage {
+            get => _currentImage;
+            set {
+                if (_currentImage != value)
+                {
+                    _currentImage = value;
+                    OnPropertyChanged(nameof(CurrentImage));
+                }
+            }
+        }
+
+        private RawImageProcessParams developImageParams = new();
         private bool isSliderDragged = false;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
         private void ImportImages(string[] filenames)
         {
@@ -100,20 +116,22 @@ namespace rawinator
 
                 var imageDimensions = selectedImage.GetMetadata(MetadataTagLists.ImageDimensions);
 
-                var metadataString = new StringBuilder();
-                metadataString.AppendLine($"Filename: {selectedImage.Filename}");
-                metadataString.AppendLine($"Image Size: {imageDimensions[0].Item2} x {imageDimensions[1].Item2} pixels\n");
+                Library_Image_Metadata_Text.Inlines.Clear();
+                Library_Image_Metadata_Text.Inlines.Add(new Bold(new Run("Filename:")));
+                Library_Image_Metadata_Text.Inlines.Add($" {selectedImage.Filename}\n");
+                Library_Image_Metadata_Text.Inlines.Add(new Bold(new Run("Image Size:")));
+                Library_Image_Metadata_Text.Inlines.Add($" {imageDimensions[0].Item2} x {imageDimensions[1].Item2} pixels\n\n");
 
                 foreach (var tag in selectedImage.GetMetadata(MetadataTagLists.General))
                 {
                     if (string.IsNullOrEmpty(tag.Item1))
                     {
-                        metadataString.AppendLine("");
+                        Library_Image_Metadata_Text.Inlines.Add(new Run("\n"));
                         continue;
                     }
-                    metadataString.AppendLine($"{tag.Item1}: {tag.Item2}");
+                    Library_Image_Metadata_Text.Inlines.Add(new Bold(new Run($"{tag.Item1}:")));
+                    Library_Image_Metadata_Text.Inlines.Add($" {tag.Item2}\n");
                 }
-                Library_Image_Metadata_Text.Text = metadataString.ToString();
 
                 CurrentImage = selectedImage;
             }
@@ -146,6 +164,8 @@ namespace rawinator
                                 View_Image.Source = thumbnail;
                             });
                         });
+                        // Ensure the accordions update
+                        OnPropertyChanged(nameof(CurrentImage));
                     }
                 }
             }
@@ -308,6 +328,24 @@ namespace rawinator
         private void Menu_Help_About_Click(object sender, RoutedEventArgs e)
         {
 
+        }
+
+        private void Tabs_View_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Left)
+            {
+                if (View_Image_List.SelectedIndex > 0)
+                {
+                    View_Image_List.SelectedIndex--;
+                }
+            }
+            else if (e.Key == Key.Right)
+            {
+                if (View_Image_List.SelectedIndex < View_Image_List.Items.Count - 1)
+                {
+                    View_Image_List.SelectedIndex++;
+                }
+            }
         }
     }
 }
