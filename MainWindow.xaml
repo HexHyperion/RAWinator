@@ -12,7 +12,67 @@
     <Window.Resources>
         <local:PlusSignValueConverter x:Key="PlusSignValueConverter"/>
         <local:ProgressConverter x:Key="ProgressConverter" />
+
+        <Style TargetType="Button" x:Key="ButtonStyle">
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Background" Value="Black" />
+            <Setter Property="BorderBrush" Value="White" />
+            <Setter Property="Template">
+		        <Setter.Value>
+			        <ControlTemplate TargetType="{x:Type Button}">
+                        <Border 
+                            Background="{TemplateBinding Background}" 
+                            BorderBrush="{TemplateBinding BorderBrush}" 
+                            BorderThickness="1">
+				            <ContentPresenter x:Name="MyContentPresenter" 
+				                              Content="{TemplateBinding Content}"
+				                              HorizontalAlignment="Center" 
+				                              VerticalAlignment="Center" />
+                        </Border>
+			        </ControlTemplate>
+		        </Setter.Value>
+	        </Setter>
+
+	        <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="BorderBrush" Value="Red"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="Lime"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="TabItem" x:Key="TabItemStyle">
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Background" Value="Black" />
+            <Setter Property="Template">
+		        <Setter.Value>
+			        <ControlTemplate TargetType="TabItem">
+				        <Border Name="TabBorder" BorderThickness="1,1,1,0" BorderBrush="Transparent">
+                            <TextBlock Name="TabHeader" FontSize="14" Foreground="{TemplateBinding Foreground}">
+                                <ContentPresenter x:Name="ContentSite"
+                                                  VerticalAlignment="Center"
+                                                  HorizontalAlignment="Center"
+                                                  ContentSource="Header"
+                                                  Margin="10,2"/>
+                            </TextBlock>
+				        </Border>
+				        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="False">
+                                <Setter TargetName="TabHeader" Property="Foreground" Value="Gray"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="TabHeader" Property="Foreground" Value="White"/>
+                                <Setter TargetName="TabHeader" Property="FontWeight" Value="Bold"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+			        </ControlTemplate>
+		        </Setter.Value>
+	        </Setter>
+        </Style>
     </Window.Resources>
+
     <Grid Background="Black">
         <DockPanel>
             <Menu DockPanel.Dock="Top" Background="Black" Foreground="White">
@@ -49,7 +109,8 @@
             <TabItem Header="Library"
                      x:Name="Tabs_Library"
                      Background="Black"
-                     Foreground="White">
+                     Foreground="White"
+                     Style="{StaticResource TabItemStyle}">
                 <Grid Background="Black">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
@@ -184,16 +245,14 @@
                             Grid.Column="2"
                             HorizontalAlignment="Right"
                             Margin="0,0,10,10"
-                            Background="Black"
-                            Foreground="White"
-                            FontWeight="Bold"/>
+                            FontWeight="Bold"
+                            Style="{StaticResource ButtonStyle}"/>
                 </Grid>
             </TabItem>
             <TabItem Header="View"
                      x:Name="Tabs_View"
                      KeyDown="Tabs_View_KeyDown"
-                     Background="Black"
-                     Foreground="White">
+                     Style="{StaticResource TabItemStyle}">
                 <Grid Background="Black">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
@@ -318,8 +377,7 @@
             </TabItem>
             <TabItem Header="Develop"
                      x:Name="Tabs_Develop"
-                     Background="Black"
-                     Foreground="White">
+                     Style="{StaticResource TabItemStyle}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />

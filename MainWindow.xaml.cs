@@ -148,11 +148,6 @@ namespace rawinator
                         ResetSliders();
                         UpdateDevelopImage();
                     }
-                    else
-                    {
-                        MessageBox.Show("Please select an image from the library to develop.", "No Image Selected", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        App_TabControl.SelectedItem = Tabs_Library;
-                    }
                 }
                 else if (selectedTab.Name == "Tabs_View")
                 {
@@ -164,7 +159,6 @@ namespace rawinator
                                 View_Image.Source = thumbnail;
                             });
                         });
-                        // Ensure the accordions update
                         OnPropertyChanged(nameof(CurrentImage));
                     }
                 }
