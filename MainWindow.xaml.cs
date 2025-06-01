@@ -112,28 +112,71 @@ namespace rawinator
         {
             if (Library_Image_Grid.SelectedItem is RawImage selectedImage)
             {
+                CurrentImage = selectedImage;
                 Library_Image_Thumbnail.Source = selectedImage.SmallThumbnail;
 
                 var imageDimensions = selectedImage.GetMetadata(MetadataTagLists.ImageDimensions);
 
-                Library_Image_Metadata_Text.Inlines.Clear();
-                Library_Image_Metadata_Text.Inlines.Add(new Bold(new Run("Filename:")));
-                Library_Image_Metadata_Text.Inlines.Add($" {selectedImage.Filename}\n");
-                Library_Image_Metadata_Text.Inlines.Add(new Bold(new Run("Image Size:")));
-                Library_Image_Metadata_Text.Inlines.Add($" {imageDimensions[0].Item2} x {imageDimensions[1].Item2} pixels\n\n");
+                // Collect all tag strings to measure the width of the column
+                var tagStrings = new List<string>
+                {
+                    "Filename:",
+                    "Image Size:"
+                };
+                foreach (var tag in selectedImage.GetMetadata(MetadataTagLists.General))
+                {
+                    if (!string.IsNullOrEmpty(tag.Item1))
+                        tagStrings.Add(tag.Item1 + ":");
+                }
+                double maxTagWidth = 0;
+                foreach (var tag in tagStrings)
+                {
+                    var tb = new TextBlock
+                    {
+                        Text = tag,
+                        FontWeight = FontWeights.Bold
+                    };
+                    tb.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                    if (tb.DesiredSize.Width > maxTagWidth)
+                        maxTagWidth = tb.DesiredSize.Width;
+                }
+                maxTagWidth += 4;
+
+                void AddRow(string tag, string value)
+                {
+                    var row = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 2) };
+                    var tagBlock = new TextBlock
+                    {
+                        Text = tag,
+                        FontWeight = FontWeights.Bold,
+                        TextAlignment = System.Windows.TextAlignment.Right,
+                        Margin = new Thickness(0, 0, 8, 0),
+                        Width = maxTagWidth
+                    };
+                    var valueBlock = new TextBlock
+                    {
+                        Text = value
+                    };
+                    row.Children.Add(tagBlock);
+                    row.Children.Add(valueBlock);
+                    Library_Image_Metadata_Panel.Children.Add(row);
+                }
+
+                Library_Image_Metadata_Panel.Children.Clear();
+                AddRow("Filename:", selectedImage.Filename);
+                AddRow("Image Size:", $"{imageDimensions[0].Item2} x {imageDimensions[1].Item2} pixels");
+
+                Library_Image_Metadata_Panel.Children.Add(new Border { Height = 8 });
 
                 foreach (var tag in selectedImage.GetMetadata(MetadataTagLists.General))
                 {
                     if (string.IsNullOrEmpty(tag.Item1))
                     {
-                        Library_Image_Metadata_Text.Inlines.Add(new Run("\n"));
+                        Library_Image_Metadata_Panel.Children.Add(new Border { Height = 8 });
                         continue;
                     }
-                    Library_Image_Metadata_Text.Inlines.Add(new Bold(new Run($"{tag.Item1}:")));
-                    Library_Image_Metadata_Text.Inlines.Add($" {tag.Item2}\n");
+                    AddRow(tag.Item1 + ":", tag.Item2);
                 }
-
-                CurrentImage = selectedImage;
             }
         }
 
