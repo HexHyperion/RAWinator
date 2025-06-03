@@ -5,247 +5,35 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:rawinator"
         mc:Ignorable="d"
-        Title="MainWindow"
+        Title="RAWinator: a broken photo editor"
         Height="750"
         Width="1300"
         FontFamily="Consolas">
     <Window.Resources>
         <local:PlusSignValueConverter x:Key="PlusSignValueConverter"/>
         <local:ProgressConverter x:Key="ProgressConverter" />
-
-        <Style TargetType="Button"
-               x:Key="ButtonStyle">
-            <Setter Property="Foreground" Value="White" />
-            <Setter Property="Background" Value="Black" />
-            <Setter Property="BorderBrush" Value="White" />
-            <Setter Property="Template">
-		        <Setter.Value>
-			        <ControlTemplate TargetType="{x:Type Button}">
-                        <Border 
-                            Background="{TemplateBinding Background}" 
-                            BorderBrush="{TemplateBinding BorderBrush}" 
-                            BorderThickness="1">
-				            <ContentPresenter x:Name="MyContentPresenter" 
-				                              Content="{TemplateBinding Content}"
-				                              HorizontalAlignment="Center" 
-				                              VerticalAlignment="Center" />
-                        </Border>
-			        </ControlTemplate>
-		        </Setter.Value>
-	        </Setter>
-
-	        <Style.Triggers>
-                <Trigger Property="IsEnabled" Value="False">
-                    <Setter Property="BorderBrush" Value="#4a4a4a"/>
-                    <Setter Property="Foreground" Value="#4a4a4a"/>
-                </Trigger>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="BorderBrush" Value="#aaa"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style TargetType="TabItem"
-               x:Key="TabItemStyle">
-            <Setter Property="Foreground" Value="White" />
-            <Setter Property="Background" Value="Black" />
-            <Setter Property="Template">
-		        <Setter.Value>
-			        <ControlTemplate TargetType="TabItem">
-				        <Border Name="TabBorder"
-				                BorderThickness="1,1,1,0"
-				                BorderBrush="Transparent">
-                            <TextBlock Name="TabHeader"
-                                       FontSize="14"
-                                       Foreground="{TemplateBinding Foreground}">
-                                <ContentPresenter x:Name="ContentSite"
-                                                  VerticalAlignment="Center"
-                                                  HorizontalAlignment="Center"
-                                                  ContentSource="Header"
-                                                  Margin="10,2,2,10"/>
-                            </TextBlock>
-				        </Border>
-				        <ControlTemplate.Triggers>
-                            <Trigger Property="IsSelected" Value="False">
-                                <Setter TargetName="TabHeader"
-                                        Property="Foreground"
-                                        Value="Gray"/>
-                            </Trigger>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="TabHeader"
-                                        Property="Foreground"
-                                        Value="White"/>
-                                <Setter TargetName="TabHeader"
-                                        Property="FontWeight"
-                                        Value="Bold"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="TabHeader"
-                                        Property="Foreground"
-                                        Value="#3a3a3a"/>
-                            </Trigger>
-                            <MultiTrigger>
-                                <MultiTrigger.Conditions>
-                                    <Condition Property="IsMouseOver" Value="True"/>
-                                    <Condition Property="IsSelected" Value="False"/>
-                                </MultiTrigger.Conditions>
-                                <Setter TargetName="TabHeader"
-                                        Property="Foreground"
-                                        Value="#aaa"/>
-                            </MultiTrigger>
-                        </ControlTemplate.Triggers>
-			        </ControlTemplate>
-		        </Setter.Value>
-	        </Setter>
-        </Style>
-
-        <Style x:Key="SliderTrackRepeatButtonStyle"
-               TargetType="RepeatButton">
-            <Setter Property="Background" Value="#aaa"/>
-            <Setter Property="Height" Value="2"/>
-            <Setter Property="OverridesDefaultStyle" Value="True"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="RepeatButton">
-                        <Border Background="{TemplateBinding Background}"
-                                Height="{TemplateBinding Height}" />
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#aaa"/>
-                </Trigger>
-                <Trigger Property="IsPressed" Value="True">
-                    <Setter Property="Background" Value="#aaa"/>
-                </Trigger>
-                <Trigger Property="IsEnabled" Value="False">
-                    <Setter Property="Background" Value="#aaa"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style TargetType="Slider"
-               x:Key="SliderStyle">
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Slider">
-                        <Grid>
-                            <Track x:Name="PART_Track"
-                                   IsDirectionReversed="{TemplateBinding IsDirectionReversed}"
-                                   Focusable="False">
-                                <Track.DecreaseRepeatButton>
-                                    <RepeatButton Command="Slider.DecreaseLarge"
-                                                  Style="{StaticResource SliderTrackRepeatButtonStyle}"
-                                                  IsTabStop="False"/>
-                                </Track.DecreaseRepeatButton>
-                                <Track.Thumb>
-                                    <Thumb x:Name="Thumb"
-	                                       Background="White"
-	                                       BorderBrush="Transparent"
-	                                       BorderThickness="0"
-	                                       Height="16"
-	                                       Width="8"/>
-                                </Track.Thumb>
-                                <Track.IncreaseRepeatButton>
-                                    <RepeatButton Command="Slider.IncreaseLarge"
-                                                  Style="{StaticResource SliderTrackRepeatButtonStyle}"
-                                                  IsTabStop="False"/>
-                                </Track.IncreaseRepeatButton>
-                            </Track>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="BlackMenuItemStyle" TargetType="MenuItem">
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Background" Value="Black"/>
-            <Setter Property="BorderBrush" Value="Black"/>
-            <Setter Property="Padding" Value="5"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="MenuItem">
-                        <Border x:Name="Border"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="1">
-                            <Grid>
-                                <ContentPresenter ContentSource="Header"
-                                                  RecognizesAccessKey="True"
-                                                  Margin="8,4"/>
-                                <Popup x:Name="PART_Popup"
-                                       Placement="Bottom"
-                                       IsOpen="{TemplateBinding IsSubmenuOpen}"
-                                       AllowsTransparency="True"
-                                       Focusable="False"
-                                       PopupAnimation="Fade">
-                                    <Border Background="Black"
-                                            BorderBrush="#2a2a2a"
-                                            BorderThickness="1"
-                                            SnapsToDevicePixels="True"
-                                            Padding="2"
-                                            MinWidth="100">
-                                        <StackPanel IsItemsHost="True"
-                                                    KeyboardNavigation.DirectionalNavigation="Cycle"/>
-                                    </Border>
-                                </Popup>
-                            </Grid>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsHighlighted" Value="True">
-                                <Setter TargetName="Border"
-                                        Property="Background"
-                                        Value="#222"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Foreground" Value="#4a4a4a"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Setter Property="ItemContainerStyle">
-                <Setter.Value>
-                    <Style TargetType="MenuItem">
-                        <Setter Property="Padding" Value="16,8"/>
-                        <Setter Property="Height" Value="36"/>
-                    </Style>
-                </Setter.Value>
-            </Setter>
-        </Style>
     </Window.Resources>
 
-
-    <Grid Background="Black">
+	<Grid Background="Black">
         <DockPanel>
             <Menu DockPanel.Dock="Top" Background="Black" Foreground="White" FontFamily="Consolas">
-                <MenuItem Header="_File" Style="{StaticResource BlackMenuItemStyle}">
+                <MenuItem Header="_File">
                     <MenuItem Header="_Open"
-                              Click="Menu_File_Open_Click"
-                              Style="{StaticResource BlackMenuItemStyle}"/>
+                              Click="Menu_File_Open_Click"/>
                     <MenuItem Header="_Save"
-                              Click="Menu_File_Save_Click"
-                              Style="{StaticResource BlackMenuItemStyle}"/>
+                              Click="Menu_File_Save_Click"/>
                     <MenuItem Header="_Exit"
-                              Click="Menu_File_Exit_Click"
-                              Style="{StaticResource BlackMenuItemStyle}"/>
+                              Click="Menu_File_Exit_Click"/>
                 </MenuItem>
-                <MenuItem Header="_Edit" Style="{StaticResource BlackMenuItemStyle}">
+                <MenuItem Header="_Edit">
                     <MenuItem Header="_Undo"
-                              Click="Menu_Edit_Undo_Click"
-                              Style="{StaticResource BlackMenuItemStyle}"/>
+                              Click="Menu_Edit_Undo_Click"/>
                     <MenuItem Header="_Redo"
-                              Click="Menu_Edit_Redo_Click"
-                              Style="{StaticResource BlackMenuItemStyle}"/>
+                              Click="Menu_Edit_Redo_Click"/>
                 </MenuItem>
-                <MenuItem Header="_Help" Style="{StaticResource BlackMenuItemStyle}">
+                <MenuItem Header="_Help">
                     <MenuItem Header="_About"
-                              Click="Menu_Help_About_Click"
-                              Style="{StaticResource BlackMenuItemStyle}"/>
+                              Click="Menu_Help_About_Click"/>
                 </MenuItem>
             </Menu>
         </DockPanel>
@@ -259,8 +47,7 @@
 	        <TabItem Header="Library"
 	                 x:Name="Tabs_Library"
 	                 Background="Black"
-	                 Foreground="White"
-	                 Style="{StaticResource TabItemStyle}">
+	                 Foreground="White">
                 <Grid Background="Black">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
@@ -445,8 +232,7 @@
 	                            Height="30"
                                 Grid.Column="0"
 	                            FontWeight="Bold"
-                                Margin="10,0,5,10"
-	                            Style="{StaticResource ButtonStyle}"/>
+                                Margin="10,0,5,10"/>
 
 	                    <Button Content="Export..."
                                 IsEnabled="False"
@@ -455,8 +241,7 @@
 	                            Height="30"
 	                            Grid.Column="1"
 	                            FontWeight="Bold"
-                                Margin="5,0,10,10"
-	                            Style="{StaticResource ButtonStyle}"/>
+                                Margin="5,0,10,10"/>
                     </Grid>
                 </Grid>
             </TabItem>
@@ -465,7 +250,6 @@
             <TabItem Header="View"
                      x:Name="Tabs_View"
                      KeyDown="Tabs_View_KeyDown"
-                     Style="{StaticResource TabItemStyle}"
                      IsEnabled="{Binding HasImageSelected}">
                 <Grid Background="Black">
                     <Grid.RowDefinitions>
@@ -577,7 +361,6 @@
 
             <TabItem Header="Develop"
                      x:Name="Tabs_Develop"
-                     Style="{StaticResource TabItemStyle}"
                      IsEnabled="{Binding HasImageSelected}">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -648,7 +431,6 @@
                                        VerticalAlignment="Center"/>
                         </Grid>
                         <Slider x:Name="Develop_Slider_Exposure"
-                                Style="{StaticResource SliderStyle}"
                                 Minimum="-5"
                                 Maximum="5"
                                 Value="0"
@@ -670,7 +452,6 @@
                                        VerticalAlignment="Center"/>
                         </Grid>
                         <Slider x:Name="Develop_Slider_Brightness"
-                                Style="{StaticResource SliderStyle}"
                                 Minimum="-100"
                                 Maximum="100"
                                 Value="0"
@@ -692,7 +473,6 @@
                                        VerticalAlignment="Center"/>
                         </Grid>
                         <Slider x:Name="Develop_Slider_WhiteBalance"
-                                Style="{StaticResource SliderStyle}"
                                 Minimum="-90"
                                 Maximum="90"
                                 Value="0"
@@ -714,7 +494,6 @@
                                        VerticalAlignment="Center"/>
                         </Grid>
                         <Slider x:Name="Develop_Slider_WhiteBalanceTint"
-                                Style="{StaticResource SliderStyle}"
                                 Minimum="-90"
                                 Maximum="90"
                                 Value="0"
@@ -736,7 +515,6 @@
                                        VerticalAlignment="Center"/>
                         </Grid>
                         <Slider x:Name="Develop_Slider_Contrast"
-                                Style="{StaticResource SliderStyle}"
                                 Minimum="-100"
                                 Maximum="100"
                                 Value="0"
@@ -758,7 +536,6 @@
                                        VerticalAlignment="Center"/>
                         </Grid>
                         <Slider x:Name="Develop_Slider_Highlights"
-                                Style="{StaticResource SliderStyle}"
                                 Minimum="-100"
                                 Maximum="100"
                                 Value="0"
@@ -780,7 +557,6 @@
                                        VerticalAlignment="Center"/>
                         </Grid>
                         <Slider x:Name="Develop_Slider_Shadows"
-                                Style="{StaticResource SliderStyle}"
                                 Minimum="-100"
                                 Maximum="100"
                                 Value="0"
@@ -802,7 +578,6 @@
                                        VerticalAlignment="Center"/>
                         </Grid>
                         <Slider x:Name="Develop_Slider_Saturation"
-                                Style="{StaticResource SliderStyle}"
                                 Minimum="-100"
                                 Maximum="100"
                                 Value="0"
@@ -824,7 +599,6 @@
                                        VerticalAlignment="Center"/>
                         </Grid>
                         <Slider x:Name="Develop_Slider_Hue"
-                                Style="{StaticResource SliderStyle}"
                                 Minimum="-180"
                                 Maximum="180"
                                 Value="0"
