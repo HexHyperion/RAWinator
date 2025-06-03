@@ -12,51 +12,40 @@ namespace rawinator
         public string Path { get; set; }
         public ImageSource? SmallThumbnail { get; set; }
         public IEnumerable<Directory> Metadata { get; set; }
+        public RawImageProcessParams ProcessParams { get; set; }
 
         public RawImage(string path)
         {
             Path = path;
             Filename = System.IO.Path.GetFileName(path);
             Metadata = ImageMetadataReader.ReadMetadata(Path);
+            ProcessParams = new();
 
             var defines = new DngReadDefines { ReadThumbnail = true };
-            using (var image = new MagickImage())
+            using var image = new MagickImage();
+            image.Settings.SetDefines(defines);
+            image.Ping(Path);
+
+            var thumbnailData = image.GetProfile("dng:thumbnail")?.ToByteArray();
+            if (thumbnailData != null && thumbnailData.Length > 0)
             {
-                image.Settings.SetDefines(defines);
-                image.Ping(Path);
+                using var thumbnailImage = new MagickImage(thumbnailData);
+                thumbnailImage.AutoOrient();
 
-                var thumbnailData = image.GetProfile("dng:thumbnail")?.ToByteArray();
-                if (thumbnailData != null && thumbnailData.Length > 0)
+                // Resize so the longest edge is at most 500px
+                int width = thumbnailImage.Width;
+                int height = thumbnailImage.Height;
+                int maxEdge = Math.Max(width, height);
+                if (maxEdge > 500)
                 {
-                    using var thumbnailImage = new MagickImage(thumbnailData);
-                    thumbnailImage.AutoOrient();
-
-                    // Resize so the longest edge is at most 500px
-                    int width = thumbnailImage.Width;
-                    int height = thumbnailImage.Height;
-                    int maxEdge = Math.Max(width, height);
-                    if (maxEdge > 500)
-                    {
-                        double scale = 500.0 / maxEdge;
-                        int newWidth = (int)Math.Round(width * scale);
-                        int newHeight = (int)Math.Round(height * scale);
-                        thumbnailImage.Resize(newWidth, newHeight);
-                    }
-
-                    SmallThumbnail = RawImageHelpers.MagickImageToBitmapImage(thumbnailImage);
+                    double scale = 500.0 / maxEdge;
+                    int newWidth = (int)Math.Round(width * scale);
+                    int newHeight = (int)Math.Round(height * scale);
+                    thumbnailImage.Resize(newWidth, newHeight);
                 }
-            }
 
-            // Messagebox each metadata directory
-            //foreach (var directory in Metadata)
-            //{
-            //    StringBuilder stringBuilder = new StringBuilder();
-            //    foreach (var tag in directory.Tags)
-            //    {
-            //        stringBuilder.AppendLine($"{tag.Name}: {tag.Description}");
-            //    }
-            //    MessageBox.Show(stringBuilder.ToString(), directory.Name);
-            //}
+                SmallThumbnail = RawImageHelpers.MagickImageToBitmapImage(thumbnailImage);
+            }
         }
 
         public ImageSource? GetFullThumbnail()
@@ -75,6 +64,21 @@ namespace rawinator
                 return RawImageHelpers.MagickImageToBitmapImage(thumbnailImage);
             }
             return null;
+        }
+
+        public MagickImage GetProcessedRawImage()
+        {
+            using var image = new MagickImage();
+            DngReadDefines defines = new() {
+                UseAutoWhitebalance = false,
+                DisableAutoBrightness = false,
+                UseCameraWhitebalance = true,
+                InterpolationQuality = DngInterpolation.ModifiedAhd
+            };
+            image.Settings.SetDefines(defines);
+            image.Read(Path);
+            image.AutoOrient();
+            return RawImageHelpers.ApplyAdjustments(image, ProcessParams);
         }
 
         public List<(string, string)> GetMetadata(int?[] tags)

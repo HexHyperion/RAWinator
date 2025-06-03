@@ -2,6 +2,7 @@
 using ImageMagick.Formats;
 using Microsoft.Win32;
 using System.ComponentModel;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -16,6 +17,18 @@ namespace rawinator
         {
             InitializeComponent();
             DataContext = this;
+
+            developSliders = [
+                (Develop_Slider_Exposure, nameof(RawImageProcessParams.Exposure)),
+                (Develop_Slider_Brightness, nameof(RawImageProcessParams.Brightness)),
+                (Develop_Slider_Highlights, nameof(RawImageProcessParams.Highlights)),
+                (Develop_Slider_Shadows, nameof(RawImageProcessParams.Shadows)),
+                (Develop_Slider_WhiteBalance, nameof(RawImageProcessParams.WbTemperature)),
+                (Develop_Slider_WhiteBalanceTint, nameof(RawImageProcessParams.WbTint)),
+                (Develop_Slider_Contrast, nameof(RawImageProcessParams.Contrast)),
+                (Develop_Slider_Saturation, nameof(RawImageProcessParams.Saturation)),
+                (Develop_Slider_Hue, nameof(RawImageProcessParams.Hue)),
+            ];
         }
 
         public SparseObservableList<RawImage> ImportedImages { get; set; } = [];
@@ -35,8 +48,8 @@ namespace rawinator
 
         public bool HasImageSelected => CurrentImage != null;
 
-        private RawImageProcessParams developImageParams = new();
         private bool isSliderDragged = false;
+        private (Slider slider, string property)[] developSliders;
 
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -222,8 +235,7 @@ namespace rawinator
                 {
                     if (CurrentImage != null)
                     {
-                        ResetSliders();
-                        UpdateDevelopImage();
+                        UpdateDevelopImage(true);
                     }
                 }
                 else if (selectedTab.Name == "Tabs_View")
@@ -287,99 +299,77 @@ namespace rawinator
 
         private void Develop_Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            if (sender is Slider slider && !isSliderDragged)
+            if (sender is Slider slider && !isSliderDragged && CurrentImage != null)
             {
-                switch (slider.Name)
+                var match = developSliders.FirstOrDefault(ds => ds.slider == slider);
+                if (!string.IsNullOrEmpty(match.property))
                 {
-                    case nameof(Develop_Slider_Exposure):
-                        developImageParams.Exposure = slider.Value;
-                        break;
-                    case nameof(Develop_Slider_Brightness):
-                        developImageParams.Brightness = slider.Value;
-                        break;
-                    case nameof(Develop_Slider_Highlights):
-                        developImageParams.Highlights = slider.Value;
-                        break;
-                    case nameof(Develop_Slider_Shadows):
-                        developImageParams.Shadows = slider.Value;
-                        break;
-                    case nameof(Develop_Slider_WhiteBalance):
-                        developImageParams.WbTemperature = slider.Value;
-                        break;
-                    case nameof(Develop_Slider_WhiteBalanceTint):
-                        developImageParams.WbTint = slider.Value;
-                        break;
-                    case nameof(Develop_Slider_Contrast):
-                        developImageParams.Contrast = slider.Value;
-                        break;
-                    case nameof(Develop_Slider_Saturation):
-                        developImageParams.Saturation = slider.Value;
-                        break;
-                    case nameof(Develop_Slider_Hue):
-                        developImageParams.Hue = slider.Value;
-                        break;
+                    var prop = typeof(RawImageProcessParams).GetProperty(match.property);
+                    if (prop != null)
+                    {
+                        double currentValue = (double)prop.GetValue(CurrentImage.ProcessParams)!;
+                        double newValue = slider.Value;
+                        if (!currentValue.Equals(newValue))
+                        {
+                            prop.SetValue(CurrentImage.ProcessParams, newValue);
+                            UpdateDevelopImage();
+                        }
+                    }
                 }
-                UpdateDevelopImage();
             }
         }
 
-        private void UpdateDevelopImage()
+        private void ResetDevelopSliders()
         {
-            if (CurrentImage == null) return;
-
-            Dispatcher.Invoke(() => {
-                Develop_Process_ProgressBar.IsIndeterminate = true;
-                SetDevelopSlidersEnabled(false);
-            });
-
-            Task.Run(() => {
-                MagickImage image = new();
-                DngReadDefines defines = new() {
-                    UseAutoWhitebalance = false,
-                    DisableAutoBrightness = false,
-                    UseCameraWhitebalance = true,
-                    InterpolationQuality = DngInterpolation.ModifiedAhd
-                };
-                image.Settings.SetDefines(defines);
-                image.Read(CurrentImage.Path);
-
-                var adjusted = RawImageHelpers.ApplyAdjustments(
-                    image,
-                    developImageParams
-                );
-
-                Dispatcher.Invoke(() => {
-                    Develop_Image.Source = RawImageHelpers.MagickImageToBitmapImage(adjusted);
-                    Develop_Process_ProgressBar.IsIndeterminate = false;
-                    SetDevelopSlidersEnabled(true);
-                });
-            });
+            foreach (var (slider, _) in developSliders)
+                slider.Value = 0;
         }
 
-        private void ResetSliders()
+        private void SetDevelopSliders()
         {
-            Develop_Slider_Exposure.Value = 0;
-            Develop_Slider_Brightness.Value = 0;
-            Develop_Slider_Highlights.Value = 0;
-            Develop_Slider_Shadows.Value = 0;
-            Develop_Slider_WhiteBalance.Value = 0;
-            Develop_Slider_WhiteBalanceTint.Value = 0;
-            Develop_Slider_Contrast.Value = 0;
-            Develop_Slider_Saturation.Value = 0;
-            Develop_Slider_Hue.Value = 0;
+            if (CurrentImage == null)
+            {
+                ResetDevelopSliders();
+                return;
+            }
+            var processParams = CurrentImage.ProcessParams;
+            foreach (var (slider, property) in developSliders)
+            {
+                var prop = typeof(RawImageProcessParams).GetProperty(property);
+                if (prop != null)
+                    slider.Value = (double)prop.GetValue(processParams)!;
+            }
         }
 
         private void SetDevelopSlidersEnabled(bool enabled)
         {
-            Develop_Slider_Exposure.IsEnabled = enabled;
-            Develop_Slider_Brightness.IsEnabled = enabled;
-            Develop_Slider_Highlights.IsEnabled = enabled;
-            Develop_Slider_Shadows.IsEnabled = enabled;
-            Develop_Slider_WhiteBalance.IsEnabled = enabled;
-            Develop_Slider_WhiteBalanceTint.IsEnabled = enabled;
-            Develop_Slider_Contrast.IsEnabled = enabled;
-            Develop_Slider_Saturation.IsEnabled = enabled;
-            Develop_Slider_Hue.IsEnabled = enabled;
+            foreach (var (slider, _) in developSliders)
+                slider.IsEnabled = enabled;
+        }
+
+        private void UpdateDevelopImage(bool? isNew = false)
+        {
+            if (CurrentImage == null)
+            {
+                Develop_Image.Source = null;
+                return;
+            }
+            Develop_Process_ProgressBar.IsIndeterminate = true;
+            SetDevelopSlidersEnabled(false);
+
+            Task.Run(() => {
+                var adjusted = CurrentImage.GetProcessedRawImage();
+
+                Dispatcher.Invoke(() => {
+                    Develop_Image.Source = RawImageHelpers.MagickImageToBitmapImage(adjusted);
+                    Develop_Process_ProgressBar.IsIndeterminate = false;
+                    if (isNew == true)
+                    {
+                        SetDevelopSliders();
+                    }
+                    SetDevelopSlidersEnabled(true);
+                });
+            });
         }
 
         private void Menu_File_Open_Click(object sender, RoutedEventArgs e)
