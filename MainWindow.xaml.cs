@@ -1,10 +1,10 @@
 ﻿using ImageMagick;
+using ImageMagick.Formats;
 using Microsoft.Win32;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -28,9 +28,12 @@ namespace rawinator
                 {
                     _currentImage = value;
                     OnPropertyChanged(nameof(CurrentImage));
+                    OnPropertyChanged(nameof(HasImageSelected));
                 }
             }
         }
+
+        public bool HasImageSelected => CurrentImage != null;
 
         private RawImageProcessParams developImageParams = new();
         private bool isSliderDragged = false;
@@ -44,7 +47,7 @@ namespace rawinator
                 ImportedImages.Clear();
                 Library_Import_ProgressBar.Maximum = filenames.Length;
                 Library_Import_Status.Visibility = Visibility.Visible;
-                Library_Import_Button.Content = $"Importing...";
+                Library_Import_Button.Content = "Importing...";
                 Library_Import_Button.IsEnabled = false;
             });
 
@@ -84,6 +87,11 @@ namespace rawinator
             }
         }
 
+        private void Library_Export_Button_Click(object sender, RoutedEventArgs e)
+        {
+            
+        }
+
         private void Library_Image_Grid_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Delete && Library_Image_Grid.SelectedItems != null)
@@ -112,28 +120,10 @@ namespace rawinator
         {
             if (Library_Image_Grid.SelectedItem is RawImage selectedImage)
             {
+                CurrentImage = selectedImage;
                 Library_Image_Thumbnail.Source = selectedImage.SmallThumbnail;
 
-                var imageDimensions = selectedImage.GetMetadata(MetadataTagLists.ImageDimensions);
-
-                Library_Image_Metadata_Text.Inlines.Clear();
-                Library_Image_Metadata_Text.Inlines.Add(new Bold(new Run("Filename:")));
-                Library_Image_Metadata_Text.Inlines.Add($" {selectedImage.Filename}\n");
-                Library_Image_Metadata_Text.Inlines.Add(new Bold(new Run("Image Size:")));
-                Library_Image_Metadata_Text.Inlines.Add($" {imageDimensions[0].Item2} x {imageDimensions[1].Item2} pixels\n\n");
-
-                foreach (var tag in selectedImage.GetMetadata(MetadataTagLists.General))
-                {
-                    if (string.IsNullOrEmpty(tag.Item1))
-                    {
-                        Library_Image_Metadata_Text.Inlines.Add(new Run("\n"));
-                        continue;
-                    }
-                    Library_Image_Metadata_Text.Inlines.Add(new Bold(new Run($"{tag.Item1}:")));
-                    Library_Image_Metadata_Text.Inlines.Add($" {tag.Item2}\n");
-                }
-
-                CurrentImage = selectedImage;
+                DisplayMetadata(Library_Image_Metadata_Panel, selectedImage, true);
             }
         }
 
@@ -148,11 +138,6 @@ namespace rawinator
                         ResetSliders();
                         UpdateDevelopImage();
                     }
-                    else
-                    {
-                        MessageBox.Show("Please select an image from the library to develop.", "No Image Selected", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        App_TabControl.SelectedItem = Tabs_Library;
-                    }
                 }
                 else if (selectedTab.Name == "Tabs_View")
                 {
@@ -164,7 +149,6 @@ namespace rawinator
                                 View_Image.Source = thumbnail;
                             });
                         });
-                        // Ensure the accordions update
                         OnPropertyChanged(nameof(CurrentImage));
                     }
                 }
@@ -182,6 +166,9 @@ namespace rawinator
                         View_Image.Source = thumbnail;
                     });
                 });
+
+                DisplayMetadata(View_Metadata_StackPanel, selected, true);
+                DisplayMetadata(View_AllMetadata_StackPanel, selected, false);
             }
         }
 
@@ -255,20 +242,28 @@ namespace rawinator
 
             Dispatcher.Invoke(() => {
                 Develop_Process_ProgressBar.IsIndeterminate = true;
-                Develop_Process_Text.Visibility = Visibility.Visible;
                 SetDevelopSlidersEnabled(false);
             });
 
             Task.Run(() => {
+                MagickImage image = new();
+                DngReadDefines defines = new() {
+                    UseAutoWhitebalance = false,
+                    DisableAutoBrightness = false,
+                    UseCameraWhitebalance = true,
+                    InterpolationQuality = DngInterpolation.ModifiedAhd
+                };
+                image.Settings.SetDefines(defines);
+                image.Read(CurrentImage.Path);
+
                 var adjusted = RawImageHelpers.ApplyAdjustments(
-                    new MagickImage(CurrentImage.Path),
+                    image,
                     developImageParams
                 );
 
                 Dispatcher.Invoke(() => {
                     Develop_Image.Source = RawImageHelpers.MagickImageToBitmapImage(adjusted);
                     Develop_Process_ProgressBar.IsIndeterminate = false;
-                    Develop_Process_Text.Visibility = Visibility.Collapsed;
                     SetDevelopSlidersEnabled(true);
                 });
             });
@@ -344,6 +339,109 @@ namespace rawinator
                 if (View_Image_List.SelectedIndex < View_Image_List.Items.Count - 1)
                 {
                     View_Image_List.SelectedIndex++;
+                }
+            }
+        }
+
+        // Helper method to display metadata in a column-based format
+        private void DisplayMetadata(StackPanel panel, RawImage image, bool isSummary)
+        {
+            double maxTagWidth = 0;
+            void AddRow(string tag, string value)
+            {
+                var row = new StackPanel {
+                    Orientation = Orientation.Horizontal,
+                    Margin = new Thickness(0, 0, 0, 2)
+                };
+                var tagBlock = new TextBlock {
+                    Text = tag,
+                    FontWeight = FontWeights.Bold,
+                    TextAlignment = System.Windows.TextAlignment.Right,
+                    Margin = new Thickness(0, 0, 8, 0),
+                    Width = maxTagWidth
+                };
+                var valueBlock = new TextBlock {
+                    Text = value
+                };
+                row.Children.Add(tagBlock);
+                row.Children.Add(valueBlock);
+                panel.Children.Add(row);
+            }
+            panel.Children.Clear();
+
+            if (isSummary)
+            {
+                var imageDimensions = image.GetMetadata(MetadataTagLists.ImageDimensions);
+
+                var tagStrings = new List<string> {
+                    "Filename:",
+                    "Image Size:"
+                };
+                foreach (var tag in image.GetMetadata(MetadataTagLists.General))
+                {
+                    if (!string.IsNullOrEmpty(tag.Item1))
+                        tagStrings.Add(tag.Item1 + ":");
+                }
+                maxTagWidth = 0;
+                foreach (var tag in tagStrings)
+                {
+                    var tb = new TextBlock {
+                        Text = tag,
+                        FontWeight = FontWeights.Bold
+                    };
+                    tb.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                    if (tb.DesiredSize.Width > maxTagWidth)
+                        maxTagWidth = tb.DesiredSize.Width;
+                }
+                maxTagWidth += 4;
+
+                AddRow("Filename:", image.Filename);
+                AddRow("Image Size:", $"{imageDimensions[0].Item2} x {imageDimensions[1].Item2} pixels");
+                panel.Children.Add(new Border { Height = 8 });
+
+                foreach (var tag in image.GetMetadata(MetadataTagLists.General))
+                {
+                    if (string.IsNullOrEmpty(tag.Item1))
+                    {
+                        panel.Children.Add(new Border { Height = 8 });
+                        continue;
+                    }
+                    AddRow(tag.Item1 + ":", tag.Item2);
+                }
+            }
+            else
+            {
+                panel.Children.Clear();
+                foreach (var directory in image.Metadata)
+                {
+                    var dirTitle = directory.Name;
+                    var dirTitleBlock = new TextBlock {
+                        Text = dirTitle,
+                        FontWeight = FontWeights.Bold,
+                        Margin = new Thickness(0, 8, 0, 2)
+                    };
+                    panel.Children.Add(dirTitleBlock);
+
+                    maxTagWidth = 0;
+                    var dirTagNames = directory.Tags.Select(tag => tag.Name + ":").ToList();
+                    foreach (var tag in dirTagNames)
+                    {
+                        var tb = new TextBlock {
+                            Text = tag,
+                            FontWeight = FontWeights.Bold
+                        };
+                        tb.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                        if (tb.DesiredSize.Width > maxTagWidth)
+                        {
+                            maxTagWidth = tb.DesiredSize.Width;
+                        }
+                    }
+                    maxTagWidth += 4;
+
+                    foreach (var tag in directory.Tags)
+                    {
+                        AddRow(tag.Name + ":", tag.Description ?? "");
+                    }
                 }
             }
         }

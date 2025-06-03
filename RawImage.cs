@@ -84,7 +84,7 @@ namespace rawinator
             {
                 if (tag != null)
                 {
-                    var tagName = Metadata.Select(d => d.GetTagName((int)tag)).FirstOrDefault() ?? "Unknown";
+                    var tagName = Metadata.Select(d => d.GetTagName((int)tag)).FirstOrDefault() ?? "-";
                     if (tag == ExifDirectoryBase.TagImageHeight || tag == ExifDirectoryBase.TagImageWidth)
                     {
                         // Special handling for image dimensions to return the maximum value,
@@ -101,7 +101,7 @@ namespace rawinator
                             .Where(val => val.HasValue)
                             .Max();
 
-                        result.Add((tagName, tagDescription?.ToString() ?? "Unknown"));
+                        result.Add((tagName, tagDescription?.ToString() ?? "-"));
                     }
                     else
                     {
@@ -111,7 +111,7 @@ namespace rawinator
                                 !string.IsNullOrEmpty(desc)
                             );
 
-                        result.Add((tagName, tagDescription ?? "Unknown"));
+                        result.Add((tagName, tagDescription ?? "-"));
                     }
                 }
                 else
