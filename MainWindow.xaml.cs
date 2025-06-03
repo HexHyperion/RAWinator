@@ -46,6 +46,7 @@ namespace rawinator
             Dispatcher.Invoke(() => {
                 ImportedImages.Clear();
                 Library_Import_ProgressBar.Maximum = filenames.Length;
+                Library_Import_ProgressBar.Value = 0;
                 Library_Import_Status.Visibility = Visibility.Visible;
                 Library_Import_Button.Content = "Importing...";
                 Library_Import_Button.IsEnabled = false;
@@ -73,6 +74,71 @@ namespace rawinator
             });
         }
 
+        private void ExportImages(List<RawImage> images, string exportPath)
+        {
+            Dispatcher.Invoke(() => {
+                Library_Import_ProgressBar.Maximum = images.Count;
+                Library_Import_ProgressBar.Value = 0;
+                Library_Import_Status.Visibility = Visibility.Visible;
+                Library_Export_Button.Content = "Exporting...";
+                Library_Export_Button.IsEnabled = false;
+                Library_Import_Button.IsEnabled = false;
+            });
+
+            var defines = new DngReadDefines {
+                UseAutoWhitebalance = false,
+                DisableAutoBrightness = false,
+                UseCameraWhitebalance = true,
+                InterpolationQuality = DngInterpolation.ModifiedAhd
+            };
+            var parallelOptions = new ParallelOptions {
+                MaxDegreeOfParallelism = (int)Math.Round(Environment.ProcessorCount / 1.5)
+            };
+            bool errorOccurred = false;
+
+            Parallel.For(0, images.Count, parallelOptions, (i, state) => {
+                var img = images[i];
+                try
+                {
+                    using var rawImage = new MagickImage();
+                    rawImage.Settings.SetDefines(defines);
+                    rawImage.Read(img.Path);
+                    rawImage.AutoOrient();
+                    rawImage.ColorSpace = ColorSpace.sRGB;
+                    rawImage.Format = MagickFormat.Jpeg;
+                    string outputFileName = System.IO.Path.GetFileNameWithoutExtension(img.Filename) + ".jpg";
+                    string outputPath = System.IO.Path.Combine(exportPath, outputFileName);
+                    rawImage.Write(outputPath);
+                }
+                catch (Exception ex)
+                {
+                    if (!errorOccurred)
+                    {
+                        errorOccurred = true;
+                        Dispatcher.Invoke(() => {
+                            MessageBox.Show($"Failed to export image {img.Filename}: {ex.Message}", "Export Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
+                    }
+                    state.Stop();
+                }
+                finally
+                {
+                    Dispatcher.Invoke(() => {
+                        Library_Import_ProgressBar.Value++;
+                    });
+                }
+            });
+
+            Dispatcher.Invoke(() => {
+                Library_Import_Status.Visibility = Visibility.Collapsed;
+                Library_Export_Button.Content = "Export...";
+                Library_Export_Button.IsEnabled = true;
+                Library_Import_Button.IsEnabled = true;
+                Library_Import_ProgressBar.Value = 0;
+                Library_Import_ProgressBar.Maximum = 1;
+            });
+        }
+
         private void Library_Import_Button_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new() {
@@ -89,7 +155,17 @@ namespace rawinator
 
         private void Library_Export_Button_Click(object sender, RoutedEventArgs e)
         {
-            
+            OpenFolderDialog saveToFolderDialog = new() {
+                Title = "Select Export Folder",
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures)
+            };
+            if (Library_Image_Grid.SelectedItems.Count > 0 && saveToFolderDialog.ShowDialog() == true)
+            {
+                var selectedImages = Library_Image_Grid.SelectedItems.Cast<RawImage>().ToList();
+                Task.Run(() => {
+                    ExportImages(selectedImages, saveToFolderDialog.FolderName);
+                });
+            }
         }
 
         private void Library_Image_Grid_KeyDown(object sender, KeyEventArgs e)
@@ -123,7 +199,18 @@ namespace rawinator
                 CurrentImage = selectedImage;
                 Library_Image_Thumbnail.Source = selectedImage.SmallThumbnail;
 
-                DisplayMetadata(Library_Image_Metadata_Panel, selectedImage, true);
+                WindowHelpers.DisplayMetadata(Library_Image_Metadata_Panel, selectedImage, true);
+            }
+            else
+            {
+                CurrentImage = null;
+                Library_Image_Thumbnail.Source = null;
+                Library_Image_Metadata_Panel.Children.Clear();
+                Library_Export_Button.IsEnabled = false;
+            }
+            if (Library_Image_Grid.SelectedItems.Count > 0)
+            {
+                Library_Export_Button.IsEnabled = true;
             }
         }
 
@@ -167,8 +254,8 @@ namespace rawinator
                     });
                 });
 
-                DisplayMetadata(View_Metadata_StackPanel, selected, true);
-                DisplayMetadata(View_AllMetadata_StackPanel, selected, false);
+                WindowHelpers.DisplayMetadata(View_Metadata_StackPanel, selected, true);
+                WindowHelpers.DisplayMetadata(View_AllMetadata_StackPanel, selected, false);
             }
         }
 
@@ -339,109 +426,6 @@ namespace rawinator
                 if (View_Image_List.SelectedIndex < View_Image_List.Items.Count - 1)
                 {
                     View_Image_List.SelectedIndex++;
-                }
-            }
-        }
-
-        // Helper method to display metadata in a column-based format
-        private void DisplayMetadata(StackPanel panel, RawImage image, bool isSummary)
-        {
-            double maxTagWidth = 0;
-            void AddRow(string tag, string value)
-            {
-                var row = new StackPanel {
-                    Orientation = Orientation.Horizontal,
-                    Margin = new Thickness(0, 0, 0, 2)
-                };
-                var tagBlock = new TextBlock {
-                    Text = tag,
-                    FontWeight = FontWeights.Bold,
-                    TextAlignment = System.Windows.TextAlignment.Right,
-                    Margin = new Thickness(0, 0, 8, 0),
-                    Width = maxTagWidth
-                };
-                var valueBlock = new TextBlock {
-                    Text = value
-                };
-                row.Children.Add(tagBlock);
-                row.Children.Add(valueBlock);
-                panel.Children.Add(row);
-            }
-            panel.Children.Clear();
-
-            if (isSummary)
-            {
-                var imageDimensions = image.GetMetadata(MetadataTagLists.ImageDimensions);
-
-                var tagStrings = new List<string> {
-                    "Filename:",
-                    "Image Size:"
-                };
-                foreach (var tag in image.GetMetadata(MetadataTagLists.General))
-                {
-                    if (!string.IsNullOrEmpty(tag.Item1))
-                        tagStrings.Add(tag.Item1 + ":");
-                }
-                maxTagWidth = 0;
-                foreach (var tag in tagStrings)
-                {
-                    var tb = new TextBlock {
-                        Text = tag,
-                        FontWeight = FontWeights.Bold
-                    };
-                    tb.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-                    if (tb.DesiredSize.Width > maxTagWidth)
-                        maxTagWidth = tb.DesiredSize.Width;
-                }
-                maxTagWidth += 4;
-
-                AddRow("Filename:", image.Filename);
-                AddRow("Image Size:", $"{imageDimensions[0].Item2} x {imageDimensions[1].Item2} pixels");
-                panel.Children.Add(new Border { Height = 8 });
-
-                foreach (var tag in image.GetMetadata(MetadataTagLists.General))
-                {
-                    if (string.IsNullOrEmpty(tag.Item1))
-                    {
-                        panel.Children.Add(new Border { Height = 8 });
-                        continue;
-                    }
-                    AddRow(tag.Item1 + ":", tag.Item2);
-                }
-            }
-            else
-            {
-                panel.Children.Clear();
-                foreach (var directory in image.Metadata)
-                {
-                    var dirTitle = directory.Name;
-                    var dirTitleBlock = new TextBlock {
-                        Text = dirTitle,
-                        FontWeight = FontWeights.Bold,
-                        Margin = new Thickness(0, 8, 0, 2)
-                    };
-                    panel.Children.Add(dirTitleBlock);
-
-                    maxTagWidth = 0;
-                    var dirTagNames = directory.Tags.Select(tag => tag.Name + ":").ToList();
-                    foreach (var tag in dirTagNames)
-                    {
-                        var tb = new TextBlock {
-                            Text = tag,
-                            FontWeight = FontWeights.Bold
-                        };
-                        tb.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-                        if (tb.DesiredSize.Width > maxTagWidth)
-                        {
-                            maxTagWidth = tb.DesiredSize.Width;
-                        }
-                    }
-                    maxTagWidth += 4;
-
-                    foreach (var tag in directory.Tags)
-                    {
-                        AddRow(tag.Name + ":", tag.Description ?? "");
-                    }
                 }
             }
         }
