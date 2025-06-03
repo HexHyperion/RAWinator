@@ -87,6 +87,11 @@ namespace rawinator
             }
         }
 
+        private void Library_Export_Button_Click(object sender, RoutedEventArgs e)
+        {
+            
+        }
+
         private void Library_Image_Grid_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Delete && Library_Image_Grid.SelectedItems != null)
