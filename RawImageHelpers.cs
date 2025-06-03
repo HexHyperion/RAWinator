@@ -44,13 +44,20 @@ namespace rawinator
             // White balance
             if (developSettings.WbTemperature != 0)
             {
-                editedImage.Evaluate(Channels.Red, EvaluateOperator.Add, developSettings.WbTemperature);
-                editedImage.Evaluate(Channels.Blue, EvaluateOperator.Subtract, developSettings.WbTemperature);
+                // +100 = warm, -100 = cool
+                // Scales to about 0.5x to 1.5x red/blue channels
+                double tempScale = 1.0 + (developSettings.WbTemperature / 100.0) * 0.5;
+                // Clamp for safety
+                tempScale = Math.Clamp(tempScale, 0.5, 1.5);
+                editedImage.Evaluate(Channels.Red, EvaluateOperator.Multiply, tempScale);
+                editedImage.Evaluate(Channels.Blue, EvaluateOperator.Multiply, 2.0 - tempScale);
             }
             if (developSettings.WbTint != 0)
             {
-                editedImage.Evaluate(Channels.Blue, EvaluateOperator.Add, developSettings.WbTint);
-                editedImage.Evaluate(Channels.Green, EvaluateOperator.Subtract, developSettings.WbTint);
+                // +100 = green, -100 = magenta
+                double tintScale = 1.0 + (developSettings.WbTint / 100.0) * 0.5;
+                tintScale = Math.Clamp(tintScale, 0.5, 1.5);
+                editedImage.Evaluate(Channels.Green, EvaluateOperator.Multiply, tintScale);
             }
 
             // Shadows - right now they literally work like highlights in LR, like wtf

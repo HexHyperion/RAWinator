@@ -474,8 +474,8 @@
                                        VerticalAlignment="Center"/>
                         </Grid>
                         <Slider x:Name="Develop_Slider_WhiteBalance"
-                                Minimum="-90"
-                                Maximum="90"
+                                Minimum="-100"
+                                Maximum="100"
                                 Value="0"
                                 TickFrequency="1"
                                 ValueChanged="Develop_Slider_ValueChanged"
@@ -495,8 +495,8 @@
                                        VerticalAlignment="Center"/>
                         </Grid>
                         <Slider x:Name="Develop_Slider_WhiteBalanceTint"
-                                Minimum="-90"
-                                Maximum="90"
+                                Minimum="-100"
+                                Maximum="100"
                                 Value="0"
                                 TickFrequency="1"
                                 ValueChanged="Develop_Slider_ValueChanged"
