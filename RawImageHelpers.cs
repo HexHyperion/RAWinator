@@ -26,7 +26,7 @@ namespace rawinator
         private static double[] GeneratePolynomialCoefficients(int adjustment, bool isShadow)
         {
             // Visualization on https://www.desmos.com/calculator/i0slukhnjj
-            double strength = adjustment / 65.0;
+            double strength = adjustment / 75.0;
             if (isShadow)
             {
                 // [a, b, c, d, e] are coefficients for a polynomial function
@@ -48,21 +48,20 @@ namespace rawinator
 
         public static MagickImage ApplyAdjustments(MagickImage baseImage, RawImageProcessParams developSettings)
         {
-            // Clone the base image for highlight/shadow masking before exposure is applied
-            using var maskBaseImage = baseImage.Clone();
             var editedImage = baseImage.Clone();
 
-            // Brightness, saturation and hue
-            editedImage.Modulate(
-                new Percentage(100 + developSettings.Brightness),
-                new Percentage(100 + developSettings.Saturation),
-                new Percentage(100 + developSettings.Hue / 1.8)
-            );
+            // ===== Exposure =====
+            // Each stop of exposure means 2x more light
+            if (developSettings.Exposure != 0)
+            {
+                double exposureFactor = Math.Pow(2, developSettings.Exposure);
+                editedImage.Evaluate(Channels.RGB, EvaluateOperator.Multiply, exposureFactor);
+            }
 
-            // Contrast
+            // ===== Contrast =====
             editedImage.BrightnessContrast(new Percentage(0), new Percentage(developSettings.Contrast));
 
-            // White balance
+            // ===== White balance - temp/tint =====
             if (developSettings.WbTemperature != 0)
             {
                 // +100 = warm, -100 = cool
@@ -81,26 +80,27 @@ namespace rawinator
                 editedImage.Evaluate(Channels.Green, EvaluateOperator.Multiply, tintScale);
             }
 
-            // Shadows
-            // todo use masks for everything and apply at return
+            // ===== Brightness, saturation and hue =====
+            editedImage.Modulate(
+                new Percentage(100 + developSettings.Brightness),
+                new Percentage(100 + developSettings.Saturation),
+                new Percentage(100 + developSettings.Hue / 1.8)
+            );
+
+
+            // ===== Highlights and shadows =====
             if (developSettings.Shadows != 0)
             {
                 var shadowCoefficients = GeneratePolynomialCoefficients((int)developSettings.Shadows, true);
                 using var shadowsAdjusted = ApplyPolynomialFunction((MagickImage)editedImage, shadowCoefficients);
                 editedImage.Composite(shadowsAdjusted, CompositeOperator.Over);
             }
-
-            // Highlights
             if (developSettings.Highlights != 0)
             {
                 var highlightCoefficients = GeneratePolynomialCoefficients((int)developSettings.Highlights, false);
                 using var highlightsAdjusted = ApplyPolynomialFunction((MagickImage)editedImage, highlightCoefficients);
                 editedImage.Composite(highlightsAdjusted, CompositeOperator.Over);
-            }
-
-            // Exposure (apply last, so highlight/shadow masks are not affected by it)
-            double exposureFactor = Math.Pow(2, developSettings.Exposure);
-            editedImage.Evaluate(Channels.RGB, EvaluateOperator.Multiply, exposureFactor);
+            }            
 
             editedImage.AutoOrient();
             editedImage.Strip();
