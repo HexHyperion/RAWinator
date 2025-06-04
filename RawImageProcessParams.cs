@@ -11,5 +11,24 @@
         public double Contrast { get; set; } = contrast;
         public double Saturation { get; set; } = saturation;
         public double Hue { get; set; } = hue;
+
+        public class ColorAdjustments
+        {
+            public Dictionary<HslColorRange, double> Hue { get; set; } = new();
+            public Dictionary<HslColorRange, double> Saturation { get; set; } = new();
+            public Dictionary<HslColorRange, double> Luminance { get; set; } = new();
+
+            public ColorAdjustments()
+            {
+                foreach (HslColorRange color in Enum.GetValues(typeof(HslColorRange)))
+                {
+                    Hue[color] = 0;
+                    Saturation[color] = 0;
+                    Luminance[color] = 0;
+                }
+            }
+        }
+
+        public ColorAdjustments PerColor { get; set; } = new();
     }
 }

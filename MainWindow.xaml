@@ -624,9 +624,12 @@
 
                                 <!-- Segmented control for color-specific HSL -->
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,8">
-                                    <RadioButton GroupName="ColorAdjustmentType" Content="Hue" IsChecked="True" Margin="8,0"/>
-                                    <RadioButton GroupName="ColorAdjustmentType" Content="Saturation" Margin="8,0"/>
-                                    <RadioButton GroupName="ColorAdjustmentType" Content="Luminance" Margin="8,0"/>
+                                    <RadioButton GroupName="ColorAdjustmentType" Content="Hue" IsChecked="True" Margin="8,0"
+                                                 Checked="ColorAdjustmentTypeRadio_Checked"/>
+                                    <RadioButton GroupName="ColorAdjustmentType" Content="Saturation" Margin="8,0"
+                                                 Checked="ColorAdjustmentTypeRadio_Checked"/>
+                                    <RadioButton GroupName="ColorAdjustmentType" Content="Luminance" Margin="8,0"
+                                                 Checked="ColorAdjustmentTypeRadio_Checked"/>
                                 </StackPanel>
 
                                 <!-- Red -->
@@ -640,13 +643,14 @@
                                                VerticalAlignment="Center"/>
                                 </Grid>
                                 <Slider x:Name="Develop_Slider_Red"
+                                        Tag="Red"
                                         Minimum="-100"
                                         Maximum="100"
                                         Value="0"
                                         TickFrequency="1"
-                                        ValueChanged="Develop_Slider_ValueChanged"
+                                        ValueChanged="Develop_ColorSlider_ValueChanged"
                                         Thumb.DragStarted="Develop_Slider_DragStarted"
-                                        Thumb.DragCompleted="Develop_Slider_DragCompleted"
+                                        Thumb.DragCompleted="Develop_ColorSlider_DragCompleted"
                                         IsSnapToTickEnabled="True"
                                         LargeChange="5"
                                         local:SliderHelper.TrackRepeatButtonBackground="#FC3434"/>
@@ -662,16 +666,17 @@
 	                                       VerticalAlignment="Center"/>
                                 </Grid>
                                 <Slider x:Name="Develop_Slider_Orange"
-                                    Minimum="-100"
-                                    Maximum="100"
-                                    Value="0"
-                                    TickFrequency="1"
-                                    ValueChanged="Develop_Slider_ValueChanged"
-                                    Thumb.DragStarted="Develop_Slider_DragStarted"
-                                    Thumb.DragCompleted="Develop_Slider_DragCompleted"
-                                    IsSnapToTickEnabled="True"
-                                    LargeChange="5"
-                                    local:SliderHelper.TrackRepeatButtonBackground="#FC8734"/>
+                                        Tag="Orange"
+                                        Minimum="-100"
+                                        Maximum="100"
+                                        Value="0"
+                                        TickFrequency="1"
+                                        ValueChanged="Develop_ColorSlider_ValueChanged"
+                                        Thumb.DragStarted="Develop_Slider_DragStarted"
+                                        Thumb.DragCompleted="Develop_ColorSlider_DragCompleted"
+                                        IsSnapToTickEnabled="True"
+                                        LargeChange="5"
+                                        local:SliderHelper.TrackRepeatButtonBackground="#FC8734"/>
 
                                 <!-- Yellow -->
                                 <Grid Margin="0,8,0,0">
@@ -684,16 +689,17 @@
 	                                       VerticalAlignment="Center"/>
                                 </Grid>
                                 <Slider x:Name="Develop_Slider_Yellow"
-                                    Minimum="-100"
-                                    Maximum="100"
-                                    Value="0"
-                                    TickFrequency="1"
-                                    ValueChanged="Develop_Slider_ValueChanged"
-                                    Thumb.DragStarted="Develop_Slider_DragStarted"
-                                    Thumb.DragCompleted="Develop_Slider_DragCompleted"
-                                    IsSnapToTickEnabled="True"
-                                    LargeChange="5"
-                                    local:SliderHelper.TrackRepeatButtonBackground="#FCD734"/>
+                                        Tag="Yellow"
+                                        Minimum="-100"
+                                        Maximum="100"
+                                        Value="0"
+                                        TickFrequency="1"
+                                        ValueChanged="Develop_ColorSlider_ValueChanged"
+                                        Thumb.DragStarted="Develop_Slider_DragStarted"
+                                        Thumb.DragCompleted="Develop_ColorSlider_DragCompleted"
+                                        IsSnapToTickEnabled="True"
+                                        LargeChange="5"
+                                        local:SliderHelper.TrackRepeatButtonBackground="#FCD734"/>
 
                                 <!-- Green -->
                                 <Grid Margin="0,8,0,0">
@@ -706,38 +712,40 @@
                                            VerticalAlignment="Center"/>
                                 </Grid>
                                 <Slider x:Name="Develop_Slider_Green"
-                                    Minimum="-100"
-                                    Maximum="100"
-                                    Value="0"
-                                    TickFrequency="1"
-                                    ValueChanged="Develop_Slider_ValueChanged"
-                                    Thumb.DragStarted="Develop_Slider_DragStarted"
-                                    Thumb.DragCompleted="Develop_Slider_DragCompleted"
-                                    IsSnapToTickEnabled="True"
-                                    LargeChange="5"
-                                    local:SliderHelper.TrackRepeatButtonBackground="#77FC34"/>
+                                        Tag="Green"
+                                        Minimum="-100"
+                                        Maximum="100"
+                                        Value="0"
+                                        TickFrequency="1"
+                                        ValueChanged="Develop_ColorSlider_ValueChanged"
+                                        Thumb.DragStarted="Develop_Slider_DragStarted"
+                                        Thumb.DragCompleted="Develop_ColorSlider_DragCompleted"
+                                        IsSnapToTickEnabled="True"
+                                        LargeChange="5"
+                                        local:SliderHelper.TrackRepeatButtonBackground="#77FC34"/>
 
                                 <!-- Cyan -->
                                 <Grid Margin="0,8,0,0">
-                                    <TextBlock Text="Cyan"
+                                    <TextBlock Text="Aqua"
 	                                       Grid.Column="0"
 	                                       VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding ElementName=Develop_Slider_Cyan, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+                                    <TextBlock Text="{Binding ElementName=Develop_Slider_Aqua, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
 	                                       Grid.Column="1"
 	                                       HorizontalAlignment="Right"
 	                                       VerticalAlignment="Center"/>
                                 </Grid>
-                                <Slider x:Name="Develop_Slider_Cyan"
-                                    Minimum="-100"
-                                    Maximum="100"
-                                    Value="0"
-                                    TickFrequency="1"
-                                    ValueChanged="Develop_Slider_ValueChanged"
-                                    Thumb.DragStarted="Develop_Slider_DragStarted"
-                                    Thumb.DragCompleted="Develop_Slider_DragCompleted"
-                                    IsSnapToTickEnabled="True"
-                                    LargeChange="5"
-                                    local:SliderHelper.TrackRepeatButtonBackground="#34EEFC"/>
+                                <Slider x:Name="Develop_Slider_Aqua"
+                                        Tag="Aqua"
+                                        Minimum="-100"
+                                        Maximum="100"
+                                        Value="0"
+                                        TickFrequency="1"
+                                        ValueChanged="Develop_ColorSlider_ValueChanged"
+                                        Thumb.DragStarted="Develop_Slider_DragStarted"
+                                        Thumb.DragCompleted="Develop_ColorSlider_DragCompleted"
+                                        IsSnapToTickEnabled="True"
+                                        LargeChange="5"
+                                        local:SliderHelper.TrackRepeatButtonBackground="#34EEFC"/>
 
                                 <!-- Blue -->
                                 <Grid Margin="0,8,0,0">
@@ -750,16 +758,17 @@
                                            VerticalAlignment="Center"/>
                                 </Grid>
                                 <Slider x:Name="Develop_Slider_Blue"
-                                    Minimum="-100"
-                                    Maximum="100"
-                                    Value="0"
-                                    TickFrequency="1"
-                                    ValueChanged="Develop_Slider_ValueChanged"
-                                    Thumb.DragStarted="Develop_Slider_DragStarted"
-                                    Thumb.DragCompleted="Develop_Slider_DragCompleted"
-                                    IsSnapToTickEnabled="True"
-                                    LargeChange="5"
-                                    local:SliderHelper.TrackRepeatButtonBackground="#346DFC"/>
+                                        Tag="Blue"
+                                        Minimum="-100"
+                                        Maximum="100"
+                                        Value="0"
+                                        TickFrequency="1"
+                                        ValueChanged="Develop_ColorSlider_ValueChanged"
+                                        Thumb.DragStarted="Develop_Slider_DragStarted"
+                                        Thumb.DragCompleted="Develop_ColorSlider_DragCompleted"
+                                        IsSnapToTickEnabled="True"
+                                        LargeChange="5"
+                                        local:SliderHelper.TrackRepeatButtonBackground="#346DFC"/>
 
                                 <!-- Purple -->
                                 <Grid Margin="0,8,0,0">
@@ -772,16 +781,17 @@
 	                                       VerticalAlignment="Center"/>
                                 </Grid>
                                 <Slider x:Name="Develop_Slider_Purple"
-                                    Minimum="-100"
-                                    Maximum="100"
-                                    Value="0"
-                                    TickFrequency="1"
-                                    ValueChanged="Develop_Slider_ValueChanged"
-                                    Thumb.DragStarted="Develop_Slider_DragStarted"
-                                    Thumb.DragCompleted="Develop_Slider_DragCompleted"
-                                    IsSnapToTickEnabled="True"
-                                    LargeChange="5"
-                                    local:SliderHelper.TrackRepeatButtonBackground="#9E34FC"/>
+                                        Tag="Purple"
+                                        Minimum="-100"
+                                        Maximum="100"
+                                        Value="0"
+                                        TickFrequency="1"
+                                        ValueChanged="Develop_ColorSlider_ValueChanged"
+                                        Thumb.DragStarted="Develop_Slider_DragStarted"
+                                        Thumb.DragCompleted="Develop_ColorSlider_DragCompleted"
+                                        IsSnapToTickEnabled="True"
+                                        LargeChange="5"
+                                        local:SliderHelper.TrackRepeatButtonBackground="#9E34FC"/>
 
                                 <!-- Magenta -->
                                 <Grid Margin="0,8,0,0">
@@ -794,16 +804,17 @@
 	                                       VerticalAlignment="Center"/>
                                 </Grid>
                                 <Slider x:Name="Develop_Slider_Magenta"
-                                    Minimum="-100"
-                                    Maximum="100"
-                                    Value="0"
-                                    TickFrequency="1"
-                                    ValueChanged="Develop_Slider_ValueChanged"
-                                    Thumb.DragStarted="Develop_Slider_DragStarted"
-                                    Thumb.DragCompleted="Develop_Slider_DragCompleted"
-                                    IsSnapToTickEnabled="True"
-                                    LargeChange="5"
-                                    local:SliderHelper.TrackRepeatButtonBackground="#FC34E8"/>
+                                        Tag="Magenta"
+                                        Minimum="-100"
+                                        Maximum="100"
+                                        Value="0"
+                                        TickFrequency="1"
+                                        ValueChanged="Develop_ColorSlider_ValueChanged"
+                                        Thumb.DragStarted="Develop_Slider_DragStarted"
+                                        Thumb.DragCompleted="Develop_ColorSlider_DragCompleted"
+                                        IsSnapToTickEnabled="True"
+                                        LargeChange="5"
+                                        local:SliderHelper.TrackRepeatButtonBackground="#FC34E8"/>
                             </StackPanel>
                         </StackPanel>
                     </ScrollViewer>

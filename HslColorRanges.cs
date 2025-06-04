@@ -21,11 +21,11 @@
         {
             if (Min < Max)
             {
-                return hue >= Min && hue <= Max;
+                return hue >= Min && hue < Max;
             }
             else
             {
-                return hue >= Min || hue <= Max;
+                return hue >= Min || hue < Max;
             }
         }
     }

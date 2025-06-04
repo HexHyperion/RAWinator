@@ -29,6 +29,17 @@ namespace rawinator
                 (Develop_Slider_Saturation, nameof(RawImageProcessParams.Saturation)),
                 (Develop_Slider_Hue, nameof(RawImageProcessParams.Hue)),
             ];
+
+            colorSliders = [
+                (Develop_Slider_Red, HslColorRange.Red),
+                (Develop_Slider_Orange, HslColorRange.Orange),
+                (Develop_Slider_Yellow, HslColorRange.Yellow),
+                (Develop_Slider_Green, HslColorRange.Green),
+                (Develop_Slider_Aqua, HslColorRange.Aqua),
+                (Develop_Slider_Blue, HslColorRange.Blue),
+                (Develop_Slider_Purple, HslColorRange.Purple),
+                (Develop_Slider_Magenta, HslColorRange.Magenta),
+            ];
         }
 
         public SparseObservableList<RawImage> ImportedImages { get; set; } = [];
@@ -50,107 +61,12 @@ namespace rawinator
 
         private bool isSliderDragged = false;
         private (Slider slider, string property)[] developSliders;
+        private string currentColorAdjustmentType = "Hue";
+        private (Slider slider, HslColorRange color)[] colorSliders;
 
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-        private void ImportImages(string[] filenames)
-        {
-            Dispatcher.Invoke(() => {
-                ImportedImages.Clear();
-                Library_Import_ProgressBar.Maximum = filenames.Length;
-                Library_Import_ProgressBar.Value = 0;
-                Library_Import_Status.Visibility = Visibility.Visible;
-                Library_Import_Button.Content = "Importing...";
-                Library_Import_Button.IsEnabled = false;
-            });
-
-            // Parallelism for faster import, but with a limit to avoid overwhelming the system
-            var parallelOptions = new ParallelOptions {
-                MaxDegreeOfParallelism = (int)Math.Round(Environment.ProcessorCount / 1.5)
-            };
-            Parallel.For(0, filenames.Length, parallelOptions, i => {
-                var image = new RawImage(filenames[i]);
-                Dispatcher.Invoke(() => {
-                    ImportedImages[i] = image;
-                    Library_Import_ProgressBar.Value++;
-                });
-            });
-
-            Dispatcher.Invoke(() => {
-                Library_Image_Grid.SelectedIndex = 0;
-                Library_Import_Status.Visibility = Visibility.Collapsed;
-                Library_Import_Button.Content = "Import...";
-                Library_Import_Button.IsEnabled = true;
-                Library_Import_ProgressBar.Value = 0;
-                Library_Import_ProgressBar.Maximum = 1;
-            });
-        }
-
-        private void ExportImages(List<RawImage> images, string exportPath)
-        {
-            Dispatcher.Invoke(() => {
-                Library_Import_ProgressBar.Maximum = images.Count;
-                Library_Import_ProgressBar.Value = 0;
-                Library_Import_Status.Visibility = Visibility.Visible;
-                Library_Export_Button.Content = "Exporting...";
-                Library_Export_Button.IsEnabled = false;
-                Library_Import_Button.IsEnabled = false;
-            });
-
-            var defines = new DngReadDefines {
-                UseAutoWhitebalance = false,
-                DisableAutoBrightness = false,
-                UseCameraWhitebalance = true,
-                InterpolationQuality = DngInterpolation.ModifiedAhd
-            };
-            var parallelOptions = new ParallelOptions {
-                MaxDegreeOfParallelism = (int)Math.Round(Environment.ProcessorCount / 1.5)
-            };
-            bool errorOccurred = false;
-
-            Parallel.For(0, images.Count, parallelOptions, (i, state) => {
-                var img = images[i];
-                try
-                {
-                    using var rawImage = new MagickImage();
-                    rawImage.Settings.SetDefines(defines);
-                    rawImage.Read(img.Path);
-                    rawImage.AutoOrient();
-                    rawImage.ColorSpace = ColorSpace.sRGB;
-                    rawImage.Format = MagickFormat.Jpeg;
-                    string outputFileName = System.IO.Path.GetFileNameWithoutExtension(img.Filename) + ".jpg";
-                    string outputPath = System.IO.Path.Combine(exportPath, outputFileName);
-                    rawImage.Write(outputPath);
-                }
-                catch (Exception ex)
-                {
-                    if (!errorOccurred)
-                    {
-                        errorOccurred = true;
-                        Dispatcher.Invoke(() => {
-                            MessageBox.Show($"Failed to export image {img.Filename}: {ex.Message}", "Export Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                        });
-                    }
-                    state.Stop();
-                }
-                finally
-                {
-                    Dispatcher.Invoke(() => {
-                        Library_Import_ProgressBar.Value++;
-                    });
-                }
-            });
-
-            Dispatcher.Invoke(() => {
-                Library_Import_Status.Visibility = Visibility.Collapsed;
-                Library_Export_Button.Content = "Export...";
-                Library_Export_Button.IsEnabled = true;
-                Library_Import_Button.IsEnabled = true;
-                Library_Import_ProgressBar.Value = 0;
-                Library_Import_ProgressBar.Maximum = 1;
-            });
-        }
 
         private void Library_Import_Button_Click(object sender, RoutedEventArgs e)
         {
@@ -227,29 +143,22 @@ namespace rawinator
             }
         }
 
-        private void App_TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+
+
+        private void Tabs_View_KeyDown(object sender, KeyEventArgs e)
         {
-            if (App_TabControl.SelectedItem is TabItem selectedTab)
+            if (e.Key == Key.Left)
             {
-                if (selectedTab.Name == "Tabs_Develop")
+                if (View_Image_List.SelectedIndex > 0)
                 {
-                    if (CurrentImage != null)
-                    {
-                        UpdateDevelopImage(true);
-                    }
+                    View_Image_List.SelectedIndex--;
                 }
-                else if (selectedTab.Name == "Tabs_View")
+            }
+            else if (e.Key == Key.Right)
+            {
+                if (View_Image_List.SelectedIndex < View_Image_List.Items.Count - 1)
                 {
-                    if (CurrentImage != null)
-                    {
-                        Task.Run(() => {
-                            var thumbnail = CurrentImage.GetFullThumbnail();
-                            Dispatcher.Invoke(() => {
-                                View_Image.Source = thumbnail;
-                            });
-                        });
-                        OnPropertyChanged(nameof(CurrentImage));
-                    }
+                    View_Image_List.SelectedIndex++;
                 }
             }
         }
@@ -286,6 +195,8 @@ namespace rawinator
             }
         }
 
+
+
         private void Develop_Slider_DragStarted(object sender, DragStartedEventArgs e)
         {
             isSliderDragged = true;
@@ -319,10 +230,70 @@ namespace rawinator
             }
         }
 
+
+        private void ColorAdjustmentTypeRadio_Checked(object sender, RoutedEventArgs e)
+        {
+            if (sender is RadioButton rb && rb.Content is string type)
+            {
+                currentColorAdjustmentType = type;
+                SetColorSliders();
+            }
+        }
+
+        private void Develop_ColorSlider_DragCompleted(object sender, DragCompletedEventArgs e)
+        {
+            isSliderDragged = false;
+            Develop_ColorSlider_ValueChanged(sender, new RoutedPropertyChangedEventArgs<double>(0, 0));
+        }
+
+        private void Develop_ColorSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (sender is Slider slider &&
+                slider.Tag is string tag &&
+                !isSliderDragged && CurrentImage != null &&
+                Enum.TryParse<HslColorRange>(tag, out var color))
+            {
+                var perColor = CurrentImage.ProcessParams.PerColor;
+                double newValue = slider.Value;
+                switch (currentColorAdjustmentType)
+                {
+                    case "Hue":
+                        if (perColor.Hue[color] != newValue)
+                        {
+                            perColor.Hue[color] = newValue;
+                            UpdateDevelopImage();
+                        }
+                        break;
+                    case "Saturation":
+                        if (perColor.Saturation[color] != newValue)
+                        {
+                            MessageBox.Show($"Changing saturation for {color} from {perColor.Saturation[color]} to {newValue}");
+                            perColor.Saturation[color] = newValue;
+                            UpdateDevelopImage();
+                        }
+                        break;
+                    case "Luminance":
+                        if (perColor.Luminance[color] != newValue)
+                        {
+                            perColor.Luminance[color] = newValue;
+                            UpdateDevelopImage();
+                        }
+                        break;
+                }
+            }
+        }
+
+
         private void ResetDevelopSliders()
         {
             foreach (var (slider, _) in developSliders)
                 slider.Value = 0;
+        }
+
+        private void SetDevelopSlidersEnabled(bool enabled)
+        {
+            foreach (var (slider, _) in developSliders)
+                slider.IsEnabled = enabled;
         }
 
         private void SetDevelopSliders()
@@ -341,10 +312,39 @@ namespace rawinator
             }
         }
 
-        private void SetDevelopSlidersEnabled(bool enabled)
+        private void SetColorSliders()
         {
-            foreach (var (slider, _) in developSliders)
-                slider.IsEnabled = enabled;
+            if (CurrentImage == null) return;
+            var perColor = CurrentImage.ProcessParams.PerColor;
+            foreach (var (slider, color) in colorSliders)
+            {
+                double value = 0;
+                switch (currentColorAdjustmentType)
+                {
+                    case "Hue":
+                    {
+                        value = perColor.Hue[color];
+                        break;
+                    }
+                    case "Saturation":
+                    {
+                        value = perColor.Saturation[color];
+                        break;
+                    }
+                    case "Luminance":
+                    {
+                        value = perColor.Luminance[color];
+                        break;
+                    }
+                }
+                slider.Value = value;
+            }
+        }
+
+        private void SetAllDevelopSliders()
+        {
+            SetDevelopSliders();
+            SetColorSliders();
         }
 
         private void UpdateDevelopImage(bool? isNew = false)
@@ -365,12 +365,15 @@ namespace rawinator
                     Develop_Process_ProgressBar.IsIndeterminate = false;
                     if (isNew == true)
                     {
-                        SetDevelopSliders();
+                        SetAllDevelopSliders();
                     }
                     SetDevelopSlidersEnabled(true);
                 });
             });
         }
+
+
+
 
         private void Menu_File_Open_Click(object sender, RoutedEventArgs e)
         {
@@ -402,22 +405,133 @@ namespace rawinator
 
         }
 
-        private void Tabs_View_KeyDown(object sender, KeyEventArgs e)
+
+
+        private void App_TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (e.Key == Key.Left)
+            if (App_TabControl.SelectedItem is TabItem selectedTab)
             {
-                if (View_Image_List.SelectedIndex > 0)
+                if (selectedTab.Name == "Tabs_Develop")
                 {
-                    View_Image_List.SelectedIndex--;
+                    if (CurrentImage != null)
+                    {
+                        UpdateDevelopImage(true);
+                    }
+                }
+                else if (selectedTab.Name == "Tabs_View")
+                {
+                    if (CurrentImage != null)
+                    {
+                        Task.Run(() => {
+                            var thumbnail = CurrentImage.GetFullThumbnail();
+                            Dispatcher.Invoke(() => {
+                                View_Image.Source = thumbnail;
+                            });
+                        });
+                        OnPropertyChanged(nameof(CurrentImage));
+                    }
                 }
             }
-            else if (e.Key == Key.Right)
-            {
-                if (View_Image_List.SelectedIndex < View_Image_List.Items.Count - 1)
+        }
+
+
+
+        private void ImportImages(string[] filenames)
+        {
+            Dispatcher.Invoke(() => {
+                ImportedImages.Clear();
+                Library_Import_ProgressBar.Maximum = filenames.Length;
+                Library_Import_ProgressBar.Value = 0;
+                Library_Import_Status.Visibility = Visibility.Visible;
+                Library_Import_Button.Content = "Importing...";
+                Library_Import_Button.IsEnabled = false;
+            });
+
+            var parallelOptions = new ParallelOptions {
+                MaxDegreeOfParallelism = (int)Math.Round(Environment.ProcessorCount / 1.5)
+            };
+            Parallel.For(0, filenames.Length, parallelOptions, i => {
+                var image = new RawImage(filenames[i]);
+                Dispatcher.Invoke(() => {
+                    ImportedImages[i] = image;
+                    Library_Import_ProgressBar.Value++;
+                });
+            });
+
+            Dispatcher.Invoke(() => {
+                Library_Image_Grid.SelectedIndex = 0;
+                Library_Import_Status.Visibility = Visibility.Collapsed;
+                Library_Import_Button.Content = "Import...";
+                Library_Import_Button.IsEnabled = true;
+                Library_Import_ProgressBar.Value = 0;
+                Library_Import_ProgressBar.Maximum = 1;
+            });
+        }
+
+
+        private void ExportImages(List<RawImage> images, string exportPath)
+        {
+            Dispatcher.Invoke(() => {
+                Library_Import_ProgressBar.Maximum = images.Count;
+                Library_Import_ProgressBar.Value = 0;
+                Library_Import_Status.Visibility = Visibility.Visible;
+                Library_Export_Button.Content = "Exporting...";
+                Library_Export_Button.IsEnabled = false;
+                Library_Import_Button.IsEnabled = false;
+            });
+
+            var defines = new DngReadDefines {
+                UseAutoWhitebalance = false,
+                DisableAutoBrightness = false,
+                UseCameraWhitebalance = true,
+                InterpolationQuality = DngInterpolation.ModifiedAhd
+            };
+            var parallelOptions = new ParallelOptions {
+                MaxDegreeOfParallelism = (int)Math.Round(Environment.ProcessorCount / 1.5)
+            };
+            bool errorOccurred = false;
+
+            Parallel.For(0, images.Count, parallelOptions, (i, state) => {
+                var img = images[i];
+                try
                 {
-                    View_Image_List.SelectedIndex++;
+                    using var rawImage = new MagickImage();
+                    rawImage.Settings.SetDefines(defines);
+                    rawImage.Read(img.Path);
+                    rawImage.AutoOrient();
+                    rawImage.ColorSpace = ColorSpace.sRGB;
+                    rawImage.Format = MagickFormat.Jpeg;
+                    string outputFileName = System.IO.Path.GetFileNameWithoutExtension(img.Filename) + ".jpg";
+                    string outputPath = System.IO.Path.Combine(exportPath, outputFileName);
+                    rawImage.Write(outputPath);
                 }
-            }
+                catch (Exception ex)
+                {
+                    if (!errorOccurred)
+                    {
+                        errorOccurred = true;
+                        Dispatcher.Invoke(() => {
+                            MessageBox.Show($"Failed to export image {img.Filename}: {ex.Message}", "Export Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
+                    }
+                    state.Stop();
+                }
+                finally
+                {
+                    Dispatcher.Invoke(() => {
+                        Library_Import_ProgressBar.Value++;
+                    });
+                }
+            });
+
+            Dispatcher.Invoke(() => {
+                Library_Import_Status.Visibility = Visibility.Collapsed;
+                Library_Export_Button.Content = "Export...";
+                Library_Export_Button.IsEnabled = true;
+                Library_Import_Button.IsEnabled = true;
+                Library_Import_ProgressBar.Value = 0;
+                Library_Import_ProgressBar.Maximum = 1;
+            });
         }
     }
 }
