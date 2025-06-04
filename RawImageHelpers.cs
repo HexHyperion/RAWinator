@@ -1,7 +1,6 @@
 ﻿using ImageMagick;
 using System.IO;
 using System.Windows.Media.Imaging;
-using System.Windows.Threading;
 
 namespace rawinator
 {
@@ -23,9 +22,31 @@ namespace rawinator
             return bitmapImage;
         }
 
-        public static MagickImage ApplyAdjustments(
-            MagickImage baseImage,
-            RawImageProcessParams developSettings)
+
+        private static double[] GeneratePolynomialCoefficients(int adjustment, bool isShadow)
+        {
+            // Visualization on https://www.desmos.com/calculator/i0slukhnjj
+            double strength = adjustment / 65.0;
+            if (isShadow)
+            {
+                // [a, b, c, d, e] are coefficients for a polynomial function
+                // ax^4 + bx^3 + cx^2 + dx + e
+                return [-2 * strength, 5 * strength, -4 * strength, 1 + strength, 0];
+            }
+            else
+            {
+                return [2 * strength, -3 * strength, strength, 1, 0];
+            }
+        }
+
+        private static MagickImage ApplyPolynomialFunction(MagickImage image, double[] coefficients)
+        {
+            var result = image.Clone();
+            result.Evaluate(Channels.All, EvaluateFunction.Polynomial, coefficients);
+            return (MagickImage)result;
+        }
+
+        public static MagickImage ApplyAdjustments(MagickImage baseImage, RawImageProcessParams developSettings)
         {
             // Clone the base image for highlight/shadow masking before exposure is applied
             using var maskBaseImage = baseImage.Clone();
@@ -60,46 +81,21 @@ namespace rawinator
                 editedImage.Evaluate(Channels.Green, EvaluateOperator.Multiply, tintScale);
             }
 
-            // Shadows - right now they literally work like highlights in LR, like wtf
-            // Probably need to adjust the numbers a bit
+            // Shadows
+            // todo use masks for everything and apply at return
             if (developSettings.Shadows != 0)
             {
-                using (var shadowMask = maskBaseImage.Clone())
-                {
-                    shadowMask.ColorSpace = ColorSpace.Gray;
-                    // Use Quantum.Max directly for 16-bit, no cast to byte
-                    shadowMask.Level(0, (ushort)(Quantum.Max * 0.5));
-                    shadowMask.SigmoidalContrast(6, 0.25, Channels.Gray);
-
-                    using (var shadowsAdjusted = editedImage.Clone())
-                    {
-                        var modValue = 100 + developSettings.Shadows;
-                        shadowsAdjusted.Modulate(new Percentage(modValue), new Percentage(100), new Percentage(100));
-
-                        shadowsAdjusted.Composite(shadowMask, CompositeOperator.CopyAlpha);
-                        editedImage.Composite(shadowsAdjusted, CompositeOperator.Over);
-                    }
-                }
+                var shadowCoefficients = GeneratePolynomialCoefficients((int)developSettings.Shadows, true);
+                using var shadowsAdjusted = ApplyPolynomialFunction((MagickImage)editedImage, shadowCoefficients);
+                editedImage.Composite(shadowsAdjusted, CompositeOperator.Over);
             }
 
-            // Highlights - seems like they work only on *really* bright areas rn
+            // Highlights
             if (developSettings.Highlights != 0)
             {
-                using (var highlightMask = maskBaseImage.Clone())
-                {
-                    highlightMask.ColorSpace = ColorSpace.Gray;
-                    highlightMask.Level((ushort)(Quantum.Max * 0.5), Quantum.Max);
-                    highlightMask.SigmoidalContrast(6, 0.75, Channels.Gray);
-
-                    using (var highlightsAdjusted = editedImage.Clone())
-                    {
-                        var modValue = 100 - developSettings.Highlights;
-                        highlightsAdjusted.Modulate(new Percentage(modValue), new Percentage(100), new Percentage(100));
-
-                        highlightsAdjusted.Composite(highlightMask, CompositeOperator.CopyAlpha);
-                        editedImage.Composite(highlightsAdjusted, CompositeOperator.Over);
-                    }
-                }
+                var highlightCoefficients = GeneratePolynomialCoefficients((int)developSettings.Highlights, false);
+                using var highlightsAdjusted = ApplyPolynomialFunction((MagickImage)editedImage, highlightCoefficients);
+                editedImage.Composite(highlightsAdjusted, CompositeOperator.Over);
             }
 
             // Exposure (apply last, so highlight/shadow masks are not affected by it)
@@ -111,5 +107,6 @@ namespace rawinator
 
             return (MagickImage)editedImage;
         }
+
     }
 }
