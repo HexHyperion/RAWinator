@@ -16,6 +16,7 @@ namespace rawinator
         public MainWindow()
         {
             InitializeComponent();
+            OpenCL.IsEnabled = true;
             DataContext = this;
 
             developSliders = [
@@ -267,7 +268,6 @@ namespace rawinator
                     case "Saturation":
                         if (perColor.Saturation[color] != newValue)
                         {
-                            MessageBox.Show($"Changing saturation for {color} from {perColor.Saturation[color]} to {newValue}");
                             perColor.Saturation[color] = newValue;
                             UpdateDevelopImage();
                         }

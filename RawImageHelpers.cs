@@ -100,7 +100,7 @@ namespace rawinator
                 var highlightCoefficients = GeneratePolynomialCoefficients((int)developSettings.Highlights, false);
                 using var highlightsAdjusted = ApplyPolynomialFunction((MagickImage)editedImage, highlightCoefficients);
                 editedImage.Composite(highlightsAdjusted, CompositeOperator.Over);
-            }            
+            }
 
 
             // ===== Per-color HSL adjustments =====
@@ -112,13 +112,27 @@ namespace rawinator
             {
                 editedImage.ColorSpace = ColorSpace.sRGB;
                 const double minSaturationForColorAdjust = 0.05; // Only affect saturated colors
-                using (var pixels = editedImage.GetPixels())
-                {
-                    int width = editedImage.Width;
-                    int height = editedImage.Height;
 
-                    for (int y = 0; y < height; y++)
+                int width = editedImage.Width;
+                int height = editedImage.Height;
+
+                // Precompute hue-to-color mapping
+                var hueToColorMap = new HslColorRange?[360];
+                foreach (var kvp in HslColorRanges.HueRanges)
+                {
+                    var color = kvp.Key;
+                    var range = kvp.Value;
+                    for (int i = 0; i < 360; i++)
                     {
+                        if (range.Contains(i))
+                            hueToColorMap[i] = color;
+                    }
+                }
+
+                using (var pixels = editedImage.GetPixelsUnsafe())
+                {
+                    ParallelOptions parallelOptions = new() { MaxDegreeOfParallelism = Environment.ProcessorCount };
+                    Parallel.For(0, height, parallelOptions, y => {
                         for (int x = 0; x < width; x++)
                         {
                             var pixel = pixels.GetPixel(x, y);
@@ -129,26 +143,19 @@ namespace rawinator
 
                             if (sat > minSaturationForColorAdjust)
                             {
-                                // Find which color range this pixel's hue falls into
-                                foreach (var kvp in HslColorRanges.HueRanges)
+                                int hueIndex = ((int)(hue + 360)) % 360;
+                                var color = hueToColorMap[hueIndex];
+                                if (color.HasValue)
                                 {
-                                    var color = kvp.Key;
-                                    var range = kvp.Value;
-                                    double hue360 = (hue + 360) % 360;
-                                    if (range.Contains(hue360))
-                                    {
-                                        double hueAdj = perColor.Hue[color];
-                                        double satAdj = perColor.Saturation[color];
-                                        double lumAdj = perColor.Luminance[color];
+                                    double hueAdj = perColor.Hue[color.Value];
+                                    double satAdj = perColor.Saturation[color.Value];
+                                    double lumAdj = perColor.Luminance[color.Value];
 
-                                        if (hueAdj != 0 || satAdj != 0 || lumAdj != 0)
-                                        {
-                                            // Matching global adjustments' scales
-                                            hue = (hue + (hueAdj / 1.8) + 360) % 360;
-                                            sat = Math.Clamp(sat * ((100 + satAdj) / 100.0), 0, 1);
-                                            lum = Math.Clamp(lum * ((100 + lumAdj) / 100.0), 0, 1);
-                                        }
-                                        break;
+                                    if (hueAdj != 0 || satAdj != 0 || lumAdj != 0)
+                                    {
+                                        hue = (hue + (hueAdj / 1.8) + 360) % 360;
+                                        sat = Math.Clamp(sat * ((100 + satAdj) / 100.0), 0, 1);
+                                        lum = Math.Clamp(lum * ((100 + lumAdj) / 100.0), 0, 1);
                                     }
                                 }
                             }
@@ -159,7 +166,7 @@ namespace rawinator
                             pixel.SetChannel(1, (ushort)Math.Clamp(ng * 65535, 0, 65535));
                             pixel.SetChannel(2, (ushort)Math.Clamp(nb * 65535, 0, 65535));
                         }
-                    }
+                    });
                 }
             }
 
