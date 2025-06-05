@@ -29,6 +29,9 @@ namespace rawinator
                 (Develop_Slider_Contrast, nameof(RawImageProcessParams.Contrast)),
                 (Develop_Slider_Saturation, nameof(RawImageProcessParams.Saturation)),
                 (Develop_Slider_Hue, nameof(RawImageProcessParams.Hue)),
+                (Develop_Slider_Sharpness, nameof(RawImageProcessParams.Sharpness)),
+                (Develop_Slider_Noise, nameof(RawImageProcessParams.Noise)),
+                (Develop_Slider_Vignette, nameof(RawImageProcessParams.Vignette)),
             ];
 
             colorSliders = [

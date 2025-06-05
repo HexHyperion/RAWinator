@@ -816,6 +816,79 @@
                                         LargeChange="5"
                                         local:SliderHelper.TrackRepeatButtonBackground="#FC34E8"/>
                             </StackPanel>
+
+                            <!-- Sliders for detail -->
+                            <StackPanel x:Name="Develop_Sliders_Panel_Detail"
+							        Orientation="Vertical"
+							        Margin="10,5">
+                                <TextBlock Text="Detail adjustments"
+							           Margin="0,12,0,8"
+							           FontWeight="Bold"
+							           FontSize="16"/>
+
+                                <!-- Sharpness -->
+                                <Grid Margin="0,0,0,0">
+                                    <TextBlock Text="Sharpness"
+	                                           Grid.Column="0"
+	                                           VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding ElementName=Develop_Slider_Sharpness, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+	                                           Grid.Column="1"
+	                                           HorizontalAlignment="Right"
+	                                           VerticalAlignment="Center"/>
+                                </Grid>
+                                <Slider x:Name="Develop_Slider_Sharpness"
+                                        Minimum="-100"
+                                        Maximum="100"
+                                        Value="0"
+                                        TickFrequency="1"
+                                        ValueChanged="Develop_Slider_ValueChanged"
+                                        Thumb.DragStarted="Develop_Slider_DragStarted"
+                                        Thumb.DragCompleted="Develop_Slider_DragCompleted"
+                                        IsSnapToTickEnabled="True"
+                                        LargeChange="5"/>
+
+                                <!-- Vignette -->
+                                <Grid Margin="0,8,0,0">
+                                    <TextBlock Text="Vignette"
+                                               Grid.Column="0"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding ElementName=Develop_Slider_Vignette, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+                                               Grid.Column="1"
+                                               HorizontalAlignment="Right"
+                                               VerticalAlignment="Center"/>
+                                </Grid>
+                                <Slider x:Name="Develop_Slider_Vignette"
+                                        Minimum="-100"
+                                        Maximum="100"
+                                        Value="0"
+                                        TickFrequency="1"
+                                        ValueChanged="Develop_Slider_ValueChanged"
+                                        Thumb.DragStarted="Develop_Slider_DragStarted"
+                                        Thumb.DragCompleted="Develop_Slider_DragCompleted"
+                                        IsSnapToTickEnabled="True"
+                                        LargeChange="5"/>
+
+                                <!-- Noise -->
+                                <Grid Margin="0,8,0,0">
+                                    <TextBlock Text="Noise"
+                                               Grid.Column="0"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding ElementName=Develop_Slider_Noise, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+                                               Grid.Column="1"
+                                               HorizontalAlignment="Right"
+                                               VerticalAlignment="Center"/>
+                                </Grid>
+                                <Slider x:Name="Develop_Slider_Noise"
+                                        Minimum="0"
+                                        Maximum="100"
+                                        Value="0"
+                                        TickFrequency="1"
+                                        ValueChanged="Develop_Slider_ValueChanged"
+                                        Thumb.DragStarted="Develop_Slider_DragStarted"
+                                        Thumb.DragCompleted="Develop_Slider_DragCompleted"
+                                        IsSnapToTickEnabled="True"
+                                        LargeChange="5"/>
+                            </StackPanel>
                         </StackPanel>
                     </ScrollViewer>
 

@@ -129,45 +129,99 @@ namespace rawinator
                     }
                 }
 
-                using (var pixels = editedImage.GetPixelsUnsafe())
-                {
-                    ParallelOptions parallelOptions = new() { MaxDegreeOfParallelism = Environment.ProcessorCount };
-                    Parallel.For(0, height, parallelOptions, y => {
-                        for (int x = 0; x < width; x++)
+                using var pixels = editedImage.GetPixelsUnsafe();
+                ParallelOptions parallelOptions = new() { MaxDegreeOfParallelism = Environment.ProcessorCount };
+                Parallel.For(0, height, parallelOptions, y => {
+                    for (int x = 0; x < width; x++)
+                    {
+                        var pixel = pixels.GetPixel(x, y);
+                        double red = pixel.GetChannel(0) / 65535.0;
+                        double green = pixel.GetChannel(1) / 65535.0;
+                        double blue = pixel.GetChannel(2) / 65535.0;
+                        RgbToHsl(red, green, blue, out double hue, out double sat, out double lum);
+
+                        if (sat > minSaturationForColorAdjust)
                         {
-                            var pixel = pixels.GetPixel(x, y);
-                            double red = pixel.GetChannel(0) / 65535.0;
-                            double green = pixel.GetChannel(1) / 65535.0;
-                            double blue = pixel.GetChannel(2) / 65535.0;
-                            RgbToHsl(red, green, blue, out double hue, out double sat, out double lum);
-
-                            if (sat > minSaturationForColorAdjust)
+                            int hueIndex = ((int)(hue + 360)) % 360;
+                            var color = hueToColorMap[hueIndex];
+                            if (color.HasValue)
                             {
-                                int hueIndex = ((int)(hue + 360)) % 360;
-                                var color = hueToColorMap[hueIndex];
-                                if (color.HasValue)
-                                {
-                                    double hueAdj = perColor.Hue[color.Value];
-                                    double satAdj = perColor.Saturation[color.Value];
-                                    double lumAdj = perColor.Luminance[color.Value];
+                                double hueAdj = perColor.Hue[color.Value];
+                                double satAdj = perColor.Saturation[color.Value];
+                                double lumAdj = perColor.Luminance[color.Value];
 
-                                    if (hueAdj != 0 || satAdj != 0 || lumAdj != 0)
-                                    {
-                                        hue = (hue + (hueAdj / 1.8) + 360) % 360;
-                                        sat = Math.Clamp(sat * ((100 + satAdj) / 100.0), 0, 1);
-                                        lum = Math.Clamp(lum * ((100 + lumAdj) / 100.0), 0, 1);
-                                    }
+                                if (hueAdj != 0 || satAdj != 0 || lumAdj != 0)
+                                {
+                                    hue = (hue + (hueAdj / 1.8) + 360) % 360;
+                                    sat = Math.Clamp(sat * ((100 + satAdj) / 100.0), 0, 1);
+                                    lum = Math.Clamp(lum * ((100 + lumAdj) / 100.0), 0, 1);
                                 }
                             }
-
-                            HslToRgb(hue, sat, lum, out double nr, out double ng, out double nb);
-
-                            pixel.SetChannel(0, (ushort)Math.Clamp(nr * 65535, 0, 65535));
-                            pixel.SetChannel(1, (ushort)Math.Clamp(ng * 65535, 0, 65535));
-                            pixel.SetChannel(2, (ushort)Math.Clamp(nb * 65535, 0, 65535));
                         }
-                    });
+
+                        HslToRgb(hue, sat, lum, out double nr, out double ng, out double nb);
+
+                        pixel.SetChannel(0, (ushort)Math.Clamp(nr * 65535, 0, 65535));
+                        pixel.SetChannel(1, (ushort)Math.Clamp(ng * 65535, 0, 65535));
+                        pixel.SetChannel(2, (ushort)Math.Clamp(nb * 65535, 0, 65535));
+                    }
+                });
+            }
+
+
+            // ===== Sharpening / Blur =====
+            if (developSettings.Sharpness != 0)
+            {
+                if (developSettings.Sharpness < 0)
+                {
+                    editedImage.Blur(5, -developSettings.Sharpness / 2);
                 }
+                else
+                {
+                    editedImage.Sharpen(5, developSettings.Sharpness / 1.5);
+                }
+            }
+
+
+            // ===== Vignette =====
+            if (developSettings.Vignette != 0)
+            {
+                int width = editedImage.Width;
+                int height = editedImage.Height;
+                double centerX = width / 2.0;
+                double centerY = height / 2.0;
+
+                // -100 = strong darkening, +100 = strong lightening
+                double vignetteStrength = -developSettings.Vignette / 100.0 * 0.85;
+
+                using var pixels = editedImage.GetPixelsUnsafe();
+                ParallelOptions parallelOptions = new() { MaxDegreeOfParallelism = Environment.ProcessorCount };
+                Parallel.For(0, height, parallelOptions, y => {
+                    for (int x = 0; x < width; x++)
+                    {
+                        double distX = (x - centerX) / centerX;
+                        double distY = (y - centerY) / centerY;
+                        double dist = Math.Sqrt(distX * distX + distY * distY); // Give some love to Pythagoras
+
+                        double factor = 1.0 - dist * vignetteStrength;
+
+                        var pixel = pixels.GetPixel(x, y);
+                        for (int channel = 0; channel < 3; channel++)
+                        {
+                            double val = pixel.GetChannel(channel) / 65535.0;
+                            val = Math.Clamp(val * factor, 0, 1);
+                            pixel.SetChannel(channel, (ushort)(val * 65535));
+                        }
+                    }
+                });
+            }
+
+            // ===== Noise =====
+            if (developSettings.Noise != 0)
+            {
+                // add iso noise
+                double noiseStrength = developSettings.Noise / 150.0;
+                editedImage.AddNoise(NoiseType.Gaussian, noiseStrength);
             }
 
             editedImage.AutoOrient();
