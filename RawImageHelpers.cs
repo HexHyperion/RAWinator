@@ -225,47 +225,49 @@ namespace rawinator
             }
 
             // ===== Border =====
-            MagickColor borderColor = MagickColors.White;
-            try
+            if (developSettings.BorderWidth != 0)
             {
-                string hex = developSettings.BorderColor ?? "#ffffff";
-                if (hex.StartsWith('#'))
+                MagickColor borderColor = MagickColors.White;
+                try
                 {
-                    hex = hex[1..];
+                    string hex = developSettings.BorderColor ?? "#ffffff";
+                    if (hex.StartsWith('#'))
+                    {
+                        hex = hex[1..];
+                    }
+                    if (hex.Length == 3) // #RGB
+                    {
+                        borderColor = new MagickColor(
+                            (ushort)(Convert.ToUInt16(new string(hex[0], 2), 16) * 257),
+                            (ushort)(Convert.ToUInt16(new string(hex[1], 2), 16) * 257),
+                            (ushort)(Convert.ToUInt16(new string(hex[2], 2), 16) * 257)
+                        );
+                    }
+                    else if (hex.Length == 6) // #RRGGBB
+                    {
+                        borderColor = new MagickColor(
+                            (ushort)(Convert.ToUInt16(hex[..2], 16) * 257),
+                            (ushort)(Convert.ToUInt16(hex.Substring(2, 2), 16) * 257),
+                            (ushort)(Convert.ToUInt16(hex.Substring(4, 2), 16) * 257)
+                        );
+                    }
+                    else if (hex.Length == 8) // #AARRGGBB
+                    {
+                        borderColor = new MagickColor(
+                            (ushort)(Convert.ToUInt16(hex.Substring(2, 2), 16) * 257),
+                            (ushort)(Convert.ToUInt16(hex.Substring(4, 2), 16) * 257),
+                            (ushort)(Convert.ToUInt16(hex.Substring(6, 2), 16) * 257),
+                            (ushort)(Convert.ToUInt16(hex[..2], 16) * 257)
+                        );
+                    }
                 }
-                if (hex.Length == 3) // #RGB
+                catch
                 {
-                    borderColor = new MagickColor(
-                        (ushort)(Convert.ToUInt16(new string(hex[0], 2), 16) * 257),
-                        (ushort)(Convert.ToUInt16(new string(hex[1], 2), 16) * 257),
-                        (ushort)(Convert.ToUInt16(new string(hex[2], 2), 16) * 257)
-                    );
+                    borderColor = MagickColors.White;
                 }
-                else if (hex.Length == 6) // #RRGGBB
-                {
-                    borderColor = new MagickColor(
-                        (ushort)(Convert.ToUInt16(hex[..2], 16) * 257),
-                        (ushort)(Convert.ToUInt16(hex.Substring(2, 2), 16) * 257),
-                        (ushort)(Convert.ToUInt16(hex.Substring(4, 2), 16) * 257)
-                    );
-                }
-                else if (hex.Length == 8) // #AARRGGBB
-                {
-                    borderColor = new MagickColor(
-                        (ushort)(Convert.ToUInt16(hex.Substring(2, 2), 16) * 257),
-                        (ushort)(Convert.ToUInt16(hex.Substring(4, 2), 16) * 257),
-                        (ushort)(Convert.ToUInt16(hex.Substring(6, 2), 16) * 257),
-                        (ushort)(Convert.ToUInt16(hex[..2], 16) * 257)
-                    );
-                }
+                editedImage.BorderColor = borderColor;
+                editedImage.Border((int)developSettings.BorderWidth);
             }
-            catch
-            {
-                borderColor = MagickColors.White;
-            }
-            editedImage.BorderColor = borderColor;
-            editedImage.Border((int)developSettings.BorderWidth);
-
 
             editedImage.AutoOrient();
 

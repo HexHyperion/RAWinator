@@ -405,9 +405,9 @@ namespace rawinator
             if (CurrentImage == null) return;
             if (sender is not TextBox tb) return;
             string input = tb.Text.Trim();
-            if (!int.TryParse(input, out int px) || px < 0 || px > 500)
+            if (!int.TryParse(input, out int px) || px < 0)
             {
-                tb.Text = ((int)(CurrentImage.ProcessParams.BorderWidth)).ToString();
+                tb.Text = ((int)CurrentImage.ProcessParams.BorderWidth).ToString();
                 return;
             }
             if ((int)CurrentImage.ProcessParams.BorderWidth != px)

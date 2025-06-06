@@ -369,20 +369,74 @@
                         <RowDefinition Height="20"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="200" MinWidth="100"/>
                         <ColumnDefinition Width="1"/>
                         <ColumnDefinition Width="5*"/>
                         <ColumnDefinition Width="1"/>
                         <ColumnDefinition Width="300" MinWidth="150"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- Placeholder, probably a preset selector or history in the future -->
+                    <!-- Left panel - presets and quick settings -->
                     <Grid Grid.Column="0"
                           Grid.RowSpan="2"
                           Margin="10">
-                        <TextBlock Text="Presets"
-                                   FontWeight="Bold"
-                                   FontSize="16"/>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <ScrollViewer Grid.Row="0"
+                                      VerticalScrollBarVisibility="Auto"
+                                      Background="Transparent">
+                        </ScrollViewer>
+
+                        <StackPanel x:Name="Develop_Sliders_Panel_Quick"
+                                    Orientation="Vertical"
+                                    Margin="0,5,0,0"
+                                    Grid.Row="1">
+                            <Grid Margin="0,0,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0"
+                                            Orientation="Vertical"
+                                            Margin="0,0,5,5">
+                                    <Button Content="Enhance"
+                                            x:Name="Develop_Button_Enhance"
+                                            Height="22"
+                                            FontWeight="Bold"
+                                            HorizontalAlignment="Stretch"
+                                            Margin="0,0,0,10"/>
+                                    <Button Content="Auto level"
+                                            x:Name="Develop_Button_Level"
+                                            Height="22"
+                                            FontWeight="Bold"
+                                            HorizontalAlignment="Stretch"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1"
+                                            Orientation="Vertical"
+                                            Margin="5,0,0,0">
+                                    <Button Content="Denoise"
+                                            x:Name="Develop_Button_Denoise"
+                                            Height="22"
+                                            FontWeight="Bold"
+                                            HorizontalAlignment="Stretch"
+                                            Margin="0,0,0,10"/>
+                                    <Button Content="Auto gamma"
+                                            x:Name="Develop_Button_Gamma"
+                                            Height="22"
+                                            FontWeight="Bold"
+                                            HorizontalAlignment="Stretch"/>
+                                </StackPanel>
+                            </Grid>
+                            <Button Content="Crop/Resize"
+                                    x:Name="Develop_Button_Crop"
+                                    Height="30"
+                                    FontWeight="Bold"
+                                    HorizontalAlignment="Stretch"
+                                    Margin="0,5,0,0"/>
+                        </StackPanel>
                     </Grid>
 
                     <GridSplitter Grid.Column="1"
@@ -409,32 +463,38 @@
                                   ResizeBehavior="PreviousAndNext"
                                   ResizeDirection="Columns"/>
 
-                    <ScrollViewer x:Name="Develop_Slider_Scroll"
-                                  Grid.Row="0"
-                                  Grid.Column="4"
-                                  Grid.RowSpan="2">
-                        <StackPanel x:Name="Develop_Sliders_Panel"
-                                    Orientation="Vertical">
-                            <!-- Sliders for all adjustments -->
-                            <StackPanel x:Name="Develop_Sliders_Panel_Basic"
-	                                Orientation="Vertical"
-	                                Margin="10,5">
-                                <TextBlock Text="Basic adjustments"
+                    <!-- Right panel - sliders for all adjustments -->
+                    <Grid Grid.Row="0"
+                          Grid.Column="4"
+                          Grid.RowSpan="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <ScrollViewer x:Name="Develop_Slider_Scroll"
+                                      Grid.Row="0">
+                            <StackPanel x:Name="Develop_Sliders_Panel"
+                                        Orientation="Vertical">
+                                <StackPanel x:Name="Develop_Sliders_Panel_Basic"
+	                                    Orientation="Vertical"
+	                                    Margin="10,5">
+                                    <TextBlock Text="Basic adjustments"
 	                                   Margin="0,0,0,8"
 	                                   FontWeight="Bold"
 	                                   FontSize="16"/>
 
-                                <!-- Exposure -->
-                                <Grid Margin="0,0,0,0">
-                                    <TextBlock Text="Exposure"
+                                    <!-- Exposure -->
+                                    <Grid Margin="0,0,0,0">
+                                        <TextBlock Text="Exposure"
 	                                       Grid.Column="0"
 	                                       VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding ElementName=Develop_Slider_Exposure, Path=Value, Converter={StaticResource PlusSignValueConverter}, ConverterParameter=2}"
+                                        <TextBlock Text="{Binding ElementName=Develop_Slider_Exposure, Path=Value, Converter={StaticResource PlusSignValueConverter}, ConverterParameter=2}"
 	                                       Grid.Column="1"
 	                                       HorizontalAlignment="Right"
 	                                       VerticalAlignment="Center"/>
-                                </Grid>
-                                <Slider x:Name="Develop_Slider_Exposure"
+                                    </Grid>
+                                    <Slider x:Name="Develop_Slider_Exposure"
 	                                Minimum="-5"
 	                                Maximum="5"
 	                                Value="0"
@@ -445,17 +505,17 @@
 	                                IsSnapToTickEnabled="True"
 	                                LargeChange="0.3"/>
 
-                                <!-- Brightness -->
-                                <Grid Margin="0,8,0,0">
-                                    <TextBlock Text="Brightness"
+                                    <!-- Brightness -->
+                                    <Grid Margin="0,8,0,0">
+                                        <TextBlock Text="Brightness"
 	                                       Grid.Column="0"
 	                                       VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding ElementName=Develop_Slider_Brightness, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+                                        <TextBlock Text="{Binding ElementName=Develop_Slider_Brightness, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
 	                                       Grid.Column="1"
 	                                       HorizontalAlignment="Right"
 	                                       VerticalAlignment="Center"/>
-                                </Grid>
-                                <Slider x:Name="Develop_Slider_Brightness"
+                                    </Grid>
+                                    <Slider x:Name="Develop_Slider_Brightness"
 	                                Minimum="-100"
 	                                Maximum="100"
 	                                Value="0"
@@ -466,17 +526,17 @@
 	                                IsSnapToTickEnabled="True"
 	                                LargeChange="5"/>
 
-                                <!-- Contrast -->
-                                <Grid Margin="0,8,0,0">
-                                    <TextBlock Text="Contrast"
+                                    <!-- Contrast -->
+                                    <Grid Margin="0,8,0,0">
+                                        <TextBlock Text="Contrast"
 		                                   Grid.Column="0"
 		                                   VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding ElementName=Develop_Slider_Contrast, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+                                        <TextBlock Text="{Binding ElementName=Develop_Slider_Contrast, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
 		                                   Grid.Column="1"
 		                                   HorizontalAlignment="Right"
 		                                   VerticalAlignment="Center"/>
-                                </Grid>
-                                <Slider x:Name="Develop_Slider_Contrast"
+                                    </Grid>
+                                    <Slider x:Name="Develop_Slider_Contrast"
 	                                Minimum="-100"
 	                                Maximum="100"
 	                                Value="0"
@@ -487,17 +547,17 @@
 	                                IsSnapToTickEnabled="True"
 	                                LargeChange="5"/>
 
-                                <!-- White Balance (Temp) -->
-                                <Grid Margin="0,8,0,0">
-                                    <TextBlock Text="White Balance (Temp)"
+                                    <!-- White Balance (Temp) -->
+                                    <Grid Margin="0,8,0,0">
+                                        <TextBlock Text="White Balance (Temp)"
 	                                       Grid.Column="0"
 	                                       VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding ElementName=Develop_Slider_WhiteBalance, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+                                        <TextBlock Text="{Binding ElementName=Develop_Slider_WhiteBalance, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
 	                                       Grid.Column="1"
 	                                       HorizontalAlignment="Right"
 	                                       VerticalAlignment="Center"/>
-                                </Grid>
-                                <Slider x:Name="Develop_Slider_WhiteBalance"
+                                    </Grid>
+                                    <Slider x:Name="Develop_Slider_WhiteBalance"
 	                                Minimum="-100"
 	                                Maximum="100"
 	                                Value="0"
@@ -508,17 +568,17 @@
 	                                IsSnapToTickEnabled="True"
 	                                LargeChange="5"/>
 
-                                <!-- White Balance (Tint) -->
-                                <Grid Margin="0,8,0,0">
-                                    <TextBlock Text="White Balance (Tint)"
+                                    <!-- White Balance (Tint) -->
+                                    <Grid Margin="0,8,0,0">
+                                        <TextBlock Text="White Balance (Tint)"
 	                                       Grid.Column="0"
 	                                       VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding ElementName=Develop_Slider_WhiteBalanceTint, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+                                        <TextBlock Text="{Binding ElementName=Develop_Slider_WhiteBalanceTint, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
 	                                       Grid.Column="1"
 	                                       HorizontalAlignment="Right"
 	                                       VerticalAlignment="Center"/>
-                                </Grid>
-                                <Slider x:Name="Develop_Slider_WhiteBalanceTint"
+                                    </Grid>
+                                    <Slider x:Name="Develop_Slider_WhiteBalanceTint"
 	                                Minimum="-100"
 	                                Maximum="100"
 	                                Value="0"
@@ -529,17 +589,17 @@
 	                                IsSnapToTickEnabled="True"
 	                                LargeChange="5"/>
 
-                                <!-- Highlights -->
-                                <Grid Margin="0,8,0,0">
-                                    <TextBlock Text="Highlights"
+                                    <!-- Highlights -->
+                                    <Grid Margin="0,8,0,0">
+                                        <TextBlock Text="Highlights"
 	                                       Grid.Column="0"
 	                                       VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding ElementName=Develop_Slider_Highlights, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+                                        <TextBlock Text="{Binding ElementName=Develop_Slider_Highlights, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
 	                                       Grid.Column="1"
 	                                       HorizontalAlignment="Right"
 	                                       VerticalAlignment="Center"/>
-                                </Grid>
-                                <Slider x:Name="Develop_Slider_Highlights"
+                                    </Grid>
+                                    <Slider x:Name="Develop_Slider_Highlights"
 	                                Minimum="-100"
 	                                Maximum="100"
 	                                Value="0"
@@ -550,17 +610,17 @@
 	                                IsSnapToTickEnabled="True"
 	                                LargeChange="5"/>
 
-                                <!-- Shadows -->
-                                <Grid Margin="0,8,0,0">
-                                    <TextBlock Text="Shadows"
+                                    <!-- Shadows -->
+                                    <Grid Margin="0,8,0,0">
+                                        <TextBlock Text="Shadows"
 	                                       Grid.Column="0"
 	                                       VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding ElementName=Develop_Slider_Shadows, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+                                        <TextBlock Text="{Binding ElementName=Develop_Slider_Shadows, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
 	                                       Grid.Column="1"
 	                                       HorizontalAlignment="Right"
 	                                       VerticalAlignment="Center"/>
-                                </Grid>
-                                <Slider x:Name="Develop_Slider_Shadows"
+                                    </Grid>
+                                    <Slider x:Name="Develop_Slider_Shadows"
 	                                Minimum="-100"
 	                                Maximum="100"
 	                                Value="0"
@@ -571,17 +631,17 @@
 	                                IsSnapToTickEnabled="True"
 	                                LargeChange="5"/>
 
-                                <!-- Saturation -->
-                                <Grid Margin="0,8,0,0">
-                                    <TextBlock Text="Saturation"
+                                    <!-- Saturation -->
+                                    <Grid Margin="0,8,0,0">
+                                        <TextBlock Text="Saturation"
 	                                       Grid.Column="0"
 	                                       VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding ElementName=Develop_Slider_Saturation, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+                                        <TextBlock Text="{Binding ElementName=Develop_Slider_Saturation, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
 	                                       Grid.Column="1"
 	                                       HorizontalAlignment="Right"
 	                                       VerticalAlignment="Center"/>
-                                </Grid>
-                                <Slider x:Name="Develop_Slider_Saturation"
+                                    </Grid>
+                                    <Slider x:Name="Develop_Slider_Saturation"
 	                                Minimum="-100"
 	                                Maximum="100"
 	                                Value="0"
@@ -592,17 +652,17 @@
 	                                IsSnapToTickEnabled="True"
 	                                LargeChange="5"/>
 
-                                <!-- Hue -->
-                                <Grid Margin="0,8,0,0">
-                                    <TextBlock Text="Hue"
+                                    <!-- Hue -->
+                                    <Grid Margin="0,8,0,0">
+                                        <TextBlock Text="Hue"
 	                                       Grid.Column="0"
 	                                       VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding ElementName=Develop_Slider_Hue, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+                                        <TextBlock Text="{Binding ElementName=Develop_Slider_Hue, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
 	                                       Grid.Column="1"
 	                                       HorizontalAlignment="Right"
 	                                       VerticalAlignment="Center"/>
-                                </Grid>
-                                <Slider x:Name="Develop_Slider_Hue"
+                                    </Grid>
+                                    <Slider x:Name="Develop_Slider_Hue"
 	                                Minimum="-180"
 	                                Maximum="180"
 	                                Value="0"
@@ -612,37 +672,110 @@
 	                                Thumb.DragCompleted="Develop_Slider_DragCompleted"
 	                                IsSnapToTickEnabled="True"
 	                                LargeChange="5"/>
-                            </StackPanel>
-
-                            <StackPanel x:Name="Develop_Sliders_Panel_Colors"
-                                        Orientation="Vertical"
-                                        Margin="10,5">
-                                <TextBlock Text="Adjust by color"
-                                           Margin="0,12,0,8"
-                                           FontWeight="Bold"
-                                           FontSize="16"/>
-
-                                <!-- Segmented control for color-specific HSL -->
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,8">
-                                    <RadioButton GroupName="ColorAdjustmentType" Content="Hue" IsChecked="True" Margin="8,0"
-                                                 Checked="ColorAdjustmentTypeRadio_Checked"/>
-                                    <RadioButton GroupName="ColorAdjustmentType" Content="Saturation" Margin="8,0"
-                                                 Checked="ColorAdjustmentTypeRadio_Checked"/>
-                                    <RadioButton GroupName="ColorAdjustmentType" Content="Luminance" Margin="8,0"
-                                                 Checked="ColorAdjustmentTypeRadio_Checked"/>
                                 </StackPanel>
 
-                                <!-- Red -->
-                                <Grid Margin="0,0,0,0">
-                                    <TextBlock Text="Red"
+                                <!-- Sliders for detail -->
+								<StackPanel x:Name="Develop_Sliders_Panel_Detail"
+											Orientation="Vertical"
+											Margin="10,5">
+								    <TextBlock Text="Detail adjustments"
+								               Margin="0,12,0,8"
+								               FontWeight="Bold"
+								               FontSize="16"/>
+
+								    <!-- Sharpness -->
+								    <Grid Margin="0,0,0,0">
+								        <TextBlock Text="Sharpness"
+								                   Grid.Column="0"
+								                   VerticalAlignment="Center"/>
+								        <TextBlock Text="{Binding ElementName=Develop_Slider_Sharpness, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+								                   Grid.Column="1"
+								                   HorizontalAlignment="Right"
+								                   VerticalAlignment="Center"/>
+								    </Grid>
+								    <Slider x:Name="Develop_Slider_Sharpness"
+								            Minimum="-100"
+								            Maximum="100"
+								            Value="0"
+								            TickFrequency="1"
+								            ValueChanged="Develop_Slider_ValueChanged"
+								            Thumb.DragStarted="Develop_Slider_DragStarted"
+								            Thumb.DragCompleted="Develop_Slider_DragCompleted"
+								            IsSnapToTickEnabled="True"
+								            LargeChange="5"/>
+
+								    <!-- Vignette -->
+								    <Grid Margin="0,8,0,0">
+								        <TextBlock Text="Vignette"
+								                   Grid.Column="0"
+								                   VerticalAlignment="Center"/>
+								        <TextBlock Text="{Binding ElementName=Develop_Slider_Vignette, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+								                   Grid.Column="1"
+								                   HorizontalAlignment="Right"
+								                   VerticalAlignment="Center"/>
+								    </Grid>
+								    <Slider x:Name="Develop_Slider_Vignette"
+								            Minimum="-100"
+								            Maximum="100"
+								            Value="0"
+								            TickFrequency="1"
+								            ValueChanged="Develop_Slider_ValueChanged"
+								            Thumb.DragStarted="Develop_Slider_DragStarted"
+								            Thumb.DragCompleted="Develop_Slider_DragCompleted"
+								            IsSnapToTickEnabled="True"
+								            LargeChange="5"/>
+
+								    <!-- Noise -->
+								    <Grid Margin="0,8,0,0">
+								        <TextBlock Text="Noise"
+								                   Grid.Column="0"
+								                   VerticalAlignment="Center"/>
+								        <TextBlock Text="{Binding ElementName=Develop_Slider_Noise, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+								                   Grid.Column="1"
+								                   HorizontalAlignment="Right"
+								                   VerticalAlignment="Center"/>
+								    </Grid>
+								    <Slider x:Name="Develop_Slider_Noise"
+								            Minimum="0"
+								            Maximum="100"
+								            Value="0"
+								            TickFrequency="1"
+								            ValueChanged="Develop_Slider_ValueChanged"
+								            Thumb.DragStarted="Develop_Slider_DragStarted"
+								            Thumb.DragCompleted="Develop_Slider_DragCompleted"
+								            IsSnapToTickEnabled="True"
+								            LargeChange="5"/>
+								</StackPanel>
+
+                                <StackPanel x:Name="Develop_Sliders_Panel_Colors"
+											Orientation="Vertical"
+											Margin="10,5">
+                                    <TextBlock Text="Adjust by color (slow!)"
+                                               Margin="0,12,0,8"
+                                               FontWeight="Bold"
+                                               FontSize="16"/>
+
+                                    <!-- Segmented control for color-specific HSL -->
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,8">
+                                        <RadioButton GroupName="ColorAdjustmentType" Content="Hue" IsChecked="True" Margin="8,0"
+                                                 Checked="ColorAdjustmentTypeRadio_Checked"/>
+                                        <RadioButton GroupName="ColorAdjustmentType" Content="Saturation" Margin="8,0"
+                                                 Checked="ColorAdjustmentTypeRadio_Checked"/>
+                                        <RadioButton GroupName="ColorAdjustmentType" Content="Luminance" Margin="8,0"
+                                                 Checked="ColorAdjustmentTypeRadio_Checked"/>
+                                    </StackPanel>
+
+                                    <!-- Red -->
+                                    <Grid Margin="0,0,0,0">
+                                        <TextBlock Text="Red"
                                                Grid.Column="0"
                                                VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding ElementName=Develop_Slider_Red, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+                                        <TextBlock Text="{Binding ElementName=Develop_Slider_Red, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
                                                Grid.Column="1"
                                                HorizontalAlignment="Right"
                                                VerticalAlignment="Center"/>
-                                </Grid>
-                                <Slider x:Name="Develop_Slider_Red"
+                                    </Grid>
+                                    <Slider x:Name="Develop_Slider_Red"
                                         Tag="Red"
                                         Minimum="-100"
                                         Maximum="100"
@@ -655,17 +788,17 @@
                                         LargeChange="5"
                                         local:SliderHelper.TrackRepeatButtonBackground="#FC3434"/>
 
-                                <!-- Orange -->
-                                <Grid Margin="0,8,0,0">
-                                    <TextBlock Text="Orange"
+                                    <!-- Orange -->
+                                    <Grid Margin="0,8,0,0">
+                                        <TextBlock Text="Orange"
 	                                       Grid.Column="0"
 	                                       VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding ElementName=Develop_Slider_Orange, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+                                        <TextBlock Text="{Binding ElementName=Develop_Slider_Orange, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
 	                                       Grid.Column="1"
 	                                       HorizontalAlignment="Right"
 	                                       VerticalAlignment="Center"/>
-                                </Grid>
-                                <Slider x:Name="Develop_Slider_Orange"
+                                    </Grid>
+                                    <Slider x:Name="Develop_Slider_Orange"
                                         Tag="Orange"
                                         Minimum="-100"
                                         Maximum="100"
@@ -678,17 +811,17 @@
                                         LargeChange="5"
                                         local:SliderHelper.TrackRepeatButtonBackground="#FC8734"/>
 
-                                <!-- Yellow -->
-                                <Grid Margin="0,8,0,0">
-                                    <TextBlock Text="Yellow"
+                                    <!-- Yellow -->
+                                    <Grid Margin="0,8,0,0">
+                                        <TextBlock Text="Yellow"
 	                                       Grid.Column="0"
 	                                       VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding ElementName=Develop_Slider_Yellow, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+                                        <TextBlock Text="{Binding ElementName=Develop_Slider_Yellow, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
 	                                       Grid.Column="1"
 	                                       HorizontalAlignment="Right"
 	                                       VerticalAlignment="Center"/>
-                                </Grid>
-                                <Slider x:Name="Develop_Slider_Yellow"
+                                    </Grid>
+                                    <Slider x:Name="Develop_Slider_Yellow"
                                         Tag="Yellow"
                                         Minimum="-100"
                                         Maximum="100"
@@ -701,17 +834,17 @@
                                         LargeChange="5"
                                         local:SliderHelper.TrackRepeatButtonBackground="#FCD734"/>
 
-                                <!-- Green -->
-                                <Grid Margin="0,8,0,0">
-                                    <TextBlock Text="Green"
+                                    <!-- Green -->
+                                    <Grid Margin="0,8,0,0">
+                                        <TextBlock Text="Green"
                                            Grid.Column="0"
                                            VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding ElementName=Develop_Slider_Green, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+                                        <TextBlock Text="{Binding ElementName=Develop_Slider_Green, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
                                            Grid.Column="1"
                                            HorizontalAlignment="Right"
                                            VerticalAlignment="Center"/>
-                                </Grid>
-                                <Slider x:Name="Develop_Slider_Green"
+                                    </Grid>
+                                    <Slider x:Name="Develop_Slider_Green"
                                         Tag="Green"
                                         Minimum="-100"
                                         Maximum="100"
@@ -724,17 +857,17 @@
                                         LargeChange="5"
                                         local:SliderHelper.TrackRepeatButtonBackground="#77FC34"/>
 
-                                <!-- Cyan -->
-                                <Grid Margin="0,8,0,0">
-                                    <TextBlock Text="Aqua"
+                                    <!-- Cyan -->
+                                    <Grid Margin="0,8,0,0">
+                                        <TextBlock Text="Aqua"
 	                                       Grid.Column="0"
 	                                       VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding ElementName=Develop_Slider_Aqua, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+                                        <TextBlock Text="{Binding ElementName=Develop_Slider_Aqua, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
 	                                       Grid.Column="1"
 	                                       HorizontalAlignment="Right"
 	                                       VerticalAlignment="Center"/>
-                                </Grid>
-                                <Slider x:Name="Develop_Slider_Aqua"
+                                    </Grid>
+                                    <Slider x:Name="Develop_Slider_Aqua"
                                         Tag="Aqua"
                                         Minimum="-100"
                                         Maximum="100"
@@ -747,17 +880,17 @@
                                         LargeChange="5"
                                         local:SliderHelper.TrackRepeatButtonBackground="#34EEFC"/>
 
-                                <!-- Blue -->
-                                <Grid Margin="0,8,0,0">
-                                    <TextBlock Text="Blue"
+                                    <!-- Blue -->
+                                    <Grid Margin="0,8,0,0">
+                                        <TextBlock Text="Blue"
                                            Grid.Column="0"
                                            VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding ElementName=Develop_Slider_Blue, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+                                        <TextBlock Text="{Binding ElementName=Develop_Slider_Blue, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
                                            Grid.Column="1"
                                            HorizontalAlignment="Right"
                                            VerticalAlignment="Center"/>
-                                </Grid>
-                                <Slider x:Name="Develop_Slider_Blue"
+                                    </Grid>
+                                    <Slider x:Name="Develop_Slider_Blue"
                                         Tag="Blue"
                                         Minimum="-100"
                                         Maximum="100"
@@ -770,17 +903,17 @@
                                         LargeChange="5"
                                         local:SliderHelper.TrackRepeatButtonBackground="#346DFC"/>
 
-                                <!-- Purple -->
-                                <Grid Margin="0,8,0,0">
-                                    <TextBlock Text="Purple"
+                                    <!-- Purple -->
+                                    <Grid Margin="0,8,0,0">
+                                        <TextBlock Text="Purple"
 	                                       Grid.Column="0"
 	                                       VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding ElementName=Develop_Slider_Purple, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+                                        <TextBlock Text="{Binding ElementName=Develop_Slider_Purple, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
 	                                       Grid.Column="1"
 	                                       HorizontalAlignment="Right"
 	                                       VerticalAlignment="Center"/>
-                                </Grid>
-                                <Slider x:Name="Develop_Slider_Purple"
+                                    </Grid>
+                                    <Slider x:Name="Develop_Slider_Purple"
                                         Tag="Purple"
                                         Minimum="-100"
                                         Maximum="100"
@@ -793,17 +926,17 @@
                                         LargeChange="5"
                                         local:SliderHelper.TrackRepeatButtonBackground="#9E34FC"/>
 
-                                <!-- Magenta -->
-                                <Grid Margin="0,8,0,0">
-                                    <TextBlock Text="Magenta"
+                                    <!-- Magenta -->
+                                    <Grid Margin="0,8,0,0">
+                                        <TextBlock Text="Magenta"
 	                                       Grid.Column="0"
 	                                       VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding ElementName=Develop_Slider_Magenta, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+                                        <TextBlock Text="{Binding ElementName=Develop_Slider_Magenta, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
 	                                       Grid.Column="1"
 	                                       HorizontalAlignment="Right"
 	                                       VerticalAlignment="Center"/>
-                                </Grid>
-                                <Slider x:Name="Develop_Slider_Magenta"
+                                    </Grid>
+                                    <Slider x:Name="Develop_Slider_Magenta"
                                         Tag="Magenta"
                                         Minimum="-100"
                                         Maximum="100"
@@ -815,103 +948,31 @@
                                         IsSnapToTickEnabled="True"
                                         LargeChange="5"
                                         local:SliderHelper.TrackRepeatButtonBackground="#FC34E8"/>
-                            </StackPanel>
+                                </StackPanel>
 
-                            <!-- Sliders for detail -->
-                            <StackPanel x:Name="Develop_Sliders_Panel_Detail"
-							        Orientation="Vertical"
-							        Margin="10,5">
-                                <TextBlock Text="Detail adjustments"
-							           Margin="0,12,0,8"
-							           FontWeight="Bold"
-							           FontSize="16"/>
 
-                                <!-- Sharpness -->
-                                <Grid Margin="0,0,0,0">
-                                    <TextBlock Text="Sharpness"
-	                                           Grid.Column="0"
-	                                           VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding ElementName=Develop_Slider_Sharpness, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
-	                                           Grid.Column="1"
-	                                           HorizontalAlignment="Right"
-	                                           VerticalAlignment="Center"/>
-                                </Grid>
-                                <Slider x:Name="Develop_Slider_Sharpness"
-                                        Minimum="-100"
-                                        Maximum="100"
-                                        Value="0"
-                                        TickFrequency="1"
-                                        ValueChanged="Develop_Slider_ValueChanged"
-                                        Thumb.DragStarted="Develop_Slider_DragStarted"
-                                        Thumb.DragCompleted="Develop_Slider_DragCompleted"
-                                        IsSnapToTickEnabled="True"
-                                        LargeChange="5"/>
-
-                                <!-- Vignette -->
-                                <Grid Margin="0,8,0,0">
-                                    <TextBlock Text="Vignette"
-                                               Grid.Column="0"
-                                               VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding ElementName=Develop_Slider_Vignette, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
-                                               Grid.Column="1"
-                                               HorizontalAlignment="Right"
-                                               VerticalAlignment="Center"/>
-                                </Grid>
-                                <Slider x:Name="Develop_Slider_Vignette"
-                                        Minimum="-100"
-                                        Maximum="100"
-                                        Value="0"
-                                        TickFrequency="1"
-                                        ValueChanged="Develop_Slider_ValueChanged"
-                                        Thumb.DragStarted="Develop_Slider_DragStarted"
-                                        Thumb.DragCompleted="Develop_Slider_DragCompleted"
-                                        IsSnapToTickEnabled="True"
-                                        LargeChange="5"/>
-
-                                <!-- Noise -->
-                                <Grid Margin="0,8,0,0">
-                                    <TextBlock Text="Noise"
-                                               Grid.Column="0"
-                                               VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding ElementName=Develop_Slider_Noise, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
-                                               Grid.Column="1"
-                                               HorizontalAlignment="Right"
-                                               VerticalAlignment="Center"/>
-                                </Grid>
-                                <Slider x:Name="Develop_Slider_Noise"
-                                        Minimum="0"
-                                        Maximum="100"
-                                        Value="0"
-                                        TickFrequency="1"
-                                        ValueChanged="Develop_Slider_ValueChanged"
-                                        Thumb.DragStarted="Develop_Slider_DragStarted"
-                                        Thumb.DragCompleted="Develop_Slider_DragCompleted"
-                                        IsSnapToTickEnabled="True"
-                                        LargeChange="5"/>
-                            </StackPanel>
-
-                            <!-- Size and transform adjustments -->
-                            <StackPanel x:Name="Develop_Sliders_Panel_Transforms"
+	                            <!-- Artistic adjustments and filters -->
+                                <StackPanel x:Name="Develop_Sliders_Panel_Effects"
                                         Orientation="Vertical"
                                         Margin="10,5">
-                                <TextBlock Text="Size and transformations"
+                                    <TextBlock Text="Special effects"
 	                                       Margin="0,12,0,8"
 	                                       FontWeight="Bold"
 	                                       FontSize="16"/>
 
-                                <Grid Margin="0,0,0,0">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
+                                    <Grid Margin="0,0,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
 
-                                    <!-- Border color -->
-                                    <StackPanel Grid.Column="0"
+                                        <!-- Border color -->
+                                        <StackPanel Grid.Column="0"
                                                 Orientation="Vertical"
                                                 Margin="0,0,8,0">
-                                        <TextBlock Text="Border color (hex)"
+                                            <TextBlock Text="Border color (hex)"
                                                    VerticalAlignment="Center"/>
-                                        <TextBox x:Name="Develop_BorderColor_TextBox"
+                                            <TextBox x:Name="Develop_BorderColor_TextBox"
                                                  Text="{Binding CurrentImage.ProcessParams.BorderColor, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
                                                  Margin="0,6,0,0"
                                                  Background="Black"
@@ -921,17 +982,16 @@
                                                  Padding="4"
                                                  HorizontalAlignment="Stretch"
                                                  VerticalAlignment="Center"
-                                                 ToolTip="Hex color, e.g. #ffffff"
                                                  LostFocus="Develop_BorderColor_TextBox_LostFocus"/>
-                                    </StackPanel>
+                                        </StackPanel>
 
-                                    <!-- Border width -->
-                                    <StackPanel Grid.Column="1"
+                                        <!-- Border width -->
+                                        <StackPanel Grid.Column="1"
                                                 Orientation="Vertical"
                                                 Margin="8,0,0,0">
-                                        <TextBlock Text="Border size (px)"
+                                            <TextBlock Text="Border size (px)"
                                                    VerticalAlignment="Center"/>
-                                        <TextBox x:Name="Develop_BorderWidth_TextBox"
+                                            <TextBox x:Name="Develop_BorderWidth_TextBox"
                                                  Text="{Binding CurrentImage.ProcessParams.BorderWidth, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
                                                  Margin="0,6,0,0"
                                                  Background="Black"
@@ -941,14 +1001,14 @@
                                                  Padding="4"
                                                  HorizontalAlignment="Stretch"
                                                  VerticalAlignment="Center"
-                                                 ToolTip="Border width in pixels"
                                                  LostFocus="Develop_BorderWidth_TextBox_LostFocus"
                                                  PreviewTextInput="Develop_BorderWidth_TextBox_PreviewTextInput"/>
-                                    </StackPanel>
-                                </Grid>
+                                        </StackPanel>
+                                    </Grid>
+                                </StackPanel>
                             </StackPanel>
-                        </StackPanel>
-                    </ScrollViewer>
+                        </ScrollViewer>
+                    </Grid>
 
                     <!-- Progress bar active when the adjustments are being computed -->
                     <ProgressBar x:Name="Develop_Process_ProgressBar"
