@@ -16,11 +16,14 @@
         public double Noise { get; set; } = 0;
         public double Vignette { get; set; } = 0;
 
+        public string BorderColor { get; set; } = "#ffffff";
+        public double BorderWidth { get; set; } = 0;
+
         public class ColorAdjustments
         {
-            public Dictionary<HslColorRange, double> Hue { get; set; } = new();
-            public Dictionary<HslColorRange, double> Saturation { get; set; } = new();
-            public Dictionary<HslColorRange, double> Luminance { get; set; } = new();
+            public Dictionary<HslColorRange, double> Hue { get; set; } = [];
+            public Dictionary<HslColorRange, double> Saturation { get; set; } = [];
+            public Dictionary<HslColorRange, double> Luminance { get; set; } = [];
 
             public ColorAdjustments()
             {

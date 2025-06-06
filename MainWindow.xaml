@@ -889,6 +889,64 @@
                                         IsSnapToTickEnabled="True"
                                         LargeChange="5"/>
                             </StackPanel>
+
+                            <!-- Size and transform adjustments -->
+                            <StackPanel x:Name="Develop_Sliders_Panel_Transforms"
+                                        Orientation="Vertical"
+                                        Margin="10,5">
+                                <TextBlock Text="Size and transformations"
+	                                       Margin="0,12,0,8"
+	                                       FontWeight="Bold"
+	                                       FontSize="16"/>
+
+                                <Grid Margin="0,0,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Border color -->
+                                    <StackPanel Grid.Column="0"
+                                                Orientation="Vertical"
+                                                Margin="0,0,8,0">
+                                        <TextBlock Text="Border color (hex)"
+                                                   VerticalAlignment="Center"/>
+                                        <TextBox x:Name="Develop_BorderColor_TextBox"
+                                                 Text="{Binding CurrentImage.ProcessParams.BorderColor, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                                 Margin="0,6,0,0"
+                                                 Background="Black"
+                                                 Foreground="White"
+                                                 BorderBrush="White"
+                                                 CaretBrush="White"
+                                                 Padding="4"
+                                                 HorizontalAlignment="Stretch"
+                                                 VerticalAlignment="Center"
+                                                 ToolTip="Hex color, e.g. #ffffff"
+                                                 LostFocus="Develop_BorderColor_TextBox_LostFocus"/>
+                                    </StackPanel>
+
+                                    <!-- Border width -->
+                                    <StackPanel Grid.Column="1"
+                                                Orientation="Vertical"
+                                                Margin="8,0,0,0">
+                                        <TextBlock Text="Border size (px)"
+                                                   VerticalAlignment="Center"/>
+                                        <TextBox x:Name="Develop_BorderWidth_TextBox"
+                                                 Text="{Binding CurrentImage.ProcessParams.BorderWidth, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                                 Margin="0,6,0,0"
+                                                 Background="Black"
+                                                 Foreground="White"
+                                                 BorderBrush="White"
+                                                 CaretBrush="White"
+                                                 Padding="4"
+                                                 HorizontalAlignment="Stretch"
+                                                 VerticalAlignment="Center"
+                                                 ToolTip="Border width in pixels"
+                                                 LostFocus="Develop_BorderWidth_TextBox_LostFocus"
+                                                 PreviewTextInput="Develop_BorderWidth_TextBox_PreviewTextInput"/>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
                         </StackPanel>
                     </ScrollViewer>
 

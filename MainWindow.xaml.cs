@@ -44,6 +44,10 @@ namespace rawinator
                 (Develop_Slider_Purple, HslColorRange.Purple),
                 (Develop_Slider_Magenta, HslColorRange.Magenta),
             ];
+
+            Develop_BorderColor_TextBox.LostFocus += Develop_BorderColor_TextBox_LostFocus;
+            Develop_BorderWidth_TextBox.LostFocus += Develop_BorderWidth_TextBox_LostFocus;
+            Develop_BorderWidth_TextBox.PreviewTextInput += Develop_BorderWidth_TextBox_PreviewTextInput;
         }
 
         public SparseObservableList<RawImage> ImportedImages { get; set; } = [];
@@ -375,6 +379,48 @@ namespace rawinator
             });
         }
 
+        private void Develop_BorderColor_TextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (CurrentImage == null) return;
+            if (sender is not TextBox tb) return;
+            string input = tb.Text.Trim();
+            // Validate hex color (allow #RGB, #RRGGBB, #AARRGGBB)
+            if (System.Text.RegularExpressions.Regex.IsMatch(input, @"^#([0-9a-fA-F]{3,8})$"))
+            {
+                if (CurrentImage.ProcessParams.BorderColor != input)
+                {
+                    CurrentImage.ProcessParams.BorderColor = input;
+                    UpdateDevelopImage();
+                }
+            }
+            else
+            {
+                tb.Text = CurrentImage.ProcessParams.BorderColor ?? "#ffffff";
+                return;
+            }
+        }
+
+        private void Develop_BorderWidth_TextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (CurrentImage == null) return;
+            if (sender is not TextBox tb) return;
+            string input = tb.Text.Trim();
+            if (!int.TryParse(input, out int px) || px < 0 || px > 500)
+            {
+                tb.Text = ((int)(CurrentImage.ProcessParams.BorderWidth)).ToString();
+                return;
+            }
+            if ((int)CurrentImage.ProcessParams.BorderWidth != px)
+            {
+                CurrentImage.ProcessParams.BorderWidth = px;
+                UpdateDevelopImage();
+            }
+        }
+
+        private void Develop_BorderWidth_TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            e.Handled = !int.TryParse(e.Text, out _);
+        }
 
 
 

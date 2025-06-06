@@ -224,8 +224,50 @@ namespace rawinator
                 editedImage.AddNoise(NoiseType.Gaussian, noiseStrength);
             }
 
+            // ===== Border =====
+            MagickColor borderColor = MagickColors.White;
+            try
+            {
+                string hex = developSettings.BorderColor ?? "#ffffff";
+                if (hex.StartsWith('#'))
+                {
+                    hex = hex[1..];
+                }
+                if (hex.Length == 3) // #RGB
+                {
+                    borderColor = new MagickColor(
+                        (ushort)(Convert.ToUInt16(new string(hex[0], 2), 16) * 257),
+                        (ushort)(Convert.ToUInt16(new string(hex[1], 2), 16) * 257),
+                        (ushort)(Convert.ToUInt16(new string(hex[2], 2), 16) * 257)
+                    );
+                }
+                else if (hex.Length == 6) // #RRGGBB
+                {
+                    borderColor = new MagickColor(
+                        (ushort)(Convert.ToUInt16(hex[..2], 16) * 257),
+                        (ushort)(Convert.ToUInt16(hex.Substring(2, 2), 16) * 257),
+                        (ushort)(Convert.ToUInt16(hex.Substring(4, 2), 16) * 257)
+                    );
+                }
+                else if (hex.Length == 8) // #AARRGGBB
+                {
+                    borderColor = new MagickColor(
+                        (ushort)(Convert.ToUInt16(hex.Substring(2, 2), 16) * 257),
+                        (ushort)(Convert.ToUInt16(hex.Substring(4, 2), 16) * 257),
+                        (ushort)(Convert.ToUInt16(hex.Substring(6, 2), 16) * 257),
+                        (ushort)(Convert.ToUInt16(hex[..2], 16) * 257)
+                    );
+                }
+            }
+            catch
+            {
+                borderColor = MagickColors.White;
+            }
+            editedImage.BorderColor = borderColor;
+            editedImage.Border((int)developSettings.BorderWidth);
+
+
             editedImage.AutoOrient();
-            editedImage.Strip();
 
             return (MagickImage)editedImage;
         }
@@ -261,7 +303,7 @@ namespace rawinator
 
         private static void HslToRgb(double hue, double saturation, double luminance, out double red, out double green, out double blue)
         {
-            hue = hue % 360;
+            hue %= 360;
             if (saturation == 0)
             {
                 red = green = blue = luminance;
