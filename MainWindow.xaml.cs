@@ -83,6 +83,8 @@ namespace rawinator
                     new TranslateTransform(0, 0)
                 ]
             };
+
+            Develop_Image.MouseWheel += Develop_Image_MouseWheel;
         }
 
         public SparseObservableList<RawImage> ImportedImages { get; set; } = [];
@@ -544,7 +546,7 @@ namespace rawinator
 
         private void Develop_Image_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (imageZoom > 1.0)
+            if (imageZoom != 1.0)
             {
                 dragStart = e.GetPosition(Develop_Image_Container);
                 dragOrigin = imageOffset;
@@ -567,6 +569,13 @@ namespace rawinator
                 imageOffset = new Point(dragOrigin.X + delta.X, dragOrigin.Y + delta.Y);
                 ApplyImageTransform();
             }
+        }
+
+        private void Develop_Image_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            double zoomFactor = (e.Delta > 0) ? ZoomStep : (1.0 / ZoomStep);
+            SetImageZoom(imageZoom * zoomFactor);
+            e.Handled = true;
         }
 
 

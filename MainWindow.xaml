@@ -460,7 +460,8 @@
                                MouseLeftButtonDown="Develop_Image_MouseLeftButtonDown"
                                MouseLeftButtonUp="Develop_Image_MouseLeftButtonUp"
                                MouseMove="Develop_Image_MouseMove"
-                               Stretch="Uniform" />
+                               Stretch="Uniform"
+                               MouseWheel="Develop_Image_MouseWheel" />
                     </Grid>
 
                     <!-- Zoom controls, centered below the image -->
