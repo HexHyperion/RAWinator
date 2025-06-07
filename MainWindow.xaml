@@ -970,7 +970,7 @@
                                             <ColumnDefinition Width="*" />
                                         </Grid.ColumnDefinitions>
 
-                                        <!-- Border color -->
+                                        <!-- Border color and effect toggles (left) -->
                                         <StackPanel Grid.Column="0"
                                                 Orientation="Vertical"
                                                 Margin="0,0,8,0">
@@ -978,7 +978,7 @@
                                                    VerticalAlignment="Center"/>
                                             <TextBox x:Name="Develop_BorderColor_TextBox"
                                                  Text="{Binding CurrentImage.ProcessParams.BorderColor, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
-                                                 Margin="0,6,0,0"
+                                                 Margin="0,6,0,10"
                                                  Background="Black"
                                                  Foreground="White"
                                                  BorderBrush="White"
@@ -987,9 +987,30 @@
                                                  HorizontalAlignment="Stretch"
                                                  VerticalAlignment="Center"
                                                  LostFocus="Develop_BorderColor_TextBox_LostFocus"/>
+
+                                            <ToggleButton x:Name="Develop_Toggle_Grayscale"
+                                                          Style="{StaticResource ToggleButtonAsButtonStyle}"
+                                                          Content="Grayscale"
+                                                          IsChecked="{Binding CurrentImage.ProcessParams.UseGrayscale, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                          Click="Develop_Toggle_Special_Click"/>
+                                            <ToggleButton x:Name="Develop_Toggle_Solarize"
+                                                          Style="{StaticResource ToggleButtonAsButtonStyle}"
+                                                          Content="Solarize"
+                                                          IsChecked="{Binding CurrentImage.ProcessParams.UseSolarize, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                          Click="Develop_Toggle_Special_Click"/>
+                                            <ToggleButton x:Name="Develop_Toggle_OilPaint"
+                                                          Style="{StaticResource ToggleButtonAsButtonStyle}"
+                                                          Content="Oilpaint"
+                                                          IsChecked="{Binding CurrentImage.ProcessParams.UseOilPaint, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                          Click="Develop_Toggle_Special_Click"/>
+                                            <ToggleButton x:Name="Develop_Toggle_Posterize"
+                                                          Style="{StaticResource ToggleButtonAsButtonStyle}"
+                                                          Content="Posterize"
+                                                          IsChecked="{Binding CurrentImage.ProcessParams.UsePosterize, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                          Click="Develop_Toggle_Special_Click"/>
                                         </StackPanel>
 
-                                        <!-- Border width -->
+                                        <!-- Border width and effect toggles (right) -->
                                         <StackPanel Grid.Column="1"
                                                 Orientation="Vertical"
                                                 Margin="8,0,0,0">
@@ -997,7 +1018,7 @@
                                                    VerticalAlignment="Center"/>
                                             <TextBox x:Name="Develop_BorderWidth_TextBox"
                                                  Text="{Binding CurrentImage.ProcessParams.BorderWidth, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
-                                                 Margin="0,6,0,0"
+                                                 Margin="0,6,0,10"
                                                  Background="Black"
                                                  Foreground="White"
                                                  BorderBrush="White"
@@ -1007,6 +1028,27 @@
                                                  VerticalAlignment="Center"
                                                  LostFocus="Develop_BorderWidth_TextBox_LostFocus"
                                                  PreviewTextInput="Develop_BorderWidth_TextBox_PreviewTextInput"/>
+
+                                            <ToggleButton x:Name="Develop_Toggle_Sepia"
+                                                          Style="{StaticResource ToggleButtonAsButtonStyle}"
+                                                          Content="Sepia"
+                                                          IsChecked="{Binding CurrentImage.ProcessParams.UseSepia, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                          Click="Develop_Toggle_Special_Click"/>
+                                            <ToggleButton x:Name="Develop_Toggle_Invert"
+                                                          Style="{StaticResource ToggleButtonAsButtonStyle}"
+                                                          Content="Invert"
+                                                          IsChecked="{Binding CurrentImage.ProcessParams.UseInvert, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                          Click="Develop_Toggle_Special_Click"/>
+                                            <ToggleButton x:Name="Develop_Toggle_Charcoal"
+                                                          Style="{StaticResource ToggleButtonAsButtonStyle}"
+                                                          Content="Charcoal"
+                                                          IsChecked="{Binding CurrentImage.ProcessParams.UseCharcoal, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                          Click="Develop_Toggle_Special_Click"/>
+                                            <ToggleButton x:Name="Develop_Toggle_Sketch"
+                                                          Style="{StaticResource ToggleButtonAsButtonStyle}"
+                                                          Content="Sketch"
+                                                          IsChecked="{Binding CurrentImage.ProcessParams.UseSketch, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                          Click="Develop_Toggle_Special_Click"/>
                                         </StackPanel>
                                     </Grid>
                                 </StackPanel>

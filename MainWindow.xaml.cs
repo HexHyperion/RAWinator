@@ -38,6 +38,14 @@ namespace rawinator
                 (Develop_Toggle_Denoise, nameof(RawImageProcessParams.UseDenoise)),
                 (Develop_Toggle_Gamma, nameof(RawImageProcessParams.UseAutoGamma)),
                 (Develop_Toggle_Level, nameof(RawImageProcessParams.UseAutoLevel)),
+                (Develop_Toggle_Grayscale, nameof(RawImageProcessParams.UseGrayscale)),
+                (Develop_Toggle_Sepia, nameof(RawImageProcessParams.UseSepia)),
+                (Develop_Toggle_Solarize, nameof(RawImageProcessParams.UseSolarize)),
+                (Develop_Toggle_Invert, nameof(RawImageProcessParams.UseInvert)),
+                (Develop_Toggle_Charcoal, nameof(RawImageProcessParams.UseCharcoal)),
+                (Develop_Toggle_OilPaint, nameof(RawImageProcessParams.UseOilPaint)),
+                (Develop_Toggle_Sketch, nameof(RawImageProcessParams.UseSketch)),
+                (Develop_Toggle_Posterize, nameof(RawImageProcessParams.UsePosterize)),
             ];
 
             colorSliders = [
@@ -60,6 +68,14 @@ namespace rawinator
             Develop_Toggle_Denoise.Click += Develop_Toggle_Special_Click;
             Develop_Toggle_Gamma.Click += Develop_Toggle_Special_Click;
             Develop_Toggle_Level.Click += Develop_Toggle_Special_Click;
+            Develop_Toggle_Grayscale.Click += Develop_Toggle_Special_Click;
+            Develop_Toggle_Sepia.Click += Develop_Toggle_Special_Click;
+            Develop_Toggle_Solarize.Click += Develop_Toggle_Special_Click;
+            Develop_Toggle_Invert.Click += Develop_Toggle_Special_Click;
+            Develop_Toggle_Charcoal.Click += Develop_Toggle_Special_Click;
+            Develop_Toggle_OilPaint.Click += Develop_Toggle_Special_Click;
+            Develop_Toggle_Sketch.Click += Develop_Toggle_Special_Click;
+            Develop_Toggle_Posterize.Click += Develop_Toggle_Special_Click;
         }
 
         public SparseObservableList<RawImage> ImportedImages { get; set; } = [];

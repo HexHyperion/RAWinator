@@ -50,7 +50,7 @@ namespace rawinator
         {
             var editedImage = baseImage.Clone();
 
-            // ===== Special toggles =====
+            // ===== Auto effects =====
             if (developSettings.UseEnhance)
             {
                 editedImage.Enhance();
@@ -67,6 +67,7 @@ namespace rawinator
             {
                 editedImage.AutoLevel();
             }
+
 
             // ===== Exposure =====
             // Each stop of exposure means 2x more light
@@ -285,6 +286,42 @@ namespace rawinator
                 editedImage.BorderColor = borderColor;
                 editedImage.Border((int)developSettings.BorderWidth);
             }
+
+
+            // ===== Special effects =====
+            if (developSettings.UseGrayscale)
+            {
+                editedImage.Grayscale();
+            }
+            if (developSettings.UseSepia)
+            {
+                editedImage.SepiaTone();
+            }
+            if (developSettings.UseSolarize)
+            {
+                editedImage.Solarize();
+            }
+            if (developSettings.UseInvert)
+            {
+                editedImage.Negate();
+            }
+            if (developSettings.UseOilPaint)
+            {
+                editedImage.OilPaint(5, 20);
+            }
+            if (developSettings.UseCharcoal)
+            {
+                editedImage.Charcoal();
+            }
+            if (developSettings.UsePosterize)
+            {
+                editedImage.Posterize(5);
+            }
+            if (developSettings.UseSketch)
+            {
+                editedImage.Sketch();
+            }
+
 
             editedImage.AutoOrient();
 

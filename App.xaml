@@ -348,8 +348,8 @@
 
         <Style x:Key="ToggleButtonAsButtonStyle" TargetType="ToggleButton">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderBrush" Value="#aaa"/>
-            <Setter Property="Foreground" Value="#aaa"/>
+            <Setter Property="BorderBrush" Value="#8a8a8a"/>
+            <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Height" Value="22"/>

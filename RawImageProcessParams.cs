@@ -24,6 +24,16 @@
         public bool UseAutoGamma { get; set; } = false;
         public bool UseAutoLevel { get; set; } = false;
 
+        // New effect toggles
+        public bool UseGrayscale { get; set; } = false;
+        public bool UseSepia { get; set; } = false;
+        public bool UseSolarize { get; set; } = false;
+        public bool UseInvert { get; set; } = false;
+        public bool UseCharcoal { get; set; } = false;
+        public bool UseOilPaint { get; set; } = false;
+        public bool UseSketch { get; set; } = false;
+        public bool UsePosterize { get; set; } = false;
+
         public class ColorAdjustments
         {
             public Dictionary<HslColorRange, double> Hue { get; set; } = [];
