@@ -579,12 +579,6 @@ namespace rawinator
                 Library_Import_Button.IsEnabled = false;
             });
 
-            var defines = new DngReadDefines {
-                UseAutoWhitebalance = false,
-                DisableAutoBrightness = false,
-                UseCameraWhitebalance = true,
-                InterpolationQuality = DngInterpolation.ModifiedAhd
-            };
             var parallelOptions = new ParallelOptions {
                 MaxDegreeOfParallelism = (int)Math.Round(Environment.ProcessorCount / 1.5)
             };
@@ -594,10 +588,7 @@ namespace rawinator
                 var img = images[i];
                 try
                 {
-                    using var rawImage = new MagickImage();
-                    rawImage.Settings.SetDefines(defines);
-                    rawImage.Read(img.Path);
-                    rawImage.AutoOrient();
+                    using var rawImage = RawImageHelpers.ApplyAdjustments(img.GetRawImage(), img.ProcessParams);
                     rawImage.ColorSpace = ColorSpace.sRGB;
                     rawImage.Format = MagickFormat.Jpeg;
                     string outputFileName = System.IO.Path.GetFileNameWithoutExtension(img.Filename) + ".jpg";
