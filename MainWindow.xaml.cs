@@ -63,7 +63,6 @@ namespace rawinator
             Develop_BorderWidth_TextBox.LostFocus += Develop_BorderWidth_TextBox_LostFocus;
             Develop_BorderWidth_TextBox.PreviewTextInput += Develop_BorderWidth_TextBox_PreviewTextInput;
 
-            // Add event handlers for toggles
             Develop_Toggle_Enhance.Click += Develop_Toggle_Special_Click;
             Develop_Toggle_Denoise.Click += Develop_Toggle_Special_Click;
             Develop_Toggle_Gamma.Click += Develop_Toggle_Special_Click;
@@ -76,6 +75,14 @@ namespace rawinator
             Develop_Toggle_OilPaint.Click += Develop_Toggle_Special_Click;
             Develop_Toggle_Sketch.Click += Develop_Toggle_Special_Click;
             Develop_Toggle_Posterize.Click += Develop_Toggle_Special_Click;
+
+            Develop_Image.RenderTransform = new TransformGroup
+            {
+                Children = [
+                    new ScaleTransform(1, 1),
+                    new TranslateTransform(0, 0)
+                ]
+            };
         }
 
         public SparseObservableList<RawImage> ImportedImages { get; set; } = [];
@@ -101,6 +108,14 @@ namespace rawinator
         private string currentColorAdjustmentType = "Hue";
         private (Slider slider, HslColorRange color)[] colorSliders;
         private (ToggleButton button, string property)[] developButtons;
+
+        private double imageZoom = 1.0;
+        private const double ZoomStep = 1.15;
+        private const double MinZoom = 0.1;
+        private const double MaxZoom = 10.0;
+        private Point imageOffset = new(0, 0);
+        private Point? dragStart = null;
+        private Point dragOrigin = new(0, 0);
 
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -433,6 +448,7 @@ namespace rawinator
                     if (isNew == true)
                     {
                         SetAllDevelopSliders();
+                        SetImageZoom(1.0, true);
                     }
                     SetDevelopSlidersEnabled(true);
                 });
@@ -486,6 +502,71 @@ namespace rawinator
         {
             if (CurrentImage == null) return;
             UpdateDevelopImage();
+        }
+
+
+        private void ZoomIn_Button_Click(object sender, RoutedEventArgs e)
+        {
+            SetImageZoom(imageZoom * ZoomStep);
+        }
+
+        private void ZoomOut_Button_Click(object sender, RoutedEventArgs e)
+        {
+            SetImageZoom(imageZoom / ZoomStep);
+        }
+
+        private void ZoomReset_Button_Click(object sender, RoutedEventArgs e)
+        {
+            SetImageZoom(1.0, true);
+        }
+
+        private void SetImageZoom(double zoom, bool recenter = false)
+        {
+            imageZoom = Math.Clamp(zoom, MinZoom, MaxZoom);
+            if (recenter)
+            {
+                imageOffset = new Point(0, 0);
+            }
+            ApplyImageTransform();
+        }
+
+        private void ApplyImageTransform()
+        {
+            if (Develop_Image.RenderTransform is TransformGroup tg &&
+                tg.Children[0] is ScaleTransform st &&
+                tg.Children[1] is TranslateTransform tt)
+            {
+                st.ScaleX = st.ScaleY = imageZoom;
+                tt.X = imageOffset.X;
+                tt.Y = imageOffset.Y;
+            }
+        }
+
+        private void Develop_Image_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (imageZoom > 1.0)
+            {
+                dragStart = e.GetPosition(Develop_Image_Container);
+                dragOrigin = imageOffset;
+                Develop_Image.CaptureMouse();
+            }
+        }
+
+        private void Develop_Image_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            dragStart = null;
+            Develop_Image.ReleaseMouseCapture();
+        }
+
+        private void Develop_Image_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (dragStart.HasValue && e.LeftButton == MouseButtonState.Pressed)
+            {
+                var pos = e.GetPosition(Develop_Image_Container);
+                var delta = pos - dragStart.Value;
+                imageOffset = new Point(dragOrigin.X + delta.X, dragOrigin.Y + delta.Y);
+                ApplyImageTransform();
+            }
         }
 
 

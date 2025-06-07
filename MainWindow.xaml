@@ -379,7 +379,8 @@
                     <!-- Left panel - presets and quick settings -->
                     <Grid Grid.Column="0"
                           Grid.RowSpan="2"
-                          Margin="10">
+                          Margin="10"
+                          Background="Black">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="Auto"/>
@@ -453,10 +454,27 @@
                                   ResizeDirection="Columns"/>
 
                     <!-- Actual rendered RAW -->
-                    <Image x:Name="Develop_Image"
-                           Grid.Row="0"
-                           Grid.Column="2"
-                           Stretch="Uniform" />
+                    <Grid x:Name="Develop_Image_Container" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" ClipToBounds="True">
+                        <Image x:Name="Develop_Image"
+                               RenderTransformOrigin="0.5,0.5"
+                               MouseLeftButtonDown="Develop_Image_MouseLeftButtonDown"
+                               MouseLeftButtonUp="Develop_Image_MouseLeftButtonUp"
+                               MouseMove="Develop_Image_MouseMove"
+                               Stretch="Uniform" />
+                    </Grid>
+
+                    <!-- Zoom controls, centered below the image -->
+                    <StackPanel Grid.Row="0"
+                                Grid.Column="2"
+                                x:Name="Develop_Zoom_Controls"
+								Orientation="Horizontal"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Bottom"
+                                Margin="5">
+                        <Button x:Name="ZoomOut_Button" Content="-" Width="40" Margin="5,0" Click="ZoomOut_Button_Click"/>
+                        <Button x:Name="ZoomReset_Button" Content="Reset" Width="60" Margin="5,0" Click="ZoomReset_Button_Click"/>
+                        <Button x:Name="ZoomIn_Button" Content="+" Width="40" Margin="5,0" Click="ZoomIn_Button_Click"/>
+                    </StackPanel>
 
                     <GridSplitter Grid.Column="3"
                                   Grid.RowSpan="2"
@@ -470,7 +488,8 @@
                     <!-- Right panel - sliders for all adjustments -->
                     <Grid Grid.Row="0"
                           Grid.Column="4"
-                          Grid.RowSpan="2">
+                          Grid.RowSpan="2"
+                          Background="Black">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="Auto"/>
