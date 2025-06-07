@@ -66,9 +66,9 @@ namespace rawinator
             return null;
         }
 
-        public MagickImage GetProcessedRawImage()
+        public MagickImage GetRawImage()
         {
-            using var image = new MagickImage();
+            var image = new MagickImage();
             DngReadDefines defines = new() {
                 UseAutoWhitebalance = false,
                 DisableAutoBrightness = false,
@@ -78,7 +78,7 @@ namespace rawinator
             image.Settings.SetDefines(defines);
             image.Read(Path);
             image.AutoOrient();
-            return RawImageHelpers.ApplyAdjustments(image, ProcessParams);
+            return image;
         }
 
         public List<(string, string)> GetMetadata(int?[] tags)

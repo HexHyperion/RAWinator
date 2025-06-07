@@ -402,32 +402,36 @@
                                 <StackPanel Grid.Column="0"
                                             Orientation="Vertical"
                                             Margin="0,0,5,5">
-                                    <Button Content="Enhance"
-                                            x:Name="Develop_Button_Enhance"
-                                            Height="22"
-                                            FontWeight="Bold"
-                                            HorizontalAlignment="Stretch"
-                                            Margin="0,0,0,10"/>
-                                    <Button Content="Auto level"
-                                            x:Name="Develop_Button_Level"
-                                            Height="22"
-                                            FontWeight="Bold"
-                                            HorizontalAlignment="Stretch"/>
+                                    <ToggleButton
+                                        x:Name="Develop_Toggle_Enhance"
+                                        Style="{StaticResource ToggleButtonAsButtonStyle}"
+                                        Content="Enhance"
+                                        IsChecked="{Binding CurrentImage.ProcessParams.UseEnhance, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=Window}}"
+                                        Click="Develop_Toggle_Special_Click"/>
+                                    <ToggleButton
+                                        x:Name="Develop_Toggle_Level"
+                                        Style="{StaticResource ToggleButtonAsButtonStyle}"
+                                        Content="Auto level"
+                                        Margin="0"
+                                        IsChecked="{Binding CurrentImage.ProcessParams.UseAutoLevel, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=Window}}"
+                                        Click="Develop_Toggle_Special_Click"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="1"
                                             Orientation="Vertical"
                                             Margin="5,0,0,0">
-                                    <Button Content="Denoise"
-                                            x:Name="Develop_Button_Denoise"
-                                            Height="22"
-                                            FontWeight="Bold"
-                                            HorizontalAlignment="Stretch"
-                                            Margin="0,0,0,10"/>
-                                    <Button Content="Auto gamma"
-                                            x:Name="Develop_Button_Gamma"
-                                            Height="22"
-                                            FontWeight="Bold"
-                                            HorizontalAlignment="Stretch"/>
+                                    <ToggleButton
+                                        x:Name="Develop_Toggle_Denoise"
+                                        Style="{StaticResource ToggleButtonAsButtonStyle}"
+                                        Content="Denoise"
+                                        IsChecked="{Binding CurrentImage.ProcessParams.UseDenoise, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=Window}}"
+                                        Click="Develop_Toggle_Special_Click"/>
+                                    <ToggleButton
+                                        x:Name="Develop_Toggle_Gamma"
+                                        Style="{StaticResource ToggleButtonAsButtonStyle}"
+                                        Content="Auto gamma"
+                                        Margin="0"
+                                        IsChecked="{Binding CurrentImage.ProcessParams.UseAutoGamma, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=Window}}"
+                                        Click="Develop_Toggle_Special_Click"/>
                                 </StackPanel>
                             </Grid>
                             <Button Content="Crop/Resize"

@@ -170,13 +170,13 @@
 								                  Background="{Binding RelativeSource={RelativeSource AncestorType=Slider}, Path=(local:SliderHelper.TrackRepeatButtonBackground)}"/>
 							    </Track.DecreaseRepeatButton>
 							    <Track.Thumb>
-								    <Thumb x:Name="Thumb"
+                                    <Thumb x:Name="Thumb"
 								           Background="White"
 								           BorderBrush="Transparent"
 								           BorderThickness="0"
 								           Height="16"
 								           Width="8"/>
-							    </Track.Thumb>
+                                </Track.Thumb>
 							    <Track.IncreaseRepeatButton>
 								    <RepeatButton Command="Slider.IncreaseLarge"
 								                  Style="{StaticResource SliderTrackRepeatButtonStyle}"
@@ -188,6 +188,11 @@
 				    </ControlTemplate>
 			    </Setter.Value>
 		    </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="local:SliderHelper.TrackRepeatButtonBackground" Value="#4a4a4a"/>
+                </Trigger>
+            </Style.Triggers>
 	    </Style>
 
         <Style TargetType="ScrollBar">
@@ -339,6 +344,41 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+        </Style>
+
+        <Style x:Key="ToggleButtonAsButtonStyle" TargetType="ToggleButton">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="#aaa"/>
+            <Setter Property="Foreground" Value="#aaa"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Height" Value="22"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsChecked" Value="True">
+                    <Setter Property="BorderBrush" Value="White"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="#fff"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Foreground" Value="#4a4a4a"/>
+                    <Setter Property="BorderBrush" Value="#4a4a4a"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
     </Application.Resources>
 </Application>

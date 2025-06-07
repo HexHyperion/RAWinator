@@ -50,6 +50,24 @@ namespace rawinator
         {
             var editedImage = baseImage.Clone();
 
+            // ===== Special toggles =====
+            if (developSettings.UseEnhance)
+            {
+                editedImage.Enhance();
+            }
+            if (developSettings.UseDenoise)
+            {
+                editedImage.ReduceNoise();
+            }
+            if (developSettings.UseAutoGamma)
+            {
+                editedImage.AutoGamma();
+            }
+            if (developSettings.UseAutoLevel)
+            {
+                editedImage.AutoLevel();
+            }
+
             // ===== Exposure =====
             // Each stop of exposure means 2x more light
             if (developSettings.Exposure != 0)
@@ -219,7 +237,6 @@ namespace rawinator
             // ===== Noise =====
             if (developSettings.Noise != 0)
             {
-                // add iso noise
                 double noiseStrength = developSettings.Noise / 150.0;
                 editedImage.AddNoise(NoiseType.Gaussian, noiseStrength);
             }

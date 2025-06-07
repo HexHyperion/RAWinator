@@ -33,6 +33,12 @@ namespace rawinator
                 (Develop_Slider_Noise, nameof(RawImageProcessParams.Noise)),
                 (Develop_Slider_Vignette, nameof(RawImageProcessParams.Vignette)),
             ];
+            developButtons = [
+                (Develop_Toggle_Enhance, nameof(RawImageProcessParams.UseEnhance)),
+                (Develop_Toggle_Denoise, nameof(RawImageProcessParams.UseDenoise)),
+                (Develop_Toggle_Gamma, nameof(RawImageProcessParams.UseAutoGamma)),
+                (Develop_Toggle_Level, nameof(RawImageProcessParams.UseAutoLevel)),
+            ];
 
             colorSliders = [
                 (Develop_Slider_Red, HslColorRange.Red),
@@ -48,6 +54,12 @@ namespace rawinator
             Develop_BorderColor_TextBox.LostFocus += Develop_BorderColor_TextBox_LostFocus;
             Develop_BorderWidth_TextBox.LostFocus += Develop_BorderWidth_TextBox_LostFocus;
             Develop_BorderWidth_TextBox.PreviewTextInput += Develop_BorderWidth_TextBox_PreviewTextInput;
+
+            // Add event handlers for toggles
+            Develop_Toggle_Enhance.Click += Develop_Toggle_Special_Click;
+            Develop_Toggle_Denoise.Click += Develop_Toggle_Special_Click;
+            Develop_Toggle_Gamma.Click += Develop_Toggle_Special_Click;
+            Develop_Toggle_Level.Click += Develop_Toggle_Special_Click;
         }
 
         public SparseObservableList<RawImage> ImportedImages { get; set; } = [];
@@ -64,6 +76,7 @@ namespace rawinator
                 }
             }
         }
+        public MagickImage? CurrentDevelopImage;
 
         public bool HasImageSelected => CurrentImage != null;
 
@@ -71,6 +84,7 @@ namespace rawinator
         private (Slider slider, string property)[] developSliders;
         private string currentColorAdjustmentType = "Hue";
         private (Slider slider, HslColorRange color)[] colorSliders;
+        private (ToggleButton button, string property)[] developButtons;
 
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -295,11 +309,17 @@ namespace rawinator
         {
             foreach (var (slider, _) in developSliders)
                 slider.Value = 0;
+            foreach (var (slider, _) in colorSliders)
+                slider.Value = 0;
+            foreach (var (button, _) in developButtons)
+                button.IsChecked = false;
         }
 
         private void SetDevelopSlidersEnabled(bool enabled)
         {
             foreach (var (slider, _) in developSliders)
+                slider.IsEnabled = enabled;
+            foreach (var (slider, _) in colorSliders)
                 slider.IsEnabled = enabled;
         }
 
@@ -316,6 +336,26 @@ namespace rawinator
                 var prop = typeof(RawImageProcessParams).GetProperty(property);
                 if (prop != null)
                     slider.Value = (double)prop.GetValue(processParams)!;
+            }
+            foreach (var (button, property) in developButtons)
+            {
+                var prop = typeof(RawImageProcessParams).GetProperty(property);
+                if (prop != null)
+                    button.IsChecked = (bool)prop.GetValue(processParams)!;
+            }
+            foreach (var (slider, color) in colorSliders)
+            {
+                foreach (var prop in typeof(RawImageProcessParams.ColorAdjustments).GetProperties())
+                {
+                    if (prop.Name == currentColorAdjustmentType)
+                    {
+                        var perColor = processParams.PerColor;
+                        if (perColor != null && perColor.GetType().GetProperty(color.ToString()) is PropertyInfo colorProp)
+                        {
+                            slider.Value = (double)colorProp.GetValue(perColor)!;
+                        }
+                    }
+                }
             }
         }
 
@@ -354,7 +394,7 @@ namespace rawinator
             SetColorSliders();
         }
 
-        private void UpdateDevelopImage(bool? isNew = false)
+        private void UpdateDevelopImage(bool isNew = false)
         {
             if (CurrentImage == null)
             {
@@ -365,7 +405,11 @@ namespace rawinator
             SetDevelopSlidersEnabled(false);
 
             Task.Run(() => {
-                var adjusted = CurrentImage.GetProcessedRawImage();
+                if (isNew || CurrentDevelopImage == null)
+                {
+                    CurrentDevelopImage = CurrentImage.GetRawImage();
+                }
+                var adjusted = RawImageHelpers.ApplyAdjustments(CurrentDevelopImage, CurrentImage.ProcessParams);
 
                 Dispatcher.Invoke(() => {
                     Develop_Image.Source = RawImageHelpers.MagickImageToBitmapImage(adjusted);
@@ -420,6 +464,12 @@ namespace rawinator
         private void Develop_BorderWidth_TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             e.Handled = !int.TryParse(e.Text, out _);
+        }
+
+        private void Develop_Toggle_Special_Click(object sender, RoutedEventArgs e)
+        {
+            if (CurrentImage == null) return;
+            UpdateDevelopImage();
         }
 
 

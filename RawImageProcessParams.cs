@@ -19,6 +19,11 @@
         public string BorderColor { get; set; } = "#ffffff";
         public double BorderWidth { get; set; } = 0;
 
+        public bool UseEnhance { get; set; } = false;
+        public bool UseDenoise { get; set; } = false;
+        public bool UseAutoGamma { get; set; } = false;
+        public bool UseAutoLevel { get; set; } = false;
+
         public class ColorAdjustments
         {
             public Dictionary<HslColorRange, double> Hue { get; set; } = [];
