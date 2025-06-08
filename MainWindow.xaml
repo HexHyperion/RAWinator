@@ -19,9 +19,9 @@
         <DockPanel>
             <Menu DockPanel.Dock="Top" Background="Black" Foreground="White" FontFamily="Consolas">
                 <MenuItem Header="_File">
-                    <MenuItem Header="_Open"
+                    <MenuItem Header="_Import..."
                               Click="Menu_File_Open_Click"/>
-                    <MenuItem Header="_Save"
+                    <MenuItem Header="E_xport..."
                               Click="Menu_File_Save_Click"/>
                     <MenuItem Header="_Exit"
                               Click="Menu_File_Exit_Click"/>
@@ -33,7 +33,7 @@
                               Click="Menu_Edit_Redo_Click"/>
                 </MenuItem>
                 <MenuItem Header="_Help">
-                    <MenuItem Header="_About"
+                    <MenuItem Header="_About..."
                               Click="Menu_Help_About_Click"/>
                 </MenuItem>
             </Menu>

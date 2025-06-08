@@ -634,7 +634,10 @@ namespace rawinator
 
         private void Menu_Help_About_Click(object sender, RoutedEventArgs e)
         {
-
+            var about = new AboutWindow {
+                Owner = this
+            };
+            about.ShowDialog();
         }
 
 
@@ -1024,6 +1027,13 @@ namespace rawinator
             if (e.Key == Key.W && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
             {
                 ExitWithConfirmation();
+                e.Handled = true;
+                return;
+            }
+            if (e.Key == Key.I && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+            {
+                var about = new AboutWindow { Owner = this };
+                about.ShowDialog();
                 e.Handled = true;
                 return;
             }
