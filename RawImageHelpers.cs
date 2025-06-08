@@ -210,13 +210,20 @@ namespace rawinator
             // ===== Sharpening / Blur =====
             if (developSettings.Sharpness != 0)
             {
-                if (developSettings.Sharpness < 0)
+                if (developSettings.Sharpness != 0)
                 {
-                    editedImage.Blur(5, -developSettings.Sharpness / 2);
-                }
-                else
-                {
-                    editedImage.Sharpen(5, developSettings.Sharpness / 1.5);
+                    double absSharp = Math.Abs(developSettings.Sharpness);
+                    double radius = 2.0 + absSharp / 30.0;
+                    double sigma = 0.5 + absSharp / 20.0;
+
+                    if (developSettings.Sharpness < 0)
+                    {
+                        editedImage.Blur(radius, sigma);
+                    }
+                    else
+                    {
+                        editedImage.Sharpen(radius, sigma);
+                    }
                 }
             }
 

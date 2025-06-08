@@ -30,7 +30,7 @@ namespace rawinator
         private Stack<RawImageProcessParams> redoStack = new();
         private const int MaxHistory = 30;
 
-        public ObservableCollection<Preset> Presets { get; set; } = new();
+        public ObservableCollection<Preset> Presets { get; set; } = [];
 
         public MainWindow()
         {
@@ -205,6 +205,22 @@ namespace rawinator
             if (Library_Image_Grid.SelectedItems.Count > 0)
             {
                 Library_Export_Button.IsEnabled = true;
+            }
+        }
+
+        private void Library_Image_Grid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (Library_Image_Grid.SelectedItem is RawImage selectedImage)
+            {
+                if (CurrentImage != selectedImage)
+                {
+                    CurrentImage = selectedImage;
+                }
+
+                if (App_TabControl != null && Tabs_Develop != null)
+                {
+                    App_TabControl.SelectedItem = Tabs_Develop;
+                }
             }
         }
 

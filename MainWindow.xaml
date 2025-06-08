@@ -69,6 +69,7 @@
                                  SelectionMode="Extended"
                                  SelectionChanged="Library_Image_Grid_SelectionChanged"
                                  KeyDown="Library_Image_Grid_KeyDown"
+                                 MouseDoubleClick="Library_Image_Grid_MouseDoubleClick"
                                  HorizontalContentAlignment="Center"
                                  VerticalContentAlignment="Top"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -260,16 +261,16 @@
                         <RowDefinition Height="80" MaxHeight="500" MinHeight="40" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="1" />
                         <ColumnDefinition Width="3*" />
                         <ColumnDefinition Width="1" />
                         <ColumnDefinition Width="300" MinWidth="150" />
                     </Grid.ColumnDefinitions>
 
-                    <Grid Grid.Column="0">
-
-                    </Grid>
+	                <!-- Full-sized JPEG preview -->
+                    <Image x:Name="View_Image"
+                           Grid.Row="0"
+                           Grid.Column="0"
+                           Stretch="Uniform"/>
 
                     <GridSplitter Grid.Column="1"
 	                              Width="1"
@@ -279,22 +280,8 @@
 	                              ResizeBehavior="PreviousAndNext"
 	                              ResizeDirection="Columns"/>
 
-					<!-- Full-sized JPEG preview -->
-                    <Image x:Name="View_Image"
-                           Grid.Row="0"
-                           Grid.Column="2"
-                           Stretch="Uniform"/>
-
-                    <GridSplitter Grid.Column="3"
-	                              Width="1"
-	                              HorizontalAlignment="Stretch"
-	                              VerticalAlignment="Stretch"
-	                              Background="#2a2a2a"
-	                              ResizeBehavior="PreviousAndNext"
-	                              ResizeDirection="Columns"/>
-
                     <!-- Detailed metadata -->
-	                <ScrollViewer Grid.Column="4">
+	                <ScrollViewer Grid.Column="2">
 	                    <Grid>
 	                        <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -322,7 +309,7 @@
 	                </ScrollViewer>
 
                     <GridSplitter Grid.Row="1"
-                                  Grid.ColumnSpan="5"
+                                  Grid.ColumnSpan="3"
 	                              Height="1"
 	                              HorizontalAlignment="Stretch"
 	                              VerticalAlignment="Stretch"
@@ -333,7 +320,7 @@
                     <!-- LrC-like horizontal image list -->
                     <ListBox x:Name="View_Image_List"
                              Grid.Row="2"
-                             Grid.ColumnSpan="5"
+                             Grid.ColumnSpan="3"
                              ItemsSource="{Binding ImportedImages.Ordered, RelativeSource={RelativeSource AncestorType=Window}}"
                              SelectedItem="{Binding CurrentImage, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=Window}}"
                              SelectionChanged="View_Image_List_SelectionChanged"
@@ -353,7 +340,10 @@
                         </ListBox.ItemsPanel>
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Image Source="{Binding SmallThumbnail}" Height="Auto" Stretch="Uniform" Margin="5"/>
+	                            <Image Source="{Binding SmallThumbnail}"
+	                                   Height="Auto"
+	                                   Stretch="Uniform"
+	                                   Margin="5" />
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
