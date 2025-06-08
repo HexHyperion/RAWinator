@@ -1,6 +1,6 @@
 ﻿namespace rawinator
 {
-    public class RawImageProcessParams()
+    public class RawImageProcessParams
     {
         public double Exposure { get; set; } = 0;
         public double Brightness { get; set; } = 0;

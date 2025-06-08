@@ -380,7 +380,6 @@
                     <!-- Left panel - presets and quick settings -->
                     <Grid Grid.Column="0"
                           Grid.RowSpan="2"
-                          Margin="10,10,10,0"
                           Background="Black">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
@@ -388,15 +387,43 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <ScrollViewer Grid.Row="0"
-                                      VerticalScrollBarVisibility="Auto"
-                                      Background="Transparent">
-                        </ScrollViewer>
+                        <!-- Preset list -->
+                        <Grid Grid.Row="0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="Presets"
+                                       FontWeight="Bold"
+                                       FontSize="16"
+                                       Margin="10,5,10,8"
+                                       Grid.Row="0"/>
+                            <ListBox x:Name="Preset_ListBox"
+                                     Background="Black"
+                                     Foreground="White"
+                                     BorderThickness="0"
+                                     ItemsSource="{Binding Presets}"
+                                     DisplayMemberPath="Name"
+                                     MouseDoubleClick="Preset_ListBox_MouseDoubleClick"
+                                     KeyDown="Preset_ListBox_KeyDown"
+                                     Margin="0,0,0,5"
+                                     Padding="8,0"
+                                     Grid.Row="1"
+                                     SelectionMode="Extended"/>
+                            <Button x:Name="Add_Preset_Button"
+                                    Content="Add preset..."
+                                    Height="22"
+                                    Click="Add_Preset_Button_Click"
+                                    HorizontalAlignment="Stretch"
+                                    Margin="10,0,10,5"
+                                    Grid.Row="2"/>
+                        </Grid>
 
                         <!-- Quick sliders panel -->
                         <StackPanel x:Name="Develop_Sliders_Panel_Quick"
                                     Orientation="Vertical"
-                                    Margin="0,5,0,5"
+                                    Margin="10,5,10,5"
                                     Grid.Row="1">
                             <Grid Margin="0,0,0,0">
                                 <Grid.ColumnDefinitions>
@@ -443,7 +470,7 @@
                         <!-- Crop/Resize mode panel -->
                         <StackPanel x:Name="Develop_Sliders_Panel_Crop"
                                     Orientation="Vertical"
-                                    Margin="0,5,0,0"
+                                    Margin="10,5,10,0"
                                     Grid.Row="1"
                                     Visibility="Collapsed">
 	                        <Grid Margin="0,0,0,0">
@@ -535,6 +562,7 @@
                                         Grid.Row="2"
                                         Style="{StaticResource ToggleButtonAsButtonStyle}"
                                         Height="30"
+                                        Margin="10,0,10,10"
                                         Checked="Develop_Toggle_Crop_Checked"
                                         Unchecked="Develop_Toggle_Crop_Unchecked"/>
                     </Grid>
@@ -567,11 +595,10 @@
                                     Orientation="Horizontal"
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Bottom"
-                                    Margin="5"
                                     Panel.ZIndex="20">
-                            <Button x:Name="ZoomIn_Button" Content="+" Width="40" Margin="5,0" Click="ZoomIn_Button_Click"/>
-                            <Button x:Name="ZoomReset_Button" Content="Reset" Width="60" Margin="5,0" Click="ZoomReset_Button_Click"/>
                             <Button x:Name="ZoomOut_Button" Content="-" Width="40" Margin="5,0" Click="ZoomOut_Button_Click"/>
+                            <Button x:Name="ZoomReset_Button" Content="Reset" Width="60" Margin="5,0" Click="ZoomReset_Button_Click"/>
+                            <Button x:Name="ZoomIn_Button" Content="+" Width="40" Margin="5,0" Click="ZoomIn_Button_Click"/>
                         </StackPanel>
                     </Grid>
 

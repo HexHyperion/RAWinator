@@ -2,8 +2,12 @@
 using ImageMagick.Formats;
 using Microsoft.Win32;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -25,6 +29,8 @@ namespace rawinator
         private Stack<RawImageProcessParams> undoStack = new();
         private Stack<RawImageProcessParams> redoStack = new();
         private const int MaxHistory = 30;
+
+        public ObservableCollection<Preset> Presets { get; set; } = new();
 
         public MainWindow()
         {
@@ -81,6 +87,8 @@ namespace rawinator
             };
 
             this.PreviewKeyDown += MainWindow_PreviewKeyDown;
+
+            LoadPresets();
         }
 
         public SparseObservableList<RawImage> ImportedImages { get; set; } = new();
@@ -1101,6 +1109,89 @@ namespace rawinator
             {
                 e.Cancel = true;
             }
+        }
+
+
+        private void Add_Preset_Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (CurrentImage == null) return;
+            var dialog = new InputDialog("Enter preset name:") {
+                Owner = this
+            };
+            if (dialog.ShowDialog() == true)
+            {
+                string? name = dialog.ResponseText?.Trim();
+                if (!string.IsNullOrEmpty(name))
+                {
+                    var existing = Presets.FirstOrDefault(p => p.Name == name);
+                    if (existing != null)
+                    {
+                        Presets.Remove(existing);
+                    }
+
+                    Presets.Add(new Preset(name, CurrentImage.ProcessParams));
+                    SavePresets();
+                }
+            }
+        }
+
+        private void Preset_ListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (Preset_ListBox.SelectedItem is Preset preset && CurrentImage != null)
+            {
+                UpdateUndoHistory();
+                CurrentImage.ProcessParams.CopyFrom(preset.Params);
+                SetAllDevelopSliders();
+                UpdateDevelopImage();
+            }
+        }
+
+        private void Preset_ListBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Delete && Preset_ListBox.SelectedItems.Count > 0)
+            {
+                foreach (var item in Preset_ListBox.SelectedItems.OfType<Preset>().ToList())
+                {
+                    Presets.Remove(item);
+                }
+                SavePresets();
+            }
+        }
+
+        private void SavePresets()
+        {
+            try
+            {
+                var list = Presets.Select(p => new PresetDTO { Name = p.Name, Params = p.Params }).ToList();
+                File.WriteAllText("presets.json", JsonSerializer.Serialize(list));
+            }
+            catch {}
+        }
+
+        private void LoadPresets()
+        {
+            try
+            {
+                if (File.Exists("presets.json"))
+                {
+                    var list = JsonSerializer.Deserialize<List<PresetDTO>>(File.ReadAllText("presets.json"));
+                    if (list != null)
+                    {
+                        Presets.Clear();
+                        foreach (var dto in list)
+                        {
+                            Presets.Add(new Preset(dto.Name, dto.Params));
+                        }
+                    }
+                }
+            }
+            catch {}
+        }
+
+        private class PresetDTO
+        {
+            public required string Name { get; set; }
+            public required RawImageProcessParams Params { get; set; }
         }
     }
 }
