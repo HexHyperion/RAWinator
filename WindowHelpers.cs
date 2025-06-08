@@ -112,5 +112,71 @@ namespace rawinator
                 }
             }
         }
+
+
+        // Crop and resize helpers
+        public static void AdjustRectForAspect(ref double width, ref double height, double aspect)
+        {
+            double absW = Math.Abs(width), absH = Math.Abs(height);
+            if (absW > absH * aspect)
+            {
+                width = Math.Sign(width) * absH * aspect;
+                height = Math.Sign(height) * absH;
+            }
+            else
+            {
+                width = Math.Sign(width) * absW;
+                height = Math.Sign(height) * (absW / aspect);
+            }
+        }
+
+        public static void ClampRectToCanvas(ref double x, ref double y, ref double w, ref double h,
+                                      double offsetX, double offsetY, double maxW, double maxH)
+        {
+            if (w < 0)
+            {
+                double minX = Math.Max(x + w, offsetX);
+                w = x - minX;
+                x = minX;
+            }
+            else
+            {
+                double maxX = Math.Min(x + w, offsetX + maxW);
+                w = maxX - x;
+            }
+
+            if (h < 0)
+            {
+                double minY = Math.Max(y + h, offsetY);
+                h = y - minY;
+                y = minY;
+            }
+            else
+            {
+                double maxY = Math.Min(y + h, offsetY + maxH);
+                h = maxY - y;
+            }
+        }
+
+        public static void NormalizeRect(ref double pos, ref double size)
+        {
+            if (size < 0)
+            {
+                pos += size;
+                size = -size;
+            }
+        }
+
+        public static void ClampRectToBounds(ref double x, ref double y, ref double w, ref double h,
+                                      double xMin, double yMin, double maxW, double maxH)
+        {
+            double xMax = xMin + maxW;
+            double yMax = yMin + maxH;
+
+            x = Math.Max(x, xMin);
+            y = Math.Max(y, yMin);
+            if (x + w > xMax) w = xMax - x;
+            if (y + h > yMax) h = yMax - y;
+        }
     }
 }

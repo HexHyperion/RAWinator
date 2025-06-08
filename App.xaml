@@ -140,7 +140,6 @@
 
         <Style x:Key="SliderTrackRepeatButtonStyle"
 	           TargetType="RepeatButton">
-		    <Setter Property="Background" Value="#aaa"/>
 		    <Setter Property="Height" Value="2"/>
 		    <Setter Property="OverridesDefaultStyle" Value="True"/>
 		    <Setter Property="Template">
@@ -151,22 +150,13 @@
 				    </ControlTemplate>
 			    </Setter.Value>
 		    </Setter>
-		    <Style.Triggers>
-			    <Trigger Property="IsMouseOver" Value="True">
-				    <Setter Property="Background" Value="#aaa"/>
-			    </Trigger>
-			    <Trigger Property="IsPressed" Value="True">
-				    <Setter Property="Background" Value="#aaa"/>
-			    </Trigger>
-			    <Trigger Property="IsEnabled" Value="False">
-				    <Setter Property="Background" Value="#aaa"/>
-			    </Trigger>
-		    </Style.Triggers>
 	    </Style>
+
         <Style TargetType="Slider">
 		    <Setter Property="Foreground" Value="White"/>
 		    <Setter Property="Background" Value="Transparent"/>
-		    <Setter Property="Template">
+            <Setter Property="local:SliderHelper.TrackRepeatButtonBackground" Value="#aaa"/>
+            <Setter Property="Template">
 			    <Setter.Value>
 				    <ControlTemplate TargetType="Slider">
 					    <Grid>
@@ -176,26 +166,33 @@
 							    <Track.DecreaseRepeatButton>
 								    <RepeatButton Command="Slider.DecreaseLarge"
 								                  Style="{StaticResource SliderTrackRepeatButtonStyle}"
-								                  IsTabStop="False"/>
+								                  IsTabStop="False"
+								                  Background="{Binding RelativeSource={RelativeSource AncestorType=Slider}, Path=(local:SliderHelper.TrackRepeatButtonBackground)}"/>
 							    </Track.DecreaseRepeatButton>
 							    <Track.Thumb>
-								    <Thumb x:Name="Thumb"
+                                    <Thumb x:Name="Thumb"
 								           Background="White"
 								           BorderBrush="Transparent"
 								           BorderThickness="0"
 								           Height="16"
 								           Width="8"/>
-							    </Track.Thumb>
+                                </Track.Thumb>
 							    <Track.IncreaseRepeatButton>
 								    <RepeatButton Command="Slider.IncreaseLarge"
 								                  Style="{StaticResource SliderTrackRepeatButtonStyle}"
-								                  IsTabStop="False"/>
+								                  IsTabStop="False"
+								                  Background="{Binding RelativeSource={RelativeSource AncestorType=Slider}, Path=(local:SliderHelper.TrackRepeatButtonBackground)}"/>
 							    </Track.IncreaseRepeatButton>
 						    </Track>
 					    </Grid>
 				    </ControlTemplate>
 			    </Setter.Value>
 		    </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="local:SliderHelper.TrackRepeatButtonBackground" Value="#4a4a4a"/>
+                </Trigger>
+            </Style.Triggers>
 	    </Style>
 
         <Style TargetType="ScrollBar">
@@ -314,6 +311,86 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+        </Style>
+
+        <Style TargetType="RadioButton">
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Background" Value="Black" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          RecognizesAccessKey="True"/>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="False">
+                                <Setter Property="Foreground" Value="Gray"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter Property="Foreground" Value="White"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Foreground" Value="#3a3a3a"/>
+                            </Trigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                    <Condition Property="IsChecked" Value="False"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Foreground" Value="#aaa"/>
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ToggleButtonAsButtonStyle" TargetType="ToggleButton">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="#8a8a8a"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Height" Value="22"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsChecked" Value="True">
+                    <Setter Property="BorderBrush" Value="White"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="#fff"/>
+                </Trigger>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsChecked" Value="True"/>
+                        <Condition Property="IsEnabled" Value="False"/>
+                    </MultiTrigger.Conditions>
+                    <Setter Property="Foreground" Value="#6a6a6a"/>
+                    <Setter Property="BorderBrush" Value="#6a6a6a"/>
+                </MultiTrigger>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsChecked" Value="False"/>
+                        <Condition Property="IsEnabled" Value="False"/>
+                    </MultiTrigger.Conditions>
+                    <Setter Property="Foreground" Value="#4a4a4a"/>
+                    <Setter Property="BorderBrush" Value="#4a4a4a"/>
+                </MultiTrigger>
+            </Style.Triggers>
         </Style>
     </Application.Resources>
 </Application>
