@@ -17,7 +17,7 @@
         public double Vignette { get; set; } = 0;
 
         public string BorderColor { get; set; } = "#ffffff";
-        public double BorderWidth { get; set; } = 0;
+        public uint BorderWidth { get; set; } = 0;
 
         public bool UseEnhance { get; set; } = false;
         public bool UseDenoise { get; set; } = false;

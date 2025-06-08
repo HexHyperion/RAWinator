@@ -132,8 +132,8 @@ namespace rawinator
                 editedImage.ColorSpace = ColorSpace.sRGB;
                 const double minSaturationForColorAdjust = 0.05; // Only affect saturated colors
 
-                int width = editedImage.Width;
-                int height = editedImage.Height;
+                uint width = editedImage.Width;
+                uint height = editedImage.Height;
 
                 // Precompute hue-to-color mapping
                 var hueToColorMap = new HslColorRange?[360];
@@ -153,7 +153,7 @@ namespace rawinator
                 Parallel.For(0, height, parallelOptions, y => {
                     for (int x = 0; x < width; x++)
                     {
-                        var pixel = pixels.GetPixel(x, y);
+                        var pixel = pixels.GetPixel(x, (int)y);
                         double red = pixel.GetChannel(0) / 65535.0;
                         double green = pixel.GetChannel(1) / 65535.0;
                         double blue = pixel.GetChannel(2) / 65535.0;
@@ -205,8 +205,8 @@ namespace rawinator
             // ===== Vignette =====
             if (developSettings.Vignette != 0)
             {
-                int width = editedImage.Width;
-                int height = editedImage.Height;
+                uint width = editedImage.Width;
+                uint height = editedImage.Height;
                 double centerX = width / 2.0;
                 double centerY = height / 2.0;
 
@@ -224,8 +224,8 @@ namespace rawinator
 
                         double factor = 1.0 - dist * vignetteStrength;
 
-                        var pixel = pixels.GetPixel(x, y);
-                        for (int channel = 0; channel < 3; channel++)
+                        var pixel = pixels.GetPixel(x, (int)y);
+                        for (uint channel = 0; channel < 3; channel++)
                         {
                             double val = pixel.GetChannel(channel) / 65535.0;
                             val = Math.Clamp(val * factor, 0, 1);
@@ -284,7 +284,7 @@ namespace rawinator
                     borderColor = MagickColors.White;
                 }
                 editedImage.BorderColor = borderColor;
-                editedImage.Border((int)developSettings.BorderWidth);
+                editedImage.Border(developSettings.BorderWidth);
             }
 
 

@@ -384,6 +384,7 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
                         <ScrollViewer Grid.Row="0"
@@ -391,6 +392,7 @@
                                       Background="Transparent">
                         </ScrollViewer>
 
+                        <!-- Quick sliders panel (shown when Crop/Resize toggle is off) -->
                         <StackPanel x:Name="Develop_Sliders_Panel_Quick"
                                     Orientation="Vertical"
                                     Margin="0,5,0,0"
@@ -435,13 +437,26 @@
                                         Click="Develop_Toggle_Special_Click"/>
                                 </StackPanel>
                             </Grid>
-                            <Button Content="Crop/Resize"
-                                    x:Name="Develop_Button_Crop"
-                                    Height="30"
-                                    FontWeight="Bold"
-                                    HorizontalAlignment="Stretch"
-                                    Margin="0,5,0,0"/>
                         </StackPanel>
+
+                        <!-- Empty panel for Crop/Resize mode (shown when Crop/Resize toggle is on) -->
+                        <StackPanel x:Name="Develop_Sliders_Panel_Crop"
+                                    Orientation="Vertical"
+                                    Margin="0,5,0,0"
+                                    Grid.Row="1"
+                                    Visibility="Collapsed">
+                            <!-- Empty for now -->
+                        </StackPanel>
+
+                        <!-- ToggleButton replaces the old Button -->
+                        <ToggleButton Content="Crop/Resize"
+                                        x:Name="Develop_Toggle_Crop"
+                                        Grid.Row="2"
+                                        Style="{StaticResource ToggleButtonAsButtonStyle}"
+                                        Margin="0,5,0,0"
+                                        Height="30"
+                                        Checked="Develop_Toggle_Crop_Checked"
+                                        Unchecked="Develop_Toggle_Crop_Unchecked"/>
                     </Grid>
 
                     <GridSplitter Grid.Column="1"

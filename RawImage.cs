@@ -33,14 +33,14 @@ namespace rawinator
                 thumbnailImage.AutoOrient();
 
                 // Resize so the longest edge is at most 500px
-                int width = thumbnailImage.Width;
-                int height = thumbnailImage.Height;
-                int maxEdge = Math.Max(width, height);
+                uint width = thumbnailImage.Width;
+                uint height = thumbnailImage.Height;
+                uint maxEdge = Math.Max(width, height);
                 if (maxEdge > 500)
                 {
                     double scale = 500.0 / maxEdge;
-                    int newWidth = (int)Math.Round(width * scale);
-                    int newHeight = (int)Math.Round(height * scale);
+                    uint newWidth = (uint)Math.Round(width * scale);
+                    uint newHeight = (uint)Math.Round(height * scale);
                     thumbnailImage.Resize(newWidth, newHeight);
                 }
 
@@ -70,9 +70,9 @@ namespace rawinator
         {
             var image = new MagickImage();
             DngReadDefines defines = new() {
-                UseAutoWhitebalance = false,
+                UseAutoWhiteBalance = false,
                 DisableAutoBrightness = false,
-                UseCameraWhitebalance = true,
+                UseCameraWhiteBalance = true,
                 InterpolationQuality = DngInterpolation.ModifiedAhd
             };
             image.Settings.SetDefines(defines);

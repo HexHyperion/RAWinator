@@ -85,6 +85,10 @@ namespace rawinator
             };
 
             Develop_Image.MouseWheel += Develop_Image_MouseWheel;
+
+            // Add event handlers for the Crop/Resize toggle
+            Develop_Toggle_Crop.Checked += Develop_Toggle_Crop_Checked;
+            Develop_Toggle_Crop.Unchecked += Develop_Toggle_Crop_Unchecked;
         }
 
         public SparseObservableList<RawImage> ImportedImages { get; set; } = [];
@@ -483,12 +487,12 @@ namespace rawinator
             if (CurrentImage == null) return;
             if (sender is not TextBox tb) return;
             string input = tb.Text.Trim();
-            if (!int.TryParse(input, out int px) || px < 0)
+            if (!uint.TryParse(input, out uint px) || px < 0)
             {
-                tb.Text = ((int)CurrentImage.ProcessParams.BorderWidth).ToString();
+                tb.Text = (CurrentImage.ProcessParams.BorderWidth).ToString();
                 return;
             }
-            if ((int)CurrentImage.ProcessParams.BorderWidth != px)
+            if (CurrentImage.ProcessParams.BorderWidth != px)
             {
                 CurrentImage.ProcessParams.BorderWidth = px;
                 UpdateDevelopImage();
@@ -728,6 +732,19 @@ namespace rawinator
                 Library_Import_ProgressBar.Value = 0;
                 Library_Import_ProgressBar.Maximum = 1;
             });
+        }
+
+        // Add these methods to handle the toggle logic
+        private void Develop_Toggle_Crop_Checked(object sender, RoutedEventArgs e)
+        {
+            Develop_Sliders_Panel_Quick.Visibility = Visibility.Collapsed;
+            Develop_Sliders_Panel_Crop.Visibility = Visibility.Visible;
+        }
+
+        private void Develop_Toggle_Crop_Unchecked(object sender, RoutedEventArgs e)
+        {
+            Develop_Sliders_Panel_Quick.Visibility = Visibility.Visible;
+            Develop_Sliders_Panel_Crop.Visibility = Visibility.Collapsed;
         }
     }
 }
