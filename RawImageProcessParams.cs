@@ -34,6 +34,11 @@
         public bool UseSketch { get; set; } = false;
         public bool UsePosterize { get; set; } = false;
 
+        public double CropX { get; set; } = 0;
+        public double CropY { get; set; } = 0;
+        public double CropWidth { get; set; } = 1;
+        public double CropHeight { get; set; } = 1;
+
         public class ColorAdjustments
         {
             public Dictionary<HslColorRange, double> Hue { get; set; } = [];

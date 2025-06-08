@@ -8,11 +8,19 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
 
 namespace rawinator
 {
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
+        private bool isCropModeActive = false;
+        private bool isDrawingCropRect = false;
+        private Point cropStartPoint;
+        private Point cropEndPoint;
+        private Rectangle? cropOverlayRect = null;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -59,23 +67,6 @@ namespace rawinator
                 (Develop_Slider_Magenta, HslColorRange.Magenta),
             ];
 
-            Develop_BorderColor_TextBox.LostFocus += Develop_BorderColor_TextBox_LostFocus;
-            Develop_BorderWidth_TextBox.LostFocus += Develop_BorderWidth_TextBox_LostFocus;
-            Develop_BorderWidth_TextBox.PreviewTextInput += Develop_BorderWidth_TextBox_PreviewTextInput;
-
-            Develop_Toggle_Enhance.Click += Develop_Toggle_Special_Click;
-            Develop_Toggle_Denoise.Click += Develop_Toggle_Special_Click;
-            Develop_Toggle_Gamma.Click += Develop_Toggle_Special_Click;
-            Develop_Toggle_Level.Click += Develop_Toggle_Special_Click;
-            Develop_Toggle_Grayscale.Click += Develop_Toggle_Special_Click;
-            Develop_Toggle_Sepia.Click += Develop_Toggle_Special_Click;
-            Develop_Toggle_Solarize.Click += Develop_Toggle_Special_Click;
-            Develop_Toggle_Invert.Click += Develop_Toggle_Special_Click;
-            Develop_Toggle_Charcoal.Click += Develop_Toggle_Special_Click;
-            Develop_Toggle_OilPaint.Click += Develop_Toggle_Special_Click;
-            Develop_Toggle_Sketch.Click += Develop_Toggle_Special_Click;
-            Develop_Toggle_Posterize.Click += Develop_Toggle_Special_Click;
-
             Develop_Image.RenderTransform = new TransformGroup
             {
                 Children = [
@@ -83,12 +74,6 @@ namespace rawinator
                     new TranslateTransform(0, 0)
                 ]
             };
-
-            Develop_Image.MouseWheel += Develop_Image_MouseWheel;
-
-            // Add event handlers for the Crop/Resize toggle
-            Develop_Toggle_Crop.Checked += Develop_Toggle_Crop_Checked;
-            Develop_Toggle_Crop.Unchecked += Develop_Toggle_Crop_Unchecked;
         }
 
         public SparseObservableList<RawImage> ImportedImages { get; set; } = [];
@@ -734,17 +719,170 @@ namespace rawinator
             });
         }
 
-        // Add these methods to handle the toggle logic
+
         private void Develop_Toggle_Crop_Checked(object sender, RoutedEventArgs e)
         {
-            Develop_Sliders_Panel_Quick.Visibility = Visibility.Collapsed;
-            Develop_Sliders_Panel_Crop.Visibility = Visibility.Visible;
+            ToggleCropUI(true);
+            EnableCropMode(true);
         }
-
         private void Develop_Toggle_Crop_Unchecked(object sender, RoutedEventArgs e)
         {
-            Develop_Sliders_Panel_Quick.Visibility = Visibility.Visible;
-            Develop_Sliders_Panel_Crop.Visibility = Visibility.Collapsed;
+            ToggleCropUI(false);
+            EnableCropMode(false);
+        }
+
+        private void ToggleCropUI(bool cropMode)
+        {
+            Develop_Sliders_Panel_Quick.Visibility = cropMode ? Visibility.Collapsed : Visibility.Visible;
+            Develop_Sliders_Panel_Crop.Visibility = cropMode ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private void EnableCropMode(bool enable)
+        {
+            isCropModeActive = enable;
+            Develop_Image_OverlayCanvas.Visibility = enable ? Visibility.Visible : Visibility.Collapsed;
+            Develop_ZoomPanel.Visibility = enable ? Visibility.Collapsed : Visibility.Visible;
+
+            if (enable)
+            {
+                Develop_Image_OverlayCanvas.MouseLeftButtonDown += OverlayCanvas_MouseLeftButtonDown;
+                Develop_Image_OverlayCanvas.MouseMove += OverlayCanvas_MouseMove;
+                Develop_Image_OverlayCanvas.MouseLeftButtonUp += OverlayCanvas_MouseLeftButtonUp;
+            }
+            else
+            {
+                Develop_Image_OverlayCanvas.Children.Clear();
+                Develop_Image_OverlayCanvas.MouseLeftButtonDown -= OverlayCanvas_MouseLeftButtonDown;
+                Develop_Image_OverlayCanvas.MouseMove -= OverlayCanvas_MouseMove;
+                Develop_Image_OverlayCanvas.MouseLeftButtonUp -= OverlayCanvas_MouseLeftButtonUp;
+                isDrawingCropRect = false;
+                cropOverlayRect = null;
+            }
+        }
+
+        private void OverlayCanvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (!isCropModeActive) return;
+
+            cropStartPoint = GetClampedImagePoint(e.GetPosition(Develop_Image_OverlayCanvas));
+            cropEndPoint = cropStartPoint;
+            isDrawingCropRect = true;
+
+            if (cropOverlayRect == null)
+            {
+                cropOverlayRect = new Rectangle {
+                    Stroke = Brushes.Yellow,
+                    StrokeThickness = 1,
+                    StrokeDashArray = new DoubleCollection { 2, 2 },
+                    IsHitTestVisible = false
+                };
+                Develop_Image_OverlayCanvas.Children.Add(cropOverlayRect);
+            }
+
+            Canvas.SetLeft(cropOverlayRect, cropStartPoint.X);
+            Canvas.SetTop(cropOverlayRect, cropStartPoint.Y);
+            cropOverlayRect.Width = 0;
+            cropOverlayRect.Height = 0;
+        }
+
+        private void OverlayCanvas_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (!isCropModeActive || !isDrawingCropRect || cropOverlayRect == null) return;
+
+            cropEndPoint = GetClampedImagePoint(e.GetPosition(Develop_Image_OverlayCanvas));
+
+            var (imgW, imgH, _, _, scale, offsetX, offsetY) = GetImageMetrics();
+
+            double x0 = cropStartPoint.X, y0 = cropStartPoint.Y;
+            double x1 = cropEndPoint.X, y1 = cropEndPoint.Y;
+            double dx = x1 - x0, dy = y1 - y0;
+
+            double rectX = x0, rectY = y0, rectW = dx, rectH = dy;
+
+            if (TryGetAspectRatio(out double aspect))
+            {
+                WindowHelpers.AdjustRectForAspect(ref rectW, ref rectH, aspect);
+                WindowHelpers.ClampRectToCanvas(ref rectX, ref rectY, ref rectW, ref rectH, offsetX, offsetY, imgW * scale, imgH * scale);
+            }
+
+            WindowHelpers.NormalizeRect(ref rectX, ref rectW);
+            WindowHelpers.NormalizeRect(ref rectY, ref rectH);
+            WindowHelpers.ClampRectToBounds(ref rectX, ref rectY, ref rectW, ref rectH, offsetX, offsetY, imgW * scale, imgH * scale);
+
+            Canvas.SetLeft(cropOverlayRect, rectX);
+            Canvas.SetTop(cropOverlayRect, rectY);
+            cropOverlayRect.Width = rectW;
+            cropOverlayRect.Height = rectH;
+        }
+
+        private void OverlayCanvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (!isCropModeActive || !isDrawingCropRect || cropOverlayRect == null) return;
+            isDrawingCropRect = false;
+
+            if (CurrentImage != null)
+            {
+                var (imgW, imgH, _, _, scale, offsetX, offsetY) = GetImageMetrics();
+
+                double left = Canvas.GetLeft(cropOverlayRect);
+                double top = Canvas.GetTop(cropOverlayRect);
+                double width = cropOverlayRect.Width;
+                double height = cropOverlayRect.Height;
+
+                double imgX = (left - offsetX) / scale;
+                double imgY = (top - offsetY) / scale;
+                double imgWRect = width / scale;
+                double imgHRect = height / scale;
+
+                double normX = Math.Clamp(imgX / imgW, 0, 1);
+                double normY = Math.Clamp(imgY / imgH, 0, 1);
+                double normW = Math.Clamp(imgWRect / imgW, 0, 1 - normX);
+                double normH = Math.Clamp(imgHRect / imgH, 0, 1 - normY);
+
+                CurrentImage.ProcessParams.CropX = normX;
+                CurrentImage.ProcessParams.CropY = normY;
+                CurrentImage.ProcessParams.CropWidth = normW;
+                CurrentImage.ProcessParams.CropHeight = normH;
+            }
+        }
+
+        private Point GetClampedImagePoint(Point canvasPoint)
+        {
+            var (imgW, imgH, canvasW, canvasH, scale, offsetX, offsetY) = GetImageMetrics();
+            double dispW = imgW * scale;
+            double dispH = imgH * scale;
+
+            double x = Math.Clamp(canvasPoint.X, offsetX, offsetX + dispW);
+            double y = Math.Clamp(canvasPoint.Y, offsetY, offsetY + dispH);
+            return new Point(x, y);
+        }
+
+        private bool TryGetAspectRatio(out double aspect)
+        {
+            aspect = 0;
+            double h = 0;
+            bool valid = double.TryParse(Develop_TextBox_AspectWidth.Text, out double w) && w > 0 &&
+                         double.TryParse(Develop_TextBox_AspectHeight.Text, out h) && h > 0;
+            if (valid) aspect = w / h;
+            return valid;
+        }
+
+        private (double imgW, double imgH, double canvasW, double canvasH, double scale, double offsetX, double offsetY) GetImageMetrics()
+        {
+            if (Develop_Image.Source is not BitmapSource bmp)
+                return (0, 0, 0, 0, 1, 0, 0);
+
+            double imgW = bmp.PixelWidth;
+            double imgH = bmp.PixelHeight;
+            double canvasW = Develop_Image_OverlayCanvas.ActualWidth;
+            double canvasH = Develop_Image_OverlayCanvas.ActualHeight;
+            double scale = Math.Min(canvasW / imgW, canvasH / imgH);
+            double dispW = imgW * scale;
+            double dispH = imgH * scale;
+            double offsetX = (canvasW - dispW) / 2;
+            double offsetY = (canvasH - dispH) / 2;
+
+            return (imgW, imgH, canvasW, canvasH, scale, offsetX, offsetY);
         }
     }
 }

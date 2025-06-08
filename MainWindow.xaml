@@ -379,7 +379,7 @@
                     <!-- Left panel - presets and quick settings -->
                     <Grid Grid.Column="0"
                           Grid.RowSpan="2"
-                          Margin="10"
+                          Margin="10,10,10,0"
                           Background="Black">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
@@ -392,10 +392,10 @@
                                       Background="Transparent">
                         </ScrollViewer>
 
-                        <!-- Quick sliders panel (shown when Crop/Resize toggle is off) -->
+                        <!-- Quick sliders panel -->
                         <StackPanel x:Name="Develop_Sliders_Panel_Quick"
                                     Orientation="Vertical"
-                                    Margin="0,5,0,0"
+                                    Margin="0,5,0,5"
                                     Grid.Row="1">
                             <Grid Margin="0,0,0,0">
                                 <Grid.ColumnDefinitions>
@@ -439,21 +439,106 @@
                             </Grid>
                         </StackPanel>
 
-                        <!-- Empty panel for Crop/Resize mode (shown when Crop/Resize toggle is on) -->
+                        <!-- Crop/Resize mode panel -->
                         <StackPanel x:Name="Develop_Sliders_Panel_Crop"
                                     Orientation="Vertical"
                                     Margin="0,5,0,0"
                                     Grid.Row="1"
                                     Visibility="Collapsed">
-                            <!-- Empty for now -->
+	                        <Grid Margin="0,0,0,0">
+		                        <Grid.ColumnDefinitions>
+			                        <ColumnDefinition Width="*" />
+			                        <ColumnDefinition Width="*" />
+		                        </Grid.ColumnDefinitions>
+		                        <StackPanel Grid.Column="0"
+		                                    Orientation="Vertical"
+		                                    Margin="0,0,5,0">
+
+			                        <TextBlock Text="Aspect ratio"
+			                                   VerticalAlignment="Center"/>
+
+			                        <Grid Margin="0,6,0,10" HorizontalAlignment="Stretch">
+				                        <Grid.ColumnDefinitions>
+					                        <ColumnDefinition Width="*" />
+					                        <ColumnDefinition Width="Auto" />
+					                        <ColumnDefinition Width="*" />
+				                        </Grid.ColumnDefinitions>
+				                        <TextBox x:Name="Develop_TextBox_AspectWidth"
+				                                 Grid.Column="0"
+				                                 Margin="0,0,3,0"
+				                                 Background="Black"
+				                                 Foreground="White"
+				                                 BorderBrush="White"
+				                                 CaretBrush="White"
+				                                 Padding="4"
+                                                 Height="22"
+				                                 HorizontalAlignment="Stretch"
+				                                 VerticalAlignment="Center"
+				                                 HorizontalContentAlignment="Center"
+				                                 VerticalContentAlignment="Center"/>
+				                        <TextBlock Text=":"
+				                                   Grid.Column="1"
+				                                   VerticalAlignment="Center"
+				                                   Foreground="White"
+				                                   FontSize="16"
+				                                   Margin="0,0,0,0"/>
+				                        <TextBox x:Name="Develop_TextBox_AspectHeight"
+				                                 Grid.Column="2"
+				                                 Margin="3,0,0,0"
+				                                 Background="Black"
+				                                 Foreground="White"
+				                                 BorderBrush="White"
+				                                 CaretBrush="White"
+				                                 Padding="4"
+                                                 Height="22"
+				                                 HorizontalAlignment="Stretch"
+				                                 VerticalAlignment="Center"
+				                                 HorizontalContentAlignment="Center"
+				                                 VerticalContentAlignment="Center"/>
+			                        </Grid>
+
+                                    <Button Content="Rotate L"
+			                                x:Name="Develop_Button_RotateL"
+			                                Height="22"
+			                                FontWeight="Bold"
+			                                Margin="0,0,0,10"/>
+                                    <Button Content="Flip X"
+                                            x:Name="Develop_Button_FlipX"
+                                            Height="22"
+                                            FontWeight="Bold"
+                                            Margin="0,0,0,10"/>
+		                        </StackPanel>
+
+                                <StackPanel Grid.Column="1"
+		                                    Orientation="Vertical"
+		                                    Margin="5,0,0,0">
+	                                <TextBlock Text=" "
+	                                           VerticalAlignment="Center"/>
+	                                <Button Content="Crop sel."
+	                                        x:Name="Develop_Button_Crop"
+	                                        Height="22"
+	                                        FontWeight="Bold"
+	                                        Margin="0,6,0,10"/>
+									<Button Content="Rotate R"
+	                                        x:Name="Develop_Button_RotateR"
+	                                        Height="22"
+	                                        FontWeight="Bold"
+	                                        Margin="0,0,0,10"/>
+	                                <Button Content="Flip Y"
+	                                        x:Name="Develop_Button_FlipY"
+	                                        Height="22"
+	                                        FontWeight="Bold"
+	                                        Margin="0,0,0,10"/>
+
+                                </StackPanel>
+	                        </Grid>
                         </StackPanel>
 
-                        <!-- ToggleButton replaces the old Button -->
-                        <ToggleButton Content="Crop/Resize"
+                        <!-- Crop/Resize trigger -->
+                        <ToggleButton Content="Show transforms"
                                         x:Name="Develop_Toggle_Crop"
                                         Grid.Row="2"
                                         Style="{StaticResource ToggleButtonAsButtonStyle}"
-                                        Margin="0,5,0,0"
                                         Height="30"
                                         Checked="Develop_Toggle_Crop_Checked"
                                         Unchecked="Develop_Toggle_Crop_Unchecked"/>
@@ -477,20 +562,23 @@
                                MouseMove="Develop_Image_MouseMove"
                                Stretch="Uniform"
                                MouseWheel="Develop_Image_MouseWheel" />
-                    </Grid>
+                        <Canvas x:Name="Develop_Image_OverlayCanvas"
+                                IsHitTestVisible="True"
+                                Background="Transparent"
+                                Visibility="Collapsed"
+                                Panel.ZIndex="10"/>
 
-                    <!-- Zoom controls, centered below the image -->
-                    <StackPanel Grid.Row="0"
-                                Grid.Column="2"
-                                x:Name="Develop_Zoom_Controls"
-								Orientation="Horizontal"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Bottom"
-                                Margin="5">
-                        <Button x:Name="ZoomOut_Button" Content="-" Width="40" Margin="5,0" Click="ZoomOut_Button_Click"/>
-                        <Button x:Name="ZoomReset_Button" Content="Reset" Width="60" Margin="5,0" Click="ZoomReset_Button_Click"/>
-                        <Button x:Name="ZoomIn_Button" Content="+" Width="40" Margin="5,0" Click="ZoomIn_Button_Click"/>
-                    </StackPanel>
+                        <StackPanel x:Name="Develop_ZoomPanel"
+                                    Orientation="Horizontal"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Bottom"
+                                    Margin="5"
+                                    Panel.ZIndex="20">
+                            <Button x:Name="ZoomIn_Button" Content="+" Width="40" Margin="5,0" Click="ZoomIn_Button_Click"/>
+                            <Button x:Name="ZoomReset_Button" Content="Reset" Width="60" Margin="5,0" Click="ZoomReset_Button_Click"/>
+                            <Button x:Name="ZoomOut_Button" Content="-" Width="40" Margin="5,0" Click="ZoomOut_Button_Click"/>
+                        </StackPanel>
+                    </Grid>
 
                     <GridSplitter Grid.Column="3"
                                   Grid.RowSpan="2"
