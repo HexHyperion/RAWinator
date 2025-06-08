@@ -1,99 +1,86 @@
-﻿using System.Collections;
+﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 
 namespace rawinator
 {
-    // This is a custom dictionary-based implementation of an observable list that can store
-    // items at non-sequential indexes, which is needed mainly for the library view,
-    // where images are imported asynchronously, but need to be displayed in the import order.
-    public class SparseObservableList<T> : IList<T>, INotifyCollectionChanged, INotifyPropertyChanged
+    public class SparseObservableList<T> : INotifyCollectionChanged, INotifyPropertyChanged
     {
-        private Dictionary<int, T> items = [];
-        private int maxIndex = -1;
+        private readonly Dictionary<int, T> sparseItems = [];
+        private readonly ObservableCollection<T> orderedItems = [];
 
-        public event NotifyCollectionChangedEventHandler? CollectionChanged;
-        public event PropertyChangedEventHandler? PropertyChanged;
+        public event NotifyCollectionChangedEventHandler? CollectionChanged {
+            add => orderedItems.CollectionChanged += value;
+            remove => orderedItems.CollectionChanged -= value;
+        }
 
-        public T this[int index] {
-            get => items.TryGetValue(index, out T? value) ? value! : default!;
+        private event PropertyChangedEventHandler? propertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged {
+            add => propertyChanged += value;
+            remove => propertyChanged -= value;
+        }
+
+        public int Count => orderedItems.Count;
+
+        public ObservableCollection<T> Ordered => orderedItems;
+
+        public T? this[int index] {
+            get => sparseItems.TryGetValue(index, out var item) ? item : default;
             set {
-                items[index] = value;
-                maxIndex = Math.Max(maxIndex, index);
+                sparseItems[index] = value!;
 
-                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, value, index));
+                if (index >= orderedItems.Count)
+                {
+                    while (orderedItems.Count <= index)
+                        orderedItems.Add(default!);
+                }
 
+                orderedItems[index] = value!;
                 OnPropertyChanged(nameof(Count));
             }
         }
 
-        public int Length => maxIndex + 1;  // Length of the list including empty slots
-        public int Count => items.Count;    // Count of items actually stored in the list
-
-        public bool IsReadOnly => false;
-
-        public void Add(T item) => this[++maxIndex] = item;
-
-        public void Clear()
+        public void Add(T item)
         {
-            items.Clear();
-            maxIndex = -1;
-            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            int index = orderedItems.Count;
+            sparseItems[index] = item;
+            orderedItems.Add(item);
             OnPropertyChanged(nameof(Count));
         }
 
-        public bool Contains(T item) => items.ContainsValue(item);
-
-        public void CopyTo(T[] array, int arrayIndex)
+        public void Clear()
         {
-            for (int i = 0; i <= maxIndex; i++)
-                array[arrayIndex + i] = this[i];
+            sparseItems.Clear();
+            orderedItems.Clear();
+            OnPropertyChanged(nameof(Count));
         }
-
-        public IEnumerator<T> GetEnumerator()
-        {
-            for (int i = 0; i <= maxIndex; i++)
-            {
-                yield return this[i];
-            }
-        }
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-        public int IndexOf(T item)
-        {
-            foreach (var pair in items)
-            {
-                if (EqualityComparer<T>.Default.Equals(pair.Value, item))
-                {
-                    return pair.Key;
-                }
-            }
-            return -1;
-        }
-
-        public void Insert(int index, T item) => this[index] = item;
 
         public bool Remove(T item)
         {
-            int index = IndexOf(item);
+            int index = orderedItems.IndexOf(item);
             if (index >= 0)
             {
-                RemoveAt(index);
+                orderedItems.RemoveAt(index);
+                sparseItems.Remove(index);
+                ReindexSparse();
+                OnPropertyChanged(nameof(Count));
                 return true;
             }
             return false;
         }
 
-        public void RemoveAt(int index)
+        private void ReindexSparse()
         {
-            if (items.Remove(index))
+            sparseItems.Clear();
+            for (int i = 0; i < orderedItems.Count; i++)
             {
-                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, default(T), index));
-                OnPropertyChanged(nameof(Count));
+                sparseItems[i] = orderedItems[i];
             }
         }
 
-        private void OnPropertyChanged(string name) =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        private void OnPropertyChanged(string name)
+        {
+            propertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
     }
 }

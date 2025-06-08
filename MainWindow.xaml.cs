@@ -83,7 +83,7 @@ namespace rawinator
             this.PreviewKeyDown += MainWindow_PreviewKeyDown;
         }
 
-        public SparseObservableList<RawImage> ImportedImages { get; set; } = [];
+        public SparseObservableList<RawImage> ImportedImages { get; set; } = new();
 
         private RawImage? _currentImage;
         public RawImage? CurrentImage {
@@ -124,6 +124,9 @@ namespace rawinator
 
         private void Library_Import_Button_Click(object sender, RoutedEventArgs e)
         {
+            if (!ConfirmImportOverwrite())
+                return;
+
             OpenFileDialog openFileDialog = new() {
                 Filter = "RAW files|*.arw;*.cr2;*.cr3;*.nef;*.nrw;*.orf;*.pef;*.raf;*.rw2;*.srw;*.dng;*.k25;*.kdc;*.srf;*.sr2;*.mos;*.3fr;*.fff;*.rwl;*.iiq",
                 Multiselect = true
@@ -158,7 +161,7 @@ namespace rawinator
                 int selectedNumber = Library_Image_Grid.SelectedItems.Count;
                 if (selectedNumber > 1)
                 {
-                    MessageBoxResult result = MessageBox.Show($"Are you sure you want to delete {selectedNumber} images from library? (files on disk won't be modified)", "Delete images", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    MessageBoxResult result = MessageBox.Show($"Delete {selectedNumber} images from library? Files on disk won't be modified.", "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning);
                     if (result == MessageBoxResult.Yes)
                     {
                         var itemsToDelete = Library_Image_Grid.SelectedItems.Cast<RawImage>().ToList();
@@ -606,17 +609,17 @@ namespace rawinator
 
         private void Menu_File_Open_Click(object sender, RoutedEventArgs e)
         {
-
+            ImportAndGoToLibrary();
         }
 
         private void Menu_File_Save_Click(object sender, RoutedEventArgs e)
         {
-
+            ExportSelectedAndGoToLibrary();
         }
 
         private void Menu_File_Exit_Click(object sender, RoutedEventArgs e)
         {
-
+            ExitWithConfirmation();
         }
 
         private void Menu_Edit_Undo_Click(object sender, RoutedEventArgs e)
@@ -847,12 +850,14 @@ namespace rawinator
             if (TryGetAspectRatio(out double aspect))
             {
                 WindowHelpers.AdjustRectForAspect(ref rectW, ref rectH, aspect);
-                WindowHelpers.ClampRectToCanvas(ref rectX, ref rectY, ref rectW, ref rectH, offsetX, offsetY, imgW * scale, imgH * scale);
+                WindowHelpers.ClampRectToCanvas(ref rectX, ref rectY, ref rectW, ref rectH,
+                                                offsetX, offsetY, imgW * scale, imgH * scale);
             }
 
             WindowHelpers.NormalizeRect(ref rectX, ref rectW);
             WindowHelpers.NormalizeRect(ref rectY, ref rectH);
-            WindowHelpers.ClampRectToBounds(ref rectX, ref rectY, ref rectW, ref rectH, offsetX, offsetY, imgW * scale, imgH * scale);
+            WindowHelpers.ClampRectToBounds(ref rectX, ref rectY, ref rectW, ref rectH,
+                                            offsetX, offsetY, imgW * scale, imgH * scale);
 
             Canvas.SetLeft(cropOverlayRect, rectX);
             Canvas.SetTop(cropOverlayRect, rectY);
@@ -1003,6 +1008,88 @@ namespace rawinator
             {
                 RedoDevelopEdit();
                 e.Handled = true;
+            }
+            if (e.Key == Key.E && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+            {
+                ExportSelectedAndGoToLibrary();
+                e.Handled = true;
+                return;
+            }
+            if (e.Key == Key.O && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+            {
+                ImportAndGoToLibrary();
+                e.Handled = true;
+                return;
+            }
+            if (e.Key == Key.W && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+            {
+                ExitWithConfirmation();
+                e.Handled = true;
+                return;
+            }
+        }
+
+        private void SwitchToLibraryTab()
+        {
+            if (App_TabControl != null && Tabs_Library != null)
+                App_TabControl.SelectedItem = Tabs_Library;
+        }
+
+        private bool ConfirmImportOverwrite()
+        {
+            if (ImportedImages.Count > 0)
+            {
+                var result = MessageBox.Show(
+                    "Importing new images will remove all currently imported images and their edits. Continue?",
+                    "Confirm Import",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning
+                );
+                return result == MessageBoxResult.Yes;
+            }
+            return true;
+        }
+
+        private void ImportAndGoToLibrary()
+        {
+            SwitchToLibraryTab();
+            Library_Import_Button.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        }
+
+        private void ExportSelectedAndGoToLibrary()
+        {
+            SwitchToLibraryTab();
+            Library_Export_Button.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        }
+
+        private bool ConfirmExit()
+        {
+            if (ImportedImages.Count > 0)
+            {
+                var result = MessageBox.Show(
+                    "Exiting now will lose all imported images and their edits. Are you sure you want to exit?",
+                    "Confirm Exit",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning
+                );
+                return result == MessageBoxResult.Yes;
+            }
+            return true;
+        }
+
+        private void ExitWithConfirmation()
+        {
+            if (!ConfirmExit())
+                return;
+            Application.Current.Shutdown();
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            base.OnClosing(e);
+            if (!ConfirmExit())
+            {
+                e.Cancel = true;
             }
         }
     }

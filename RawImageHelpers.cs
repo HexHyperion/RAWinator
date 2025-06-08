@@ -126,7 +126,6 @@ namespace rawinator
                 new Percentage(100 + developSettings.Hue / 1.8)
             );
 
-
             // ===== Highlights and shadows =====
             if (developSettings.Shadows != 0)
             {
@@ -136,7 +135,7 @@ namespace rawinator
             }
             if (developSettings.Highlights != 0)
             {
-                var highlightCoefficients = GeneratePolynomialCoefficients((int)developSettings.Highlights, false);
+                var highlightCoefficients = GeneratePolynomialCoefficients((int)-developSettings.Highlights, false);
                 using var highlightsAdjusted = ApplyPolynomialFunction((MagickImage)editedImage, highlightCoefficients);
                 editedImage.Composite(highlightsAdjusted, CompositeOperator.Over);
             }
@@ -221,7 +220,6 @@ namespace rawinator
                 }
             }
 
-
             // ===== Vignette =====
             if (developSettings.Vignette != 0)
             {
@@ -261,6 +259,42 @@ namespace rawinator
                 double noiseStrength = developSettings.Noise / 150.0;
                 editedImage.AddNoise(NoiseType.Gaussian, noiseStrength);
             }
+
+            
+            // ===== Special effects =====
+            if (developSettings.UseGrayscale)
+            {
+                editedImage.Grayscale();
+            }
+            if (developSettings.UseSepia)
+            {
+                editedImage.SepiaTone();
+            }
+            if (developSettings.UseSolarize)
+            {
+                editedImage.Solarize();
+            }
+            if (developSettings.UseInvert)
+            {
+                editedImage.Negate();
+            }
+            if (developSettings.UseOilPaint)
+            {
+                editedImage.OilPaint(5, 20);
+            }
+            if (developSettings.UseCharcoal)
+            {
+                editedImage.Charcoal();
+            }
+            if (developSettings.UsePosterize)
+            {
+                editedImage.Posterize(5);
+            }
+            if (developSettings.UseSketch)
+            {
+                editedImage.Sketch();
+            }
+
 
             // ===== Border =====
             if (developSettings.BorderWidth != 0)
@@ -306,42 +340,6 @@ namespace rawinator
                 editedImage.BorderColor = borderColor;
                 editedImage.Border(developSettings.BorderWidth);
             }
-
-
-            // ===== Special effects =====
-            if (developSettings.UseGrayscale)
-            {
-                editedImage.Grayscale();
-            }
-            if (developSettings.UseSepia)
-            {
-                editedImage.SepiaTone();
-            }
-            if (developSettings.UseSolarize)
-            {
-                editedImage.Solarize();
-            }
-            if (developSettings.UseInvert)
-            {
-                editedImage.Negate();
-            }
-            if (developSettings.UseOilPaint)
-            {
-                editedImage.OilPaint(5, 20);
-            }
-            if (developSettings.UseCharcoal)
-            {
-                editedImage.Charcoal();
-            }
-            if (developSettings.UsePosterize)
-            {
-                editedImage.Posterize(5);
-            }
-            if (developSettings.UseSketch)
-            {
-                editedImage.Sketch();
-            }
-
 
             editedImage.AutoOrient();
 
