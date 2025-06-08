@@ -24,7 +24,6 @@
         public bool UseAutoGamma { get; set; } = false;
         public bool UseAutoLevel { get; set; } = false;
 
-        // New effect toggles
         public bool UseGrayscale { get; set; } = false;
         public bool UseSepia { get; set; } = false;
         public bool UseSolarize { get; set; } = false;
@@ -54,8 +53,63 @@
                     Luminance[color] = 0;
                 }
             }
+
+            public ColorAdjustments Clone()
+            {
+                var clone = new ColorAdjustments();
+                foreach (var color in Hue.Keys)
+                {
+                    clone.Hue[color] = Hue[color];
+                    clone.Saturation[color] = Saturation[color];
+                    clone.Luminance[color] = Luminance[color];
+                }
+                return clone;
+            }
         }
 
         public ColorAdjustments PerColor { get; set; } = new();
+
+        public RawImageProcessParams Clone()
+        {
+            var clone = new RawImageProcessParams();
+            clone.CopyFrom(this);
+            return clone;
+        }
+
+        public void CopyFrom(RawImageProcessParams other)
+        {
+            if (other == null) return;
+            Exposure = other.Exposure;
+            Brightness = other.Brightness;
+            Highlights = other.Highlights;
+            Shadows = other.Shadows;
+            WbTemperature = other.WbTemperature;
+            WbTint = other.WbTint;
+            Contrast = other.Contrast;
+            Saturation = other.Saturation;
+            Hue = other.Hue;
+            Sharpness = other.Sharpness;
+            Noise = other.Noise;
+            Vignette = other.Vignette;
+            BorderColor = other.BorderColor;
+            BorderWidth = other.BorderWidth;
+            UseEnhance = other.UseEnhance;
+            UseDenoise = other.UseDenoise;
+            UseAutoGamma = other.UseAutoGamma;
+            UseAutoLevel = other.UseAutoLevel;
+            UseGrayscale = other.UseGrayscale;
+            UseSepia = other.UseSepia;
+            UseSolarize = other.UseSolarize;
+            UseInvert = other.UseInvert;
+            UseCharcoal = other.UseCharcoal;
+            UseOilPaint = other.UseOilPaint;
+            UseSketch = other.UseSketch;
+            UsePosterize = other.UsePosterize;
+            CropX = other.CropX;
+            CropY = other.CropY;
+            CropWidth = other.CropWidth;
+            CropHeight = other.CropHeight;
+            PerColor = other.PerColor.Clone();
+        }
     }
 }

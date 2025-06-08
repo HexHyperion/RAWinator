@@ -8,7 +8,8 @@
         Title="RAWinator: a perfectly broken photo editor"
         Height="750"
         Width="1300"
-        FontFamily="Consolas">
+        FontFamily="Consolas"
+        PreviewKeyDown="MainWindow_PreviewKeyDown">
     <Window.Resources>
         <local:PlusSignValueConverter x:Key="PlusSignValueConverter"/>
         <local:ProgressConverter x:Key="ProgressConverter" />
@@ -409,14 +410,14 @@
                                         x:Name="Develop_Toggle_Enhance"
                                         Style="{StaticResource ToggleButtonAsButtonStyle}"
                                         Content="Enhance"
-                                        IsChecked="{Binding CurrentImage.ProcessParams.UseEnhance, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=Window}}"
+                                        IsChecked="{Binding CurrentImage.ProcessParams.UseEnhance, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Window}}"
                                         Click="Develop_Toggle_Special_Click"/>
                                     <ToggleButton
-                                        x:Name="Develop_Toggle_Level"
+                                        x:Name="Develop_Toggle_AutoLevel"
                                         Style="{StaticResource ToggleButtonAsButtonStyle}"
                                         Content="Auto level"
                                         Margin="0"
-                                        IsChecked="{Binding CurrentImage.ProcessParams.UseAutoLevel, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=Window}}"
+                                        IsChecked="{Binding CurrentImage.ProcessParams.UseAutoLevel, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Window}}"
                                         Click="Develop_Toggle_Special_Click"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="1"
@@ -426,14 +427,14 @@
                                         x:Name="Develop_Toggle_Denoise"
                                         Style="{StaticResource ToggleButtonAsButtonStyle}"
                                         Content="Denoise"
-                                        IsChecked="{Binding CurrentImage.ProcessParams.UseDenoise, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=Window}}"
+                                        IsChecked="{Binding CurrentImage.ProcessParams.UseDenoise, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Window}}"
                                         Click="Develop_Toggle_Special_Click"/>
                                     <ToggleButton
-                                        x:Name="Develop_Toggle_Gamma"
+                                        x:Name="Develop_Toggle_AutoGamma"
                                         Style="{StaticResource ToggleButtonAsButtonStyle}"
                                         Content="Auto gamma"
                                         Margin="0"
-                                        IsChecked="{Binding CurrentImage.ProcessParams.UseAutoGamma, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=Window}}"
+                                        IsChecked="{Binding CurrentImage.ProcessParams.UseAutoGamma, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Window}}"
                                         Click="Develop_Toggle_Special_Click"/>
                                 </StackPanel>
                             </Grid>
@@ -1108,22 +1109,22 @@
                                             <ToggleButton x:Name="Develop_Toggle_Grayscale"
                                                           Style="{StaticResource ToggleButtonAsButtonStyle}"
                                                           Content="Grayscale"
-                                                          IsChecked="{Binding CurrentImage.ProcessParams.UseGrayscale, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                          IsChecked="{Binding CurrentImage.ProcessParams.UseGrayscale, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Window}}"
                                                           Click="Develop_Toggle_Special_Click"/>
                                             <ToggleButton x:Name="Develop_Toggle_Solarize"
                                                           Style="{StaticResource ToggleButtonAsButtonStyle}"
                                                           Content="Solarize"
-                                                          IsChecked="{Binding CurrentImage.ProcessParams.UseSolarize, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                          IsChecked="{Binding CurrentImage.ProcessParams.UseSolarize, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Window}}"
                                                           Click="Develop_Toggle_Special_Click"/>
                                             <ToggleButton x:Name="Develop_Toggle_OilPaint"
                                                           Style="{StaticResource ToggleButtonAsButtonStyle}"
                                                           Content="Oilpaint"
-                                                          IsChecked="{Binding CurrentImage.ProcessParams.UseOilPaint, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                          IsChecked="{Binding CurrentImage.ProcessParams.UseOilPaint, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Window}}"
                                                           Click="Develop_Toggle_Special_Click"/>
                                             <ToggleButton x:Name="Develop_Toggle_Posterize"
                                                           Style="{StaticResource ToggleButtonAsButtonStyle}"
                                                           Content="Posterize"
-                                                          IsChecked="{Binding CurrentImage.ProcessParams.UsePosterize, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                          IsChecked="{Binding CurrentImage.ProcessParams.UsePosterize, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Window}}"
                                                           Click="Develop_Toggle_Special_Click"/>
                                         </StackPanel>
 
@@ -1149,22 +1150,22 @@
                                             <ToggleButton x:Name="Develop_Toggle_Sepia"
                                                           Style="{StaticResource ToggleButtonAsButtonStyle}"
                                                           Content="Sepia"
-                                                          IsChecked="{Binding CurrentImage.ProcessParams.UseSepia, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                          IsChecked="{Binding CurrentImage.ProcessParams.UseSepia, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Window}}"
                                                           Click="Develop_Toggle_Special_Click"/>
                                             <ToggleButton x:Name="Develop_Toggle_Invert"
                                                           Style="{StaticResource ToggleButtonAsButtonStyle}"
                                                           Content="Invert"
-                                                          IsChecked="{Binding CurrentImage.ProcessParams.UseInvert, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                          IsChecked="{Binding CurrentImage.ProcessParams.UseInvert, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Window}}"
                                                           Click="Develop_Toggle_Special_Click"/>
                                             <ToggleButton x:Name="Develop_Toggle_Charcoal"
                                                           Style="{StaticResource ToggleButtonAsButtonStyle}"
                                                           Content="Charcoal"
-                                                          IsChecked="{Binding CurrentImage.ProcessParams.UseCharcoal, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                          IsChecked="{Binding CurrentImage.ProcessParams.UseCharcoal, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Window}}"
                                                           Click="Develop_Toggle_Special_Click"/>
                                             <ToggleButton x:Name="Develop_Toggle_Sketch"
                                                           Style="{StaticResource ToggleButtonAsButtonStyle}"
                                                           Content="Sketch"
-                                                          IsChecked="{Binding CurrentImage.ProcessParams.UseSketch, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                          IsChecked="{Binding CurrentImage.ProcessParams.UseSketch, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Window}}"
                                                           Click="Develop_Toggle_Special_Click"/>
                                         </StackPanel>
                                     </Grid>

@@ -1,6 +1,7 @@
 ﻿using ImageMagick;
 using ImageMagick.Formats;
 using Microsoft.Win32;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
 using System.Windows;
@@ -20,6 +21,10 @@ namespace rawinator
         private Point cropStartPoint;
         private Point cropEndPoint;
         private Rectangle? cropOverlayRect = null;
+
+        private Stack<RawImageProcessParams> undoStack = new();
+        private Stack<RawImageProcessParams> redoStack = new();
+        private const int MaxHistory = 30;
 
         public MainWindow()
         {
@@ -44,8 +49,8 @@ namespace rawinator
             developButtons = [
                 (Develop_Toggle_Enhance, nameof(RawImageProcessParams.UseEnhance)),
                 (Develop_Toggle_Denoise, nameof(RawImageProcessParams.UseDenoise)),
-                (Develop_Toggle_Gamma, nameof(RawImageProcessParams.UseAutoGamma)),
-                (Develop_Toggle_Level, nameof(RawImageProcessParams.UseAutoLevel)),
+                (Develop_Toggle_AutoGamma, nameof(RawImageProcessParams.UseAutoGamma)),
+                (Develop_Toggle_AutoLevel, nameof(RawImageProcessParams.UseAutoLevel)),
                 (Develop_Toggle_Grayscale, nameof(RawImageProcessParams.UseGrayscale)),
                 (Develop_Toggle_Sepia, nameof(RawImageProcessParams.UseSepia)),
                 (Develop_Toggle_Solarize, nameof(RawImageProcessParams.UseSolarize)),
@@ -74,6 +79,8 @@ namespace rawinator
                     new TranslateTransform(0, 0)
                 ]
             };
+
+            this.PreviewKeyDown += MainWindow_PreviewKeyDown;
         }
 
         public SparseObservableList<RawImage> ImportedImages { get; set; } = [];
@@ -85,8 +92,11 @@ namespace rawinator
                 if (_currentImage != value)
                 {
                     _currentImage = value;
+                    undoStack.Clear();
+                    redoStack.Clear();
                     OnPropertyChanged(nameof(CurrentImage));
                     OnPropertyChanged(nameof(HasImageSelected));
+                    SetAllDevelopSliders();
                 }
             }
         }
@@ -266,6 +276,7 @@ namespace rawinator
                         double newValue = slider.Value;
                         if (!currentValue.Equals(newValue))
                         {
+                            UpdateUndoHistory();
                             prop.SetValue(CurrentImage.ProcessParams, newValue);
                             UpdateDevelopImage();
                         }
@@ -304,6 +315,7 @@ namespace rawinator
                     case "Hue":
                         if (perColor.Hue[color] != newValue)
                         {
+                            UpdateUndoHistory();
                             perColor.Hue[color] = newValue;
                             UpdateDevelopImage();
                         }
@@ -311,6 +323,7 @@ namespace rawinator
                     case "Saturation":
                         if (perColor.Saturation[color] != newValue)
                         {
+                            UpdateUndoHistory();
                             perColor.Saturation[color] = newValue;
                             UpdateDevelopImage();
                         }
@@ -318,6 +331,7 @@ namespace rawinator
                     case "Luminance":
                         if (perColor.Luminance[color] != newValue)
                         {
+                            UpdateUndoHistory();
                             perColor.Luminance[color] = newValue;
                             UpdateDevelopImage();
                         }
@@ -345,6 +359,8 @@ namespace rawinator
                 slider.IsEnabled = enabled;
             foreach (var (button, _) in developButtons)
                 button.IsEnabled = enabled;
+            Develop_BorderColor_TextBox.IsEnabled = enabled;
+            Develop_BorderWidth_TextBox.IsEnabled = enabled;
         }
 
         private void SetDevelopSliders()
@@ -352,6 +368,8 @@ namespace rawinator
             if (CurrentImage == null)
             {
                 ResetDevelopSliders();
+                Develop_BorderColor_TextBox.Text = "#ffffff";
+                Develop_BorderWidth_TextBox.Text = "0";
                 return;
             }
             var processParams = CurrentImage.ProcessParams;
@@ -381,6 +399,8 @@ namespace rawinator
                     }
                 }
             }
+            Develop_BorderColor_TextBox.Text = processParams.BorderColor ?? "#ffffff";
+            Develop_BorderWidth_TextBox.Text = processParams.BorderWidth.ToString();
         }
 
         private void SetColorSliders()
@@ -458,6 +478,7 @@ namespace rawinator
             {
                 if (CurrentImage.ProcessParams.BorderColor != input)
                 {
+                    UpdateUndoHistory();
                     CurrentImage.ProcessParams.BorderColor = input;
                     UpdateDevelopImage();
                 }
@@ -481,6 +502,7 @@ namespace rawinator
             }
             if (CurrentImage.ProcessParams.BorderWidth != px)
             {
+                UpdateUndoHistory();
                 CurrentImage.ProcessParams.BorderWidth = px;
                 UpdateDevelopImage();
             }
@@ -494,7 +516,18 @@ namespace rawinator
         private void Develop_Toggle_Special_Click(object sender, RoutedEventArgs e)
         {
             if (CurrentImage == null) return;
-            UpdateDevelopImage();
+            if (sender is not ToggleButton toggle) return;
+            string? toggleName = toggle.Name;
+            if (string.IsNullOrEmpty(toggleName) || !toggleName.StartsWith("Develop_Toggle_")) return;
+            string propertyName = "Use" + toggleName["Develop_Toggle_".Length..];
+
+            var prop = typeof(RawImageProcessParams).GetProperty(propertyName);
+            if (prop != null)
+            {
+                UpdateUndoHistory();
+                prop.SetValue(CurrentImage.ProcessParams, toggle.IsChecked == true);
+                UpdateDevelopImage();
+            }
         }
 
 
@@ -588,12 +621,12 @@ namespace rawinator
 
         private void Menu_Edit_Undo_Click(object sender, RoutedEventArgs e)
         {
-
+            UndoDevelopEdit();
         }
 
         private void Menu_Edit_Redo_Click(object sender, RoutedEventArgs e)
         {
-
+            RedoDevelopEdit();
         }
 
         private void Menu_Help_About_Click(object sender, RoutedEventArgs e)
@@ -736,6 +769,7 @@ namespace rawinator
         }
         private void Develop_Toggle_Crop_Unchecked(object sender, RoutedEventArgs e)
         {
+            UpdateUndoHistory();
             ToggleCropUI(false);
             EnableCropMode(false);
             UpdateDevelopImage();
@@ -900,19 +934,76 @@ namespace rawinator
         // so we can apply them directly to the current image.
         private void Develop_Button_Rotate_Click(object sender, RoutedEventArgs e)
         {
-            CurrentDevelopImage?.Rotate(-90);
+            if (CurrentDevelopImage == null) return;
+            CurrentDevelopImage.Rotate(-90);
             Develop_Image.Source = RawImageHelpers.MagickImageToBitmapImage(CurrentDevelopImage);
         }
         private void Develop_Button_FlipX_Click(object sender, RoutedEventArgs e)
         {
-            CurrentDevelopImage?.Flip();
+            if (CurrentDevelopImage == null) return;
+            CurrentDevelopImage.Flip();
             Develop_Image.Source = RawImageHelpers.MagickImageToBitmapImage(CurrentDevelopImage);
         }
         private void Develop_Button_FlipY_Click(object sender, RoutedEventArgs e)
         {
-            CurrentDevelopImage?.Flop();
+            if (CurrentDevelopImage == null) return;
+            CurrentDevelopImage.Flop();
             Develop_Image.Source = RawImageHelpers.MagickImageToBitmapImage(CurrentDevelopImage);
         }
 
+
+        private void UpdateUndoHistory()
+        {
+            if (CurrentImage == null) return;
+            undoStack.Push(CurrentImage.ProcessParams.Clone());
+            while (undoStack.Count > MaxHistory)
+                undoStack = new Stack<RawImageProcessParams>(undoStack.Reverse().Take(MaxHistory).Reverse());
+            redoStack.Clear();
+        }
+
+        private void UndoDevelopEdit()
+        {
+            if (undoStack.Count == 0 || CurrentImage == null) return;
+            redoStack.Push(CurrentImage.ProcessParams.Clone());
+            var prev = undoStack.Pop();
+            CurrentImage.ProcessParams.CopyFrom(prev);
+            SetAllDevelopSliders();
+            UpdateDevelopImage();
+        }
+
+        private void RedoDevelopEdit()
+        {
+            if (redoStack.Count == 0 || CurrentImage == null) return;
+            undoStack.Push(CurrentImage.ProcessParams.Clone());
+            var next = redoStack.Pop();
+            CurrentImage.ProcessParams.CopyFrom(next);
+            SetAllDevelopSliders();
+            UpdateDevelopImage();
+        }
+
+        private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (Keyboard.FocusedElement is TextBoxBase)
+                return;
+
+            if (e.Key == Key.Z && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+            {
+                if ((Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift)
+                {
+                    RedoDevelopEdit();
+                    e.Handled = true;
+                }
+                else
+                {
+                    UndoDevelopEdit();
+                    e.Handled = true;
+                }
+            }
+            else if (e.Key == Key.Y && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+            {
+                RedoDevelopEdit();
+                e.Handled = true;
+            }
+        }
     }
 }
