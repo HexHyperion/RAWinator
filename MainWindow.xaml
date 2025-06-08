@@ -518,7 +518,8 @@
 	                                        x:Name="Develop_Button_Crop"
 	                                        Height="22"
 	                                        FontWeight="Bold"
-	                                        Margin="0,6,0,10"/>
+	                                        Margin="0,6,0,10"
+                                            Click="CropSelected_Button_Click"/>
 									<Button Content="Rotate R"
 	                                        x:Name="Develop_Button_RotateR"
 	                                        Height="22"
@@ -535,7 +536,7 @@
                         </StackPanel>
 
                         <!-- Crop/Resize trigger -->
-                        <ToggleButton Content="Show transforms"
+                        <ToggleButton Content="Toggle crop mode"
                                         x:Name="Develop_Toggle_Crop"
                                         Grid.Row="2"
                                         Style="{StaticResource ToggleButtonAsButtonStyle}"

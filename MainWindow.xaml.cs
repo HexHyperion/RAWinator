@@ -724,17 +724,21 @@ namespace rawinator
         {
             ToggleCropUI(true);
             EnableCropMode(true);
+            SetImageZoom(1.0, true);
+            Develop_Image.Source = RawImageHelpers.MagickImageToBitmapImage(CurrentDevelopImage);
         }
         private void Develop_Toggle_Crop_Unchecked(object sender, RoutedEventArgs e)
         {
             ToggleCropUI(false);
             EnableCropMode(false);
+            UpdateDevelopImage();
         }
 
         private void ToggleCropUI(bool cropMode)
         {
             Develop_Sliders_Panel_Quick.Visibility = cropMode ? Visibility.Collapsed : Visibility.Visible;
             Develop_Sliders_Panel_Crop.Visibility = cropMode ? Visibility.Visible : Visibility.Collapsed;
+            SetDevelopSlidersEnabled(!cropMode);
         }
 
         private void EnableCropMode(bool enable)
@@ -773,7 +777,7 @@ namespace rawinator
                 cropOverlayRect = new Rectangle {
                     Stroke = Brushes.Yellow,
                     StrokeThickness = 1,
-                    StrokeDashArray = new DoubleCollection { 2, 2 },
+                    StrokeDashArray = [2, 2],
                     IsHitTestVisible = false
                 };
                 Develop_Image_OverlayCanvas.Children.Add(cropOverlayRect);
@@ -848,7 +852,7 @@ namespace rawinator
 
         private Point GetClampedImagePoint(Point canvasPoint)
         {
-            var (imgW, imgH, canvasW, canvasH, scale, offsetX, offsetY) = GetImageMetrics();
+            var (imgW, imgH, _, _, scale, offsetX, offsetY) = GetImageMetrics();
             double dispW = imgW * scale;
             double dispH = imgH * scale;
 
@@ -883,6 +887,39 @@ namespace rawinator
             double offsetY = (canvasH - dispH) / 2;
 
             return (imgW, imgH, canvasW, canvasH, scale, offsetX, offsetY);
+        }
+
+        private void CropSelected_Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (!isCropModeActive || cropOverlayRect == null || CurrentImage == null)
+                return;
+
+            var (imgW, imgH, _, _, scale, offsetX, offsetY) = GetImageMetrics();
+
+            double left = Canvas.GetLeft(cropOverlayRect);
+            double top = Canvas.GetTop(cropOverlayRect);
+            double width = cropOverlayRect.Width;
+            double height = cropOverlayRect.Height;
+
+            double imgX = (left - offsetX) / scale;
+            double imgY = (top - offsetY) / scale;
+            double imgWRect = width / scale;
+            double imgHRect = height / scale;
+
+            double normX = Math.Clamp(imgX / imgW, 0, 1);
+            double normY = Math.Clamp(imgY / imgH, 0, 1);
+            double normW = Math.Clamp(imgWRect / imgW, 0, 1 - normX);
+            double normH = Math.Clamp(imgHRect / imgH, 0, 1 - normY);
+
+            CurrentImage.ProcessParams.CropX = normX;
+            CurrentImage.ProcessParams.CropY = normY;
+            CurrentImage.ProcessParams.CropWidth = normW;
+            CurrentImage.ProcessParams.CropHeight = normH;
+
+            Develop_Image_OverlayCanvas.Children.Clear();
+            cropOverlayRect = null;
+
+            Develop_Toggle_Crop.IsChecked = false;
         }
     }
 }

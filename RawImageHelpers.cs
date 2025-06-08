@@ -50,6 +50,26 @@ namespace rawinator
         {
             var editedImage = baseImage.Clone();
 
+            // ===== Crop =====
+            if (developSettings.CropWidth > 0 && developSettings.CropHeight > 0 &&
+                (developSettings.CropWidth < 1 || developSettings.CropHeight < 1 ||
+                 developSettings.CropX > 0 || developSettings.CropY > 0))
+            {
+                int x = (int)Math.Round(developSettings.CropX * editedImage.Width);
+                int y = (int)Math.Round(developSettings.CropY * editedImage.Height);
+                uint w = (uint)Math.Round(developSettings.CropWidth * editedImage.Width);
+                uint h = (uint)Math.Round(developSettings.CropHeight * editedImage.Height);
+
+                x = (int)Math.Clamp(x, 0, editedImage.Width - 1);
+                y = (int)Math.Clamp(y, 0, editedImage.Height - 1);
+                w = (uint)Math.Clamp(w, 1, editedImage.Width - x);
+                h = (uint)Math.Clamp(h, 1, editedImage.Height - y);
+
+                editedImage.Crop(new MagickGeometry(x, y, w, h));
+                editedImage.ResetPage();
+            }
+
+
             // ===== Auto effects =====
             if (developSettings.UseEnhance)
             {
