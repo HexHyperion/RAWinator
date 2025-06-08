@@ -343,6 +343,8 @@ namespace rawinator
                 slider.IsEnabled = enabled;
             foreach (var (slider, _) in colorSliders)
                 slider.IsEnabled = enabled;
+            foreach (var (button, _) in developButtons)
+                button.IsEnabled = enabled;
         }
 
         private void SetDevelopSliders()
@@ -722,6 +724,11 @@ namespace rawinator
 
         private void Develop_Toggle_Crop_Checked(object sender, RoutedEventArgs e)
         {
+            if (CurrentImage == null || CurrentDevelopImage == null)
+            {
+                Develop_Toggle_Crop.IsChecked = false;
+                return;
+            }
             ToggleCropUI(true);
             EnableCropMode(true);
             SetImageZoom(1.0, true);
@@ -889,37 +896,23 @@ namespace rawinator
             return (imgW, imgH, canvasW, canvasH, scale, offsetX, offsetY);
         }
 
-        private void CropSelected_Button_Click(object sender, RoutedEventArgs e)
+        // These are usually used for one-time corrections and are not destructive,
+        // so we can apply them directly to the current image.
+        private void Develop_Button_Rotate_Click(object sender, RoutedEventArgs e)
         {
-            if (!isCropModeActive || cropOverlayRect == null || CurrentImage == null)
-                return;
-
-            var (imgW, imgH, _, _, scale, offsetX, offsetY) = GetImageMetrics();
-
-            double left = Canvas.GetLeft(cropOverlayRect);
-            double top = Canvas.GetTop(cropOverlayRect);
-            double width = cropOverlayRect.Width;
-            double height = cropOverlayRect.Height;
-
-            double imgX = (left - offsetX) / scale;
-            double imgY = (top - offsetY) / scale;
-            double imgWRect = width / scale;
-            double imgHRect = height / scale;
-
-            double normX = Math.Clamp(imgX / imgW, 0, 1);
-            double normY = Math.Clamp(imgY / imgH, 0, 1);
-            double normW = Math.Clamp(imgWRect / imgW, 0, 1 - normX);
-            double normH = Math.Clamp(imgHRect / imgH, 0, 1 - normY);
-
-            CurrentImage.ProcessParams.CropX = normX;
-            CurrentImage.ProcessParams.CropY = normY;
-            CurrentImage.ProcessParams.CropWidth = normW;
-            CurrentImage.ProcessParams.CropHeight = normH;
-
-            Develop_Image_OverlayCanvas.Children.Clear();
-            cropOverlayRect = null;
-
-            Develop_Toggle_Crop.IsChecked = false;
+            CurrentDevelopImage?.Rotate(-90);
+            Develop_Image.Source = RawImageHelpers.MagickImageToBitmapImage(CurrentDevelopImage);
         }
+        private void Develop_Button_FlipX_Click(object sender, RoutedEventArgs e)
+        {
+            CurrentDevelopImage?.Flip();
+            Develop_Image.Source = RawImageHelpers.MagickImageToBitmapImage(CurrentDevelopImage);
+        }
+        private void Develop_Button_FlipY_Click(object sender, RoutedEventArgs e)
+        {
+            CurrentDevelopImage?.Flop();
+            Develop_Image.Source = RawImageHelpers.MagickImageToBitmapImage(CurrentDevelopImage);
+        }
+
     }
 }

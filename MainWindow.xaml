@@ -497,39 +497,32 @@
 				                                 VerticalContentAlignment="Center"/>
 			                        </Grid>
 
-                                    <Button Content="Rotate L"
-			                                x:Name="Develop_Button_RotateL"
-			                                Height="22"
-			                                FontWeight="Bold"
-			                                Margin="0,0,0,10"/>
                                     <Button Content="Flip X"
                                             x:Name="Develop_Button_FlipX"
                                             Height="22"
                                             FontWeight="Bold"
-                                            Margin="0,0,0,10"/>
+                                            Margin="0,0,0,10"
+                                            Click="Develop_Button_FlipX_Click"/>
 		                        </StackPanel>
 
                                 <StackPanel Grid.Column="1"
 		                                    Orientation="Vertical"
 		                                    Margin="5,0,0,0">
-	                                <TextBlock Text=" "
-	                                           VerticalAlignment="Center"/>
-	                                <Button Content="Crop sel."
-	                                        x:Name="Develop_Button_Crop"
+                                    <TextBlock Text=" "
+	                                           VerticalAlignment="Center"
+	                                           Margin="0,0,0,6"/>
+                                    <Button Content="Rotate"
+	                                        x:Name="Develop_Button_Rotate"
 	                                        Height="22"
 	                                        FontWeight="Bold"
-	                                        Margin="0,6,0,10"
-                                            Click="CropSelected_Button_Click"/>
-									<Button Content="Rotate R"
-	                                        x:Name="Develop_Button_RotateR"
-	                                        Height="22"
-	                                        FontWeight="Bold"
-	                                        Margin="0,0,0,10"/>
+	                                        Margin="0,0,0,10"
+	                                        Click="Develop_Button_Rotate_Click"/>
 	                                <Button Content="Flip Y"
 	                                        x:Name="Develop_Button_FlipY"
 	                                        Height="22"
 	                                        FontWeight="Bold"
-	                                        Margin="0,0,0,10"/>
+	                                        Margin="0,0,0,10"
+	                                        Click="Develop_Button_FlipY_Click"/>
 
                                 </StackPanel>
 	                        </Grid>
