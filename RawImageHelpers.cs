@@ -1,5 +1,7 @@
 ﻿using ImageMagick;
 using System.IO;
+using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Windows.Media.Imaging;
 
 namespace rawinator
@@ -148,11 +150,10 @@ namespace rawinator
                                perColor.Luminance.Values.Any(v => v != 0);
             if (anyPerColor)
             {
-                editedImage.ColorSpace = ColorSpace.sRGB;
-                const double minSaturationForColorAdjust = 0.05; // Only affect saturated colors
+                const double minSaturationForColorAdjust = 0.05;
 
-                uint width = editedImage.Width;
-                uint height = editedImage.Height;
+                int width = (int)editedImage.Width;
+                int height = (int)editedImage.Height;
 
                 // Precompute hue-to-color mapping
                 var hueToColorMap = new HslColorRange?[360];
@@ -161,47 +162,47 @@ namespace rawinator
                     var color = kvp.Key;
                     var range = kvp.Value;
                     for (int i = 0; i < 360; i++)
-                    {
                         if (range.Contains(i))
                             hueToColorMap[i] = color;
-                    }
                 }
 
                 using var pixels = editedImage.GetPixelsUnsafe();
-                ParallelOptions parallelOptions = new() { MaxDegreeOfParallelism = Environment.ProcessorCount };
-                Parallel.For(0, height, parallelOptions, y => {
+                Parallel.For(0, height, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, y =>
+                {
                     for (int x = 0; x < width; x++)
                     {
-                        var pixel = pixels.GetPixel(x, (int)y);
+                        var pixel = pixels.GetPixel(x, y);
                         double red = pixel.GetChannel(0) / 65535.0;
                         double green = pixel.GetChannel(1) / 65535.0;
                         double blue = pixel.GetChannel(2) / 65535.0;
+
                         RgbToHsl(red, green, blue, out double hue, out double sat, out double lum);
 
                         if (sat > minSaturationForColorAdjust)
                         {
-                            int hueIndex = ((int)(hue + 360)) % 360;
-                            var color = hueToColorMap[hueIndex];
-                            if (color.HasValue)
+                            int hueIndex = (int)((hue + 360) % 360);
+                            if (hueToColorMap[hueIndex] is HslColorRange color)
                             {
-                                double hueAdj = perColor.Hue[color.Value];
-                                double satAdj = perColor.Saturation[color.Value];
-                                double lumAdj = perColor.Luminance[color.Value];
+                                double hueAdj = perColor.Hue[color];
+                                double satAdj = perColor.Saturation[color];
+                                double lumAdj = perColor.Luminance[color];
 
                                 if (hueAdj != 0 || satAdj != 0 || lumAdj != 0)
                                 {
-                                    hue = (hue + (hueAdj / 1.8) + 360) % 360;
-                                    sat = Math.Clamp(sat * ((100 + satAdj) / 100.0), 0, 1);
-                                    lum = Math.Clamp(lum * ((100 + lumAdj) / 100.0), 0, 1);
+                                    hue = (hue + hueAdj / 1.8 + 360) % 360;
+                                    sat = Math.Clamp(sat * ((100 + satAdj) / 100), 0, 1);
+                                    lum = Math.Clamp(lum * ((100 + lumAdj) / 100), 0, 1);
+
+                                    HslToRgb(hue, sat, lum, out double newRed, out double newGreen, out double newBlue);
+
+                                    pixel.SetChannel(0, (ushort)(newRed * ushort.MaxValue));
+                                    pixel.SetChannel(1, (ushort)(newGreen * ushort.MaxValue));
+                                    pixel.SetChannel(2, (ushort)(newBlue * ushort.MaxValue));
+
+                                    pixels.SetPixel(pixel);
                                 }
                             }
                         }
-
-                        HslToRgb(hue, sat, lum, out double nr, out double ng, out double nb);
-
-                        pixel.SetChannel(0, (ushort)Math.Clamp(nr * 65535, 0, 65535));
-                        pixel.SetChannel(1, (ushort)Math.Clamp(ng * 65535, 0, 65535));
-                        pixel.SetChannel(2, (ushort)Math.Clamp(nb * 65535, 0, 65535));
                     }
                 });
             }
