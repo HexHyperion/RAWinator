@@ -1,7 +1,7 @@
 # RAWinator
 A (relatively) simple ~and lightweight~ RAW file processing software with some additional functions, written in .NET using Magick.NET, as a project for AiTP lessons.
 
-## Functionalities
+## Functionality
 Honestly, I feared that the app won't be much and absolutely won't be suitable for "real" editing, and while obviously it's no competition for any serious processing software, it turned out quite nice, and can give really high quality effects, if you have ~patience~ a remotely good computer obviously :)
 
 I took inspiration mainly from Lightroom Classic, as that's what I personally use and find most intuitive and well-thought. Probably you could notice some hints of XnView in here too.
@@ -51,7 +51,7 @@ The edits done in this tab are saved and bound to the image object until it's de
 ### Basic adjustments
 | Name | Explanation |
 |------|-------------|
-| Exposure | Adjusts the brightness of the picture in a exponential manner, simulating in-camera exposure |
+| Exposure | Adjusts the brightness of the picture in an exponential manner, simulating in-camera exposure |
 | Brightness | Adjusts the brightness of the image linearly |
 | Contrast | Makes the difference between the dark and light tones less or more pronounced |
 | White Balance (Temp) | Adjusts the bias of the image towards cold or warm tones |
@@ -64,7 +64,7 @@ The edits done in this tab are saved and bound to the image object until it's de
 ### Detail adjustments
 | Name | Explanation |
 |------|-------------|
-| Sharpness | Increases or decreases the general sharpness of the image | 
+| Sharpness | Increases or decreases contrast on the edges of colors to visually "sharpen" the image | 
 | Vignette | Brightens or darkens the corners of the image in an elliptical manner |
 | Noise | Introduces artificial Gaussian noise to simulate high ISO |
 
@@ -80,7 +80,7 @@ The edits done in this tab are saved and bound to the image object until it's de
 |------|-------------|
 | Border color | Sets the color of the image border, accepts 3-, 6- and 8- digit hex codes |
 | Border size | Sets the width of the image border, accepts positive values in pixels |
-| Grayscale | Turns the image to black and white |
+| Grayscale | Turns the image black and white |
 | Sepia | Applies a yellowish sepia-like filter|
 | Solarize | Inverts the highlights similarly to photographic film left in the sun |
 | Invert | Inverts all color values of the image |
@@ -92,14 +92,17 @@ The edits done in this tab are saved and bound to the image object until it's de
 ## Shortcuts and hidden actions
 | Key combination | Function | Where? |
 |-------------|----------|----------|
-| `Ctrl+O` | Import new pictures | Everywhere |
-| `Ctrl+E` | Export current/selected picture(s) | Everywhere |
-| Double-click | Open the image in Develop | Library/View on image list |
-| `Del` | Remove image(s) from library | Library/View on image list |
+| Double-click | Open the image in Develop | Library/View image list |
+| Arrow keys | Move between images | Library/View image list |
+| `Del` | Remove image(s) from library | Library/View image list |
+| Double-click | Apply the preset | Develop |
+| `Del` | Remove the selected preset(s) | Develop |
 | Scroll wheel | Zoom the image in/out | Develop |
 | Mouse drag | Pan the image / draw crop area | Develop |
 | `Ctrl+Z` | Undo the last action | Develop |
 | `Ctrl+Y` or `Ctrl+Shift+Z` | Redo the previous action | Develop |
+| `Ctrl+O` | Import new pictures | Everywhere |
+| `Ctrl+E` | Export current/selected picture(s) | Everywhere |
 | `Ctrl+I` | Open the "About" window | Everywhere |
 
 ## Dependencies
