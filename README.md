@@ -1,6 +1,17 @@
 # RAWinator
 A (relatively) simple ~and lightweight~ RAW file processing software with some additional functions, written in .NET using Magick.NET, as a project for AiTP lessons.
 
+## Installation
+To open the project for development, you need to clone it to your machine either using
+```
+git clone https://github.com/HexHyperion/RAWinator.git
+```
+or with the built-in Git integrations in your editor, and then open the **solution** (not the folder) with Visual Studio, Rider or other .NET IDE.
+
+To try out the app, build and run the project with what's usually a big, green "play" button - all dependencies should get installed automatically and after a while the window should appear.
+
+Maybe someday I'll compile it into an .exe for mortals, but for now I fail to create a file that will want to run on my 2 Windows devices, let alone _all_ Windows devices...
+
 ## Functionality
 Honestly, I feared that the app won't be much and absolutely won't be suitable for "real" editing, and while obviously it's no competition for any serious processing software, it turned out quite nice, and can give really high quality effects, if you have ~patience~ a remotely good computer obviously :)
 
