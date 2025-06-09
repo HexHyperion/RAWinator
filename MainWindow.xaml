@@ -332,7 +332,9 @@
                              HorizontalAlignment="Stretch"
                              VerticalAlignment="Bottom"
                              Margin="0,0,0,0"
-                             PreviewMouseWheel="View_Image_List_PreviewMouseWheel">
+                             PreviewMouseWheel="View_Image_List_PreviewMouseWheel"
+                             KeyDown="Library_Image_Grid_KeyDown"
+                             MouseDoubleClick="Library_Image_Grid_MouseDoubleClick">
                         <ListBox.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <StackPanel Orientation="Horizontal"/>
