@@ -11,6 +11,7 @@ using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -87,6 +88,9 @@ namespace rawinator
             };
 
             this.PreviewKeyDown += MainWindow_PreviewKeyDown;
+
+            var cvs = (CollectionViewSource)FindResource("FilteredImportedImages");
+            cvs.Filter += FilterNonEmptyRawImages;
 
             LoadPresets();
         }
@@ -718,7 +722,6 @@ namespace rawinator
             });
 
             Dispatcher.Invoke(() => {
-                Library_Image_Grid.SelectedIndex = 0;
                 Library_Import_Status.Visibility = Visibility.Collapsed;
                 Library_Import_Button.Content = "Import...";
                 Library_Import_Button.IsEnabled = true;
@@ -1208,6 +1211,15 @@ namespace rawinator
         {
             public required string Name { get; set; }
             public required RawImageProcessParams Params { get; set; }
+        }
+
+
+        private void FilterNonEmptyRawImages(object sender, FilterEventArgs e)
+        {
+            if (e.Item is RawImage img)
+                e.Accepted = img.SmallThumbnail != null;
+            else
+                e.Accepted = false;
         }
     }
 }

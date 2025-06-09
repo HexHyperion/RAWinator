@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:rawinator"
+        xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
         mc:Ignorable="d"
         Title="RAWinator: a perfectly broken photo editor"
         Height="750"
@@ -13,6 +14,8 @@
     <Window.Resources>
         <local:PlusSignValueConverter x:Key="PlusSignValueConverter"/>
         <local:ProgressConverter x:Key="ProgressConverter" />
+        <CollectionViewSource x:Key="FilteredImportedImages"
+                              Source="{Binding ImportedImages.Ordered, RelativeSource={RelativeSource AncestorType=Window}}"/>
     </Window.Resources>
 
 	<Grid Background="Black">
@@ -64,7 +67,7 @@
                     <!-- List of images -->
                     <Grid Grid.Row="0" Grid.Column="0">
                         <ListBox x:Name="Library_Image_Grid"
-                                 ItemsSource="{Binding ImportedImages.Ordered, RelativeSource={RelativeSource AncestorType=Window}}"
+                                 ItemsSource="{Binding Source={StaticResource FilteredImportedImages}}"
                                  SelectedItem="{Binding CurrentImage, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=Window}}"
                                  SelectionMode="Extended"
                                  SelectionChanged="Library_Image_Grid_SelectionChanged"
@@ -321,7 +324,7 @@
                     <ListBox x:Name="View_Image_List"
                              Grid.Row="2"
                              Grid.ColumnSpan="3"
-                             ItemsSource="{Binding ImportedImages.Ordered, RelativeSource={RelativeSource AncestorType=Window}}"
+                             ItemsSource="{Binding Source={StaticResource FilteredImportedImages}}"
                              SelectedItem="{Binding CurrentImage, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=Window}}"
                              SelectionChanged="View_Image_List_SelectionChanged"
                              ScrollViewer.HorizontalScrollBarVisibility="Visible"
