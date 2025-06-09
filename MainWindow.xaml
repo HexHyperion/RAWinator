@@ -11,1202 +11,1223 @@
         Width="1300"
         FontFamily="Consolas"
         PreviewKeyDown="MainWindow_PreviewKeyDown">
-    <Window.Resources>
-        <local:PlusSignValueConverter x:Key="PlusSignValueConverter"/>
-        <local:ProgressConverter x:Key="ProgressConverter" />
-        <CollectionViewSource x:Key="FilteredImportedImages"
-                              Source="{Binding ImportedImages.Ordered, RelativeSource={RelativeSource AncestorType=Window}}"/>
-    </Window.Resources>
+	<Window.Resources>
+		<local:PlusSignValueConverter x:Key="PlusSignValueConverter" />
+		<local:ProgressConverter x:Key="ProgressConverter" />
+		<CollectionViewSource x:Key="FilteredImportedImages"
+		                      Source="{Binding ImportedImages.Ordered, RelativeSource={RelativeSource AncestorType=Window}}" />
+	</Window.Resources>
 
 	<Grid Background="Black">
-        <DockPanel>
-            <Menu DockPanel.Dock="Top" Background="Black" Foreground="White" FontFamily="Consolas">
-                <MenuItem Header="_File">
-                    <MenuItem Header="_Import..."
-                              Click="Menu_File_Open_Click"/>
-                    <MenuItem Header="E_xport..."
-                              Click="Menu_File_Save_Click"/>
-                    <MenuItem Header="_Exit"
-                              Click="Menu_File_Exit_Click"/>
-                </MenuItem>
-                <MenuItem Header="_Edit">
-                    <MenuItem Header="_Undo"
-                              Click="Menu_Edit_Undo_Click"/>
-                    <MenuItem Header="_Redo"
-                              Click="Menu_Edit_Redo_Click"/>
-                </MenuItem>
-                <MenuItem Header="_Help">
-                    <MenuItem Header="_About..."
-                              Click="Menu_Help_About_Click"/>
-                </MenuItem>
-            </Menu>
-        </DockPanel>
+		<DockPanel>
+			<Menu DockPanel.Dock="Top" Background="Black" Foreground="White" FontFamily="Consolas">
+				<MenuItem Header="_File">
+					<MenuItem Header="_Import..."
+					          Click="Menu_File_Open_Click" />
+					<MenuItem Header="E_xport..."
+					          Click="Menu_File_Save_Click" />
+					<MenuItem Header="_Exit"
+					          Click="Menu_File_Exit_Click" />
+				</MenuItem>
+				<MenuItem Header="_Edit">
+					<MenuItem Header="_Undo"
+					          Click="Menu_Edit_Undo_Click" />
+					<MenuItem Header="_Redo"
+					          Click="Menu_Edit_Redo_Click" />
+				</MenuItem>
+				<MenuItem Header="_Help">
+					<MenuItem Header="_About..."
+					          Click="Menu_Help_About_Click" />
+				</MenuItem>
+			</Menu>
+		</DockPanel>
 
-        <TabControl x:Name="App_TabControl"
-					Margin="0,20,0,0"
-                    SelectionChanged="App_TabControl_SelectionChanged"
-					Background="Black"
-					BorderBrush="#2a2a2a">
+		<TabControl x:Name="App_TabControl"
+		            Margin="0,20,0,0"
+		            SelectionChanged="App_TabControl_SelectionChanged"
+		            Background="Black"
+		            BorderBrush="#2a2a2a">
 
-	        <TabItem Header="Library"
-	                 x:Name="Tabs_Library"
-	                 Background="Black"
-	                 Foreground="White">
-                <Grid Background="Black">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="1" />
-                        <ColumnDefinition Width="300"
-                                          MinWidth="150" />
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
+			<TabItem Header="Library"
+			         x:Name="Tabs_Library"
+			         Background="Black"
+			         Foreground="White">
+				<Grid Background="Black">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="*" />
+						<ColumnDefinition Width="1" />
+						<ColumnDefinition Width="300"
+						                  MinWidth="150" />
+					</Grid.ColumnDefinitions>
+					<Grid.RowDefinitions>
+						<RowDefinition Height="*" />
+						<RowDefinition Height="Auto" />
+					</Grid.RowDefinitions>
 
-                    <!-- List of images -->
-                    <Grid Grid.Row="0" Grid.Column="0">
-                        <ListBox x:Name="Library_Image_Grid"
-                                 ItemsSource="{Binding Source={StaticResource FilteredImportedImages}}"
-                                 SelectedItem="{Binding CurrentImage, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=Window}}"
-                                 SelectionMode="Extended"
-                                 SelectionChanged="Library_Image_Grid_SelectionChanged"
-                                 KeyDown="Library_Image_Grid_KeyDown"
-                                 MouseDoubleClick="Library_Image_Grid_MouseDoubleClick"
-                                 HorizontalContentAlignment="Center"
-                                 VerticalContentAlignment="Top"
-                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                                 Margin="10,10,0,0"
-                                 Background="Black"
-                                 Foreground="White"
-                                 BorderThickness="0">
-                            <ListBox.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <WrapPanel IsItemsHost="True"
-                                               Orientation="Horizontal"/>
-                                </ItemsPanelTemplate>
-                            </ListBox.ItemsPanel>
-                            <ListBox.ItemTemplate>
-                                <DataTemplate DataType="{x:Type local:RawImage}">
-                                    <StackPanel Margin="8"
-                                                Width="120">
-                                        <Image Source="{Binding SmallThumbnail}"
-                                               Width="100"
-                                               Height="100"
-                                               Stretch="Uniform"/>
-                                        <TextBlock Text="{Binding Filename}"
-                                                   TextAlignment="Center"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   Margin="0,4,0,0"/>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-                        <!-- Centered message when no images -->
-                        <TextBlock Text="Use the &quot;Import&quot; button to begin..."
-                                   Foreground="White"
-                                   FontSize="16"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"
-                                   TextAlignment="Center"
-                                   IsHitTestVisible="False">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="Visibility"
-                                            Value="Collapsed"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ImportedImages.Count, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                     Value="0">
-                                            <Setter Property="Visibility"
-                                                    Value="Visible"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
-                    </Grid>
+					<!-- List of images -->
+					<Grid Grid.Row="0" Grid.Column="0">
+						<ListBox x:Name="Library_Image_Grid"
+						         ItemsSource="{Binding Source={StaticResource FilteredImportedImages}}"
+						         SelectedItem="{Binding CurrentImage, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=Window}}"
+						         SelectionMode="Extended"
+						         SelectionChanged="Library_Image_Grid_SelectionChanged"
+						         KeyDown="Library_Image_Grid_KeyDown"
+						         MouseDoubleClick="Library_Image_Grid_MouseDoubleClick"
+						         HorizontalContentAlignment="Center"
+						         VerticalContentAlignment="Top"
+						         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+						         Margin="10,10,0,0"
+						         Background="Black"
+						         Foreground="White"
+						         BorderThickness="0">
+							<ListBox.ItemsPanel>
+								<ItemsPanelTemplate>
+									<WrapPanel IsItemsHost="True"
+									           Orientation="Horizontal" />
+								</ItemsPanelTemplate>
+							</ListBox.ItemsPanel>
+							<ListBox.ItemTemplate>
+								<DataTemplate DataType="{x:Type local:RawImage}">
+									<StackPanel Margin="8"
+									            Width="120">
+										<Image Source="{Binding SmallThumbnail}"
+										       Width="100"
+										       Height="100"
+										       Stretch="Uniform" />
+										<TextBlock Text="{Binding Filename}"
+										           TextAlignment="Center"
+										           TextTrimming="CharacterEllipsis"
+										           Margin="0,4,0,0" />
+									</StackPanel>
+								</DataTemplate>
+							</ListBox.ItemTemplate>
+						</ListBox>
+						<!-- Centered message when no images -->
+						<TextBlock Text="Use the &quot;Import&quot; button to begin..."
+						           Foreground="White"
+						           FontSize="16"
+						           HorizontalAlignment="Center"
+						           VerticalAlignment="Center"
+						           TextAlignment="Center"
+						           IsHitTestVisible="False">
+							<TextBlock.Style>
+								<Style TargetType="TextBlock">
+									<Setter Property="Visibility"
+									        Value="Collapsed" />
+									<Style.Triggers>
+										<DataTrigger Binding="{Binding ImportedImages.Count, RelativeSource={RelativeSource AncestorType=Window}}"
+										             Value="0">
+											<Setter Property="Visibility"
+											        Value="Visible" />
+										</DataTrigger>
+									</Style.Triggers>
+								</Style>
+							</TextBlock.Style>
+						</TextBlock>
+					</Grid>
 
-                    <GridSplitter Grid.Row="0"
-                                  Grid.Column="1"
-                                  Grid.RowSpan="2"
-                                  Width="1"
-                                  HorizontalAlignment="Stretch"
-                                  VerticalAlignment="Stretch"
-                                  Background="#2a2a2a"
-                                  ResizeBehavior="PreviousAndNext"
-                                  ResizeDirection="Columns"/>
+					<GridSplitter Grid.Row="0"
+					              Grid.Column="1"
+					              Grid.RowSpan="2"
+					              Width="1"
+					              HorizontalAlignment="Stretch"
+					              VerticalAlignment="Stretch"
+					              Background="#2a2a2a"
+					              ResizeBehavior="PreviousAndNext"
+					              ResizeDirection="Columns" />
 
-                    <!-- Thumbnail and metadata -->
-                    <Grid Grid.Row="0"
-                          Grid.Column="2"
-                          VerticalAlignment="Top">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="200"
-                                           MinHeight="50"/>
-                            <RowDefinition Height="1"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
+					<!-- Thumbnail and metadata -->
+					<Grid Grid.Row="0"
+					      Grid.Column="2"
+					      VerticalAlignment="Top">
+						<Grid.RowDefinitions>
+							<RowDefinition Height="200"
+							               MinHeight="50" />
+							<RowDefinition Height="1" />
+							<RowDefinition Height="*" />
+						</Grid.RowDefinitions>
 
-                        <Grid>
-                            <Image Name="Library_Image_Thumbnail"
-                                   Stretch="Uniform"
-                                   Width="Auto"
-                                   Height="Auto"
-                                   Grid.Row="0"/>
-                            <!-- Message when no image selected -->
-                            <TextBlock Text="[No thumbnail found]"
-                                       Foreground="White"
-                                       FontSize="14"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"
-                                       TextAlignment="Center"
-                                       IsHitTestVisible="False">
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Visibility"
-                                                Value="Collapsed"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding CurrentImage, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                         Value="{x:Null}">
-                                                <Setter Property="Visibility"
-                                                        Value="Visible"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                        </Grid>
+						<Grid>
+							<Image Name="Library_Image_Thumbnail"
+							       Stretch="Uniform"
+							       Width="Auto"
+							       Height="Auto"
+							       Grid.Row="0" />
+							<!-- Message when no image selected -->
+							<TextBlock Text="[No thumbnail found]"
+							           Foreground="White"
+							           FontSize="14"
+							           HorizontalAlignment="Center"
+							           VerticalAlignment="Center"
+							           TextAlignment="Center"
+							           IsHitTestVisible="False">
+								<TextBlock.Style>
+									<Style TargetType="TextBlock">
+										<Setter Property="Visibility"
+										        Value="Collapsed" />
+										<Style.Triggers>
+											<DataTrigger Binding="{Binding CurrentImage, RelativeSource={RelativeSource AncestorType=Window}}"
+											             Value="{x:Null}">
+												<Setter Property="Visibility"
+												        Value="Visible" />
+											</DataTrigger>
+										</Style.Triggers>
+									</Style>
+								</TextBlock.Style>
+							</TextBlock>
+						</Grid>
 
-                        <GridSplitter Grid.Row="1"
-                                      Height="1"
-                                      HorizontalAlignment="Stretch"
-                                      VerticalAlignment="Stretch"
-                                      Background="#2a2a2a"
-                                      ResizeBehavior="PreviousAndNext"
-                                      ResizeDirection="Rows"/>
+						<GridSplitter Grid.Row="1"
+						              Height="1"
+						              HorizontalAlignment="Stretch"
+						              VerticalAlignment="Stretch"
+						              Background="#2a2a2a"
+						              ResizeBehavior="PreviousAndNext"
+						              ResizeDirection="Rows" />
 
-                        <ScrollViewer x:Name="Library_Image_Metadata_Scroll"
-                                      VerticalScrollBarVisibility="Auto"
-                                      Grid.Row="2"
-                                      Margin="0,0,0,10">
-                            <StackPanel x:Name="Library_Image_Metadata_Panel"
-                                        Orientation="Vertical"
-                                        Margin="10,10,10,0"
-                                        VerticalAlignment="Top"
-                                        HorizontalAlignment="Left"/>
-                        </ScrollViewer>
-                    </Grid>
+						<ScrollViewer x:Name="Library_Image_Metadata_Scroll"
+						              VerticalScrollBarVisibility="Auto"
+						              Grid.Row="2"
+						              Margin="0,0,0,10">
+							<StackPanel x:Name="Library_Image_Metadata_Panel"
+							            Orientation="Vertical"
+							            Margin="10,10,10,0"
+							            VerticalAlignment="Top"
+							            HorizontalAlignment="Left" />
+						</ScrollViewer>
+					</Grid>
 
-                    <!-- Import progress bar -->
-                    <ProgressBar x:Name="Library_Import_ProgressBar"
-                                 Grid.Row="1"
-                                 Grid.Column="0"
-                                 Margin="10,0,10,0"
-                                 Height="20"
-                                 Visibility="Visible"
-                                 Minimum="0"
-                                 Maximum="1"
-                                 Background="Black"
-                                 BorderBrush="#4a4a4a"/>
-                    <TextBlock x:Name="Library_Import_Status"
-                               Grid.Row="1"
-                               Grid.Column="0"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"
-                               Visibility="Collapsed"
-                               Foreground="White">
-	                    <TextBlock.Text>
-		                    <MultiBinding Converter="{StaticResource ProgressConverter}">
-			                    <Binding ElementName="Library_Import_ProgressBar"
-			                             Path="Value"/>
-			                    <Binding ElementName="Library_Import_ProgressBar"
-			                             Path="Maximum"/>
-		                    </MultiBinding>
-	                    </TextBlock.Text>
-                    </TextBlock>
+					<!-- Import progress bar -->
+					<ProgressBar x:Name="Library_Import_ProgressBar"
+					             Grid.Row="1"
+					             Grid.Column="0"
+					             Margin="10,0,10,0"
+					             Height="20"
+					             Visibility="Visible"
+					             Minimum="0"
+					             Maximum="1"
+					             Background="Black"
+					             BorderBrush="#4a4a4a" />
+					<TextBlock x:Name="Library_Import_Status"
+					           Grid.Row="1"
+					           Grid.Column="0"
+					           HorizontalAlignment="Center"
+					           VerticalAlignment="Center"
+					           Visibility="Collapsed"
+					           Foreground="White">
+						<TextBlock.Text>
+							<MultiBinding Converter="{StaticResource ProgressConverter}">
+								<Binding ElementName="Library_Import_ProgressBar"
+								         Path="Value" />
+								<Binding ElementName="Library_Import_ProgressBar"
+								         Path="Maximum" />
+							</MultiBinding>
+						</TextBlock.Text>
+					</TextBlock>
 
-	                <!-- Import/export buttons -->
-                    <Grid Grid.Column="2" Grid.Row="1">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
+					<!-- Import/export buttons -->
+					<Grid Grid.Column="2" Grid.Row="1">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="*" />
+							<ColumnDefinition Width="*" />
+						</Grid.ColumnDefinitions>
 
-	                    <Button Content="Import..."
-	                            x:Name="Library_Import_Button"
-	                            Click="Library_Import_Button_Click"
-	                            Height="30"
-                                Grid.Column="0"
-	                            FontWeight="Bold"
-                                Margin="10,0,5,10"/>
+						<Button Content="Import..."
+						        x:Name="Library_Import_Button"
+						        Click="Library_Import_Button_Click"
+						        Height="30"
+						        Grid.Column="0"
+						        FontWeight="Bold"
+						        Margin="10,0,5,10" />
 
-	                    <Button Content="Export..."
-                                IsEnabled="False"
-	                            x:Name="Library_Export_Button"
-	                            Click="Library_Export_Button_Click"
-	                            Height="30"
-	                            Grid.Column="1"
-	                            FontWeight="Bold"
-                                Margin="5,0,10,10"/>
-                    </Grid>
-                </Grid>
-            </TabItem>
-
-
-            <TabItem Header="View"
-                     x:Name="Tabs_View"
-                     KeyDown="Tabs_View_KeyDown"
-                     IsEnabled="{Binding HasImageSelected}">
-                <Grid Background="Black">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="1" />
-                        <RowDefinition Height="80" MaxHeight="500" MinHeight="40" />
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="3*" />
-                        <ColumnDefinition Width="1" />
-                        <ColumnDefinition Width="300" MinWidth="150" />
-                    </Grid.ColumnDefinitions>
-
-	                <!-- Full-sized JPEG preview -->
-                    <Image x:Name="View_Image"
-                           Grid.Row="0"
-                           Grid.Column="0"
-                           Stretch="Uniform"/>
-
-                    <GridSplitter Grid.Column="1"
-	                              Width="1"
-	                              HorizontalAlignment="Stretch"
-	                              VerticalAlignment="Stretch"
-	                              Background="#2a2a2a"
-	                              ResizeBehavior="PreviousAndNext"
-	                              ResizeDirection="Columns"/>
-
-                    <!-- Detailed metadata -->
-	                <ScrollViewer Grid.Column="2">
-	                    <Grid>
-	                        <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-		                        <RowDefinition Height="Auto"/>
-	                            <RowDefinition Height="*"/>
-	                        </Grid.RowDefinitions>
-                            <TextBlock Grid.Row="0"
-                                       Text="Metadata"
-                                       FontWeight="Bold"
-                                       FontSize="16"
-                                       Margin="12,10,0,12"
-                                       Foreground="White"/>
-                            <StackPanel Grid.Row="1"
-	                                    x:Name="View_Metadata_StackPanel"
-	                                    Margin="12,0,0,0"
-	                                    VerticalAlignment="Top"/>
-	                            <Expander Grid.Row="2"
-	                                  x:Name="View_AllMetadata_Expander"
-	                                  Header="All metadata"
-	                                  Margin="12,8,0,0"
-	                                  IsExpanded="False" Foreground="White">
-	                                <StackPanel x:Name="View_AllMetadata_StackPanel"/>
-	                            </Expander>
-	                    </Grid>
-	                </ScrollViewer>
-
-                    <GridSplitter Grid.Row="1"
-                                  Grid.ColumnSpan="3"
-	                              Height="1"
-	                              HorizontalAlignment="Stretch"
-	                              VerticalAlignment="Stretch"
-	                              Background="#2a2a2a"
-	                              ResizeBehavior="PreviousAndNext"
-	                              ResizeDirection="Rows"/>
-
-                    <!-- LrC-like horizontal image list -->
-                    <ListBox x:Name="View_Image_List"
-                             Grid.Row="2"
-                             Grid.ColumnSpan="3"
-                             ItemsSource="{Binding Source={StaticResource FilteredImportedImages}}"
-                             SelectedItem="{Binding CurrentImage, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=Window}}"
-                             SelectionChanged="View_Image_List_SelectionChanged"
-                             ScrollViewer.HorizontalScrollBarVisibility="Visible"
-                             ScrollViewer.VerticalScrollBarVisibility="Disabled"
-                             Height="Auto"
-                             BorderThickness="0"
-                             Background="Black"
-                             HorizontalAlignment="Stretch"
-                             VerticalAlignment="Bottom"
-                             Margin="0,0,0,0"
-                             PreviewMouseWheel="View_Image_List_PreviewMouseWheel"
-                             KeyDown="Library_Image_Grid_KeyDown"
-                             MouseDoubleClick="Library_Image_Grid_MouseDoubleClick">
-                        <ListBox.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal"/>
-                            </ItemsPanelTemplate>
-                        </ListBox.ItemsPanel>
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-	                            <Image Source="{Binding SmallThumbnail}"
-	                                   Height="Auto"
-	                                   Stretch="Uniform"
-	                                   Margin="5" />
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                </Grid>
-            </TabItem>
+						<Button Content="Export..."
+						        IsEnabled="False"
+						        x:Name="Library_Export_Button"
+						        Click="Library_Export_Button_Click"
+						        Height="30"
+						        Grid.Column="1"
+						        FontWeight="Bold"
+						        Margin="5,0,10,10" />
+					</Grid>
+				</Grid>
+			</TabItem>
 
 
-            <TabItem Header="Develop"
-                     x:Name="Tabs_Develop"
-                     IsEnabled="{Binding HasImageSelected}">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="20"/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="200" MinWidth="100"/>
-                        <ColumnDefinition Width="1"/>
-                        <ColumnDefinition Width="5*"/>
-                        <ColumnDefinition Width="1"/>
-                        <ColumnDefinition Width="300" MinWidth="150"/>
-                    </Grid.ColumnDefinitions>
+			<TabItem Header="View"
+			         x:Name="Tabs_View"
+			         KeyDown="Tabs_View_KeyDown"
+			         IsEnabled="{Binding HasImageSelected}">
+				<Grid Background="Black">
+					<Grid.RowDefinitions>
+						<RowDefinition Height="*" />
+						<RowDefinition Height="1" />
+						<RowDefinition Height="80" MaxHeight="500" MinHeight="40" />
+					</Grid.RowDefinitions>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="3*" />
+						<ColumnDefinition Width="1" />
+						<ColumnDefinition Width="300" MinWidth="150" />
+					</Grid.ColumnDefinitions>
 
-                    <!-- Left panel - presets and quick settings -->
-                    <Grid Grid.Column="0"
-                          Grid.RowSpan="2"
-                          Background="Black">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
+					<!-- Full-sized JPEG preview -->
+					<Image x:Name="View_Image"
+					       Grid.Row="0"
+					       Grid.Column="0"
+					       Stretch="Uniform" />
 
-                        <!-- Preset list -->
-                        <Grid Grid.Row="0">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <TextBlock Text="Presets"
-                                       FontWeight="Bold"
-                                       FontSize="16"
-                                       Margin="10,5,10,8"
-                                       Grid.Row="0"/>
-                            <ListBox x:Name="Preset_ListBox"
-                                     Background="Black"
-                                     Foreground="White"
-                                     BorderThickness="0"
-                                     ItemsSource="{Binding Presets}"
-                                     DisplayMemberPath="Name"
-                                     MouseDoubleClick="Preset_ListBox_MouseDoubleClick"
-                                     KeyDown="Preset_ListBox_KeyDown"
-                                     Margin="0,0,0,5"
-                                     Padding="8,0"
-                                     Grid.Row="1"
-                                     SelectionMode="Extended"/>
-                            <Button x:Name="Add_Preset_Button"
-                                    Content="Add preset..."
-                                    Height="22"
-                                    Click="Add_Preset_Button_Click"
-                                    HorizontalAlignment="Stretch"
-                                    Margin="10,0,10,5"
-                                    Grid.Row="2"/>
-                        </Grid>
+					<GridSplitter Grid.Column="1"
+					              Width="1"
+					              HorizontalAlignment="Stretch"
+					              VerticalAlignment="Stretch"
+					              Background="#2a2a2a"
+					              ResizeBehavior="PreviousAndNext"
+					              ResizeDirection="Columns" />
 
-                        <!-- Quick sliders panel -->
-                        <StackPanel x:Name="Develop_Sliders_Panel_Quick"
-                                    Orientation="Vertical"
-                                    Margin="10,5,10,5"
-                                    Grid.Row="1">
-                            <Grid Margin="0,0,0,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0"
-                                            Orientation="Vertical"
-                                            Margin="0,0,5,5">
-                                    <ToggleButton
-                                        x:Name="Develop_Toggle_Enhance"
-                                        Style="{StaticResource ToggleButtonAsButtonStyle}"
-                                        Content="Enhance"
-                                        IsChecked="{Binding CurrentImage.ProcessParams.UseEnhance, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Window}}"
-                                        Click="Develop_Toggle_Special_Click"/>
-                                    <ToggleButton
-                                        x:Name="Develop_Toggle_AutoLevel"
-                                        Style="{StaticResource ToggleButtonAsButtonStyle}"
-                                        Content="Auto level"
-                                        Margin="0"
-                                        IsChecked="{Binding CurrentImage.ProcessParams.UseAutoLevel, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Window}}"
-                                        Click="Develop_Toggle_Special_Click"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="1"
-                                            Orientation="Vertical"
-                                            Margin="5,0,0,0">
-                                    <ToggleButton
-                                        x:Name="Develop_Toggle_Denoise"
-                                        Style="{StaticResource ToggleButtonAsButtonStyle}"
-                                        Content="Denoise"
-                                        IsChecked="{Binding CurrentImage.ProcessParams.UseDenoise, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Window}}"
-                                        Click="Develop_Toggle_Special_Click"/>
-                                    <ToggleButton
-                                        x:Name="Develop_Toggle_AutoGamma"
-                                        Style="{StaticResource ToggleButtonAsButtonStyle}"
-                                        Content="Auto gamma"
-                                        Margin="0"
-                                        IsChecked="{Binding CurrentImage.ProcessParams.UseAutoGamma, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Window}}"
-                                        Click="Develop_Toggle_Special_Click"/>
-                                </StackPanel>
-                            </Grid>
-                        </StackPanel>
+					<!-- Detailed metadata -->
+					<ScrollViewer Grid.Column="2">
+						<Grid>
+							<Grid.RowDefinitions>
+								<RowDefinition Height="Auto" />
+								<RowDefinition Height="Auto" />
+								<RowDefinition Height="*" />
+							</Grid.RowDefinitions>
+							<TextBlock Grid.Row="0"
+							           Text="Metadata"
+							           FontWeight="Bold"
+							           FontSize="16"
+							           Margin="12,10,0,12"
+							           Foreground="White" />
+							<StackPanel Grid.Row="1"
+							            x:Name="View_Metadata_StackPanel"
+							            Margin="12,0,0,0"
+							            VerticalAlignment="Top" />
+							<Expander Grid.Row="2"
+							          x:Name="View_AllMetadata_Expander"
+							          Header="All metadata"
+							          Margin="12,8,0,0"
+							          IsExpanded="False" Foreground="White">
+								<StackPanel x:Name="View_AllMetadata_StackPanel" />
+							</Expander>
+						</Grid>
+					</ScrollViewer>
 
-                        <!-- Crop/Resize mode panel -->
-                        <StackPanel x:Name="Develop_Sliders_Panel_Crop"
-                                    Orientation="Vertical"
-                                    Margin="10,5,10,0"
-                                    Grid.Row="1"
-                                    Visibility="Collapsed">
-	                        <Grid Margin="0,0,0,0">
-		                        <Grid.ColumnDefinitions>
-			                        <ColumnDefinition Width="*" />
-			                        <ColumnDefinition Width="*" />
-		                        </Grid.ColumnDefinitions>
-		                        <StackPanel Grid.Column="0"
-		                                    Orientation="Vertical"
-		                                    Margin="0,0,5,0">
+					<GridSplitter Grid.Row="1"
+					              Grid.ColumnSpan="3"
+					              Height="1"
+					              HorizontalAlignment="Stretch"
+					              VerticalAlignment="Stretch"
+					              Background="#2a2a2a"
+					              ResizeBehavior="PreviousAndNext"
+					              ResizeDirection="Rows" />
 
-			                        <TextBlock Text="Aspect ratio"
-			                                   VerticalAlignment="Center"/>
+					<!-- LrC-like horizontal image list -->
+					<ListBox x:Name="View_Image_List"
+					         Grid.Row="2"
+					         Grid.ColumnSpan="3"
+					         ItemsSource="{Binding Source={StaticResource FilteredImportedImages}}"
+					         SelectedItem="{Binding CurrentImage, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=Window}}"
+					         SelectionChanged="View_Image_List_SelectionChanged"
+					         ScrollViewer.HorizontalScrollBarVisibility="Visible"
+					         ScrollViewer.VerticalScrollBarVisibility="Disabled"
+					         Height="Auto"
+					         BorderThickness="0"
+					         Background="Black"
+					         HorizontalAlignment="Stretch"
+					         VerticalAlignment="Bottom"
+					         Margin="0,0,0,0"
+					         PreviewMouseWheel="View_Image_List_PreviewMouseWheel"
+					         KeyDown="Library_Image_Grid_KeyDown"
+					         MouseDoubleClick="Library_Image_Grid_MouseDoubleClick">
+						<ListBox.ItemsPanel>
+							<ItemsPanelTemplate>
+								<StackPanel Orientation="Horizontal" />
+							</ItemsPanelTemplate>
+						</ListBox.ItemsPanel>
+						<ListBox.ItemTemplate>
+							<DataTemplate>
+								<Image Source="{Binding SmallThumbnail}"
+								       Height="Auto"
+								       Stretch="Uniform"
+								       Margin="5" />
+							</DataTemplate>
+						</ListBox.ItemTemplate>
+					</ListBox>
+				</Grid>
+			</TabItem>
 
-			                        <Grid Margin="0,6,0,10" HorizontalAlignment="Stretch">
-				                        <Grid.ColumnDefinitions>
-					                        <ColumnDefinition Width="*" />
-					                        <ColumnDefinition Width="Auto" />
-					                        <ColumnDefinition Width="*" />
-				                        </Grid.ColumnDefinitions>
-				                        <TextBox x:Name="Develop_TextBox_AspectWidth"
-				                                 Grid.Column="0"
-				                                 Margin="0,0,3,0"
-				                                 Background="Black"
-				                                 Foreground="White"
-				                                 BorderBrush="White"
-				                                 CaretBrush="White"
-				                                 Padding="4"
-                                                 Height="22"
-				                                 HorizontalAlignment="Stretch"
-				                                 VerticalAlignment="Center"
-				                                 HorizontalContentAlignment="Center"
-				                                 VerticalContentAlignment="Center"/>
-				                        <TextBlock Text=":"
-				                                   Grid.Column="1"
-				                                   VerticalAlignment="Center"
-				                                   Foreground="White"
-				                                   FontSize="16"
-				                                   Margin="0,0,0,0"/>
-				                        <TextBox x:Name="Develop_TextBox_AspectHeight"
-				                                 Grid.Column="2"
-				                                 Margin="3,0,0,0"
-				                                 Background="Black"
-				                                 Foreground="White"
-				                                 BorderBrush="White"
-				                                 CaretBrush="White"
-				                                 Padding="4"
-                                                 Height="22"
-				                                 HorizontalAlignment="Stretch"
-				                                 VerticalAlignment="Center"
-				                                 HorizontalContentAlignment="Center"
-				                                 VerticalContentAlignment="Center"/>
-			                        </Grid>
 
-                                    <Button Content="Flip X"
-                                            x:Name="Develop_Button_FlipX"
-                                            Height="22"
-                                            FontWeight="Bold"
-                                            Margin="0,0,0,10"
-                                            Click="Develop_Button_FlipX_Click"/>
-		                        </StackPanel>
+			<TabItem Header="Develop"
+			         x:Name="Tabs_Develop"
+			         IsEnabled="{Binding HasImageSelected}">
+				<Grid>
+					<Grid.RowDefinitions>
+						<RowDefinition Height="*" />
+						<RowDefinition Height="20" />
+					</Grid.RowDefinitions>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="200" MinWidth="100" />
+						<ColumnDefinition Width="1" />
+						<ColumnDefinition Width="5*" />
+						<ColumnDefinition Width="1" />
+						<ColumnDefinition Width="300" MinWidth="150" />
+					</Grid.ColumnDefinitions>
 
-                                <StackPanel Grid.Column="1"
-		                                    Orientation="Vertical"
-		                                    Margin="5,0,0,0">
-                                    <TextBlock Text=" "
-	                                           VerticalAlignment="Center"
-	                                           Margin="0,0,0,6"/>
-                                    <Button Content="Rotate"
-	                                        x:Name="Develop_Button_Rotate"
-	                                        Height="22"
-	                                        FontWeight="Bold"
-	                                        Margin="0,0,0,10"
-	                                        Click="Develop_Button_Rotate_Click"/>
-	                                <Button Content="Flip Y"
-	                                        x:Name="Develop_Button_FlipY"
-	                                        Height="22"
-	                                        FontWeight="Bold"
-	                                        Margin="0,0,0,10"
-	                                        Click="Develop_Button_FlipY_Click"/>
+					<!-- Left panel - presets and quick settings -->
+					<Grid Grid.Column="0"
+					      Grid.RowSpan="2"
+					      Background="Black">
+						<Grid.RowDefinitions>
+							<RowDefinition Height="*" />
+							<RowDefinition Height="Auto" />
+							<RowDefinition Height="Auto" />
+						</Grid.RowDefinitions>
 
-                                </StackPanel>
-	                        </Grid>
-                        </StackPanel>
+						<!-- Preset list -->
+						<Grid Grid.Row="0">
+							<Grid.RowDefinitions>
+								<RowDefinition Height="Auto" />
+								<RowDefinition Height="*" />
+								<RowDefinition Height="Auto" />
+							</Grid.RowDefinitions>
+							<TextBlock Text="Presets"
+							           FontWeight="Bold"
+							           FontSize="16"
+							           Margin="10,5,10,8"
+							           Grid.Row="0" />
+							<ListBox x:Name="Preset_ListBox"
+							         Background="Black"
+							         Foreground="White"
+							         BorderThickness="0"
+							         ItemsSource="{Binding Presets}"
+							         DisplayMemberPath="Name"
+							         MouseDoubleClick="Preset_ListBox_MouseDoubleClick"
+							         KeyDown="Preset_ListBox_KeyDown"
+							         Margin="0,0,0,5"
+							         Padding="8,0"
+							         Grid.Row="1"
+							         SelectionMode="Extended" />
+							<Button x:Name="Add_Preset_Button"
+							        Content="Add preset..."
+							        Height="22"
+							        Click="Add_Preset_Button_Click"
+							        HorizontalAlignment="Stretch"
+							        Margin="10,0,10,5"
+							        Grid.Row="2" />
+						</Grid>
 
-                        <!-- Crop/Resize trigger -->
-                        <ToggleButton Content="Toggle crop mode"
-                                        x:Name="Develop_Toggle_Crop"
-                                        Grid.Row="2"
-                                        Style="{StaticResource ToggleButtonAsButtonStyle}"
-                                        Height="30"
-                                        Margin="10,0,10,10"
-                                        Checked="Develop_Toggle_Crop_Checked"
-                                        Unchecked="Develop_Toggle_Crop_Unchecked"/>
-                    </Grid>
+						<!-- Quick switches panel -->
+						<StackPanel x:Name="Develop_Sliders_Panel_Quick"
+						            Orientation="Vertical"
+						            Margin="10,5,10,5"
+						            Grid.Row="1">
+							<Grid Margin="0,0,0,0">
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="*" />
+									<ColumnDefinition Width="*" />
+								</Grid.ColumnDefinitions>
+								<StackPanel Grid.Column="0"
+								            Orientation="Vertical"
+								            Margin="0,0,5,5">
+									<ToggleButton
+										x:Name="Develop_Toggle_Enhance"
+										Style="{StaticResource ToggleButtonAsButtonStyle}"
+										Content="Enhance"
+										IsChecked="{Binding CurrentImage.ProcessParams.UseEnhance, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Window}}"
+										Click="Develop_Toggle_Special_Click" />
+									<ToggleButton
+										x:Name="Develop_Toggle_AutoLevel"
+										Style="{StaticResource ToggleButtonAsButtonStyle}"
+										Content="Auto level"
+										Margin="0"
+										IsChecked="{Binding CurrentImage.ProcessParams.UseAutoLevel, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Window}}"
+										Click="Develop_Toggle_Special_Click" />
+								</StackPanel>
+								<StackPanel Grid.Column="1"
+								            Orientation="Vertical"
+								            Margin="5,0,0,0">
+									<ToggleButton
+										x:Name="Develop_Toggle_Denoise"
+										Style="{StaticResource ToggleButtonAsButtonStyle}"
+										Content="Denoise"
+										IsChecked="{Binding CurrentImage.ProcessParams.UseDenoise, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Window}}"
+										Click="Develop_Toggle_Special_Click" />
+									<ToggleButton
+										x:Name="Develop_Toggle_AutoGamma"
+										Style="{StaticResource ToggleButtonAsButtonStyle}"
+										Content="Auto gamma"
+										Margin="0"
+										IsChecked="{Binding CurrentImage.ProcessParams.UseAutoGamma, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Window}}"
+										Click="Develop_Toggle_Special_Click" />
+								</StackPanel>
+							</Grid>
+						</StackPanel>
 
-                    <GridSplitter Grid.Column="1"
-                                  Grid.RowSpan="2"
-                                  Width="1"
-                                  HorizontalAlignment="Stretch"
-                                  VerticalAlignment="Stretch"
-                                  Background="#2a2a2a"
-                                  ResizeBehavior="PreviousAndNext"
-                                  ResizeDirection="Columns"/>
+						<!-- Crop/Resize mode panel -->
+						<StackPanel x:Name="Develop_Sliders_Panel_Crop"
+						            Orientation="Vertical"
+						            Margin="10,5,10,0"
+						            Grid.Row="1"
+						            Visibility="Collapsed">
+							<Grid Margin="0,0,0,0">
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="*" />
+									<ColumnDefinition Width="*" />
+								</Grid.ColumnDefinitions>
+								<StackPanel Grid.Column="0"
+								            Orientation="Vertical"
+								            Margin="0,0,5,0">
 
-                    <!-- Actual rendered RAW -->
-                    <Grid x:Name="Develop_Image_Container" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" ClipToBounds="True">
-                        <Image x:Name="Develop_Image"
-                               RenderTransformOrigin="0.5,0.5"
-                               MouseLeftButtonDown="Develop_Image_MouseLeftButtonDown"
-                               MouseLeftButtonUp="Develop_Image_MouseLeftButtonUp"
-                               MouseMove="Develop_Image_MouseMove"
-                               Stretch="Uniform"
-                               MouseWheel="Develop_Image_MouseWheel" />
-                        <Canvas x:Name="Develop_Image_OverlayCanvas"
-                                IsHitTestVisible="True"
-                                Background="Transparent"
-                                Visibility="Collapsed"
-                                Panel.ZIndex="10"/>
+									<TextBlock Text="Aspect ratio"
+									           VerticalAlignment="Center" />
 
-                        <StackPanel x:Name="Develop_ZoomPanel"
-                                    Orientation="Horizontal"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Bottom"
-                                    Panel.ZIndex="20">
-                            <Button x:Name="ZoomOut_Button" Content="-" Width="40" Margin="5,0" Click="ZoomOut_Button_Click"/>
-                            <Button x:Name="ZoomReset_Button" Content="Reset" Width="60" Margin="5,0" Click="ZoomReset_Button_Click"/>
-                            <Button x:Name="ZoomIn_Button" Content="+" Width="40" Margin="5,0" Click="ZoomIn_Button_Click"/>
-                        </StackPanel>
-                    </Grid>
+									<Grid Margin="0,6,0,10" HorizontalAlignment="Stretch">
+										<Grid.ColumnDefinitions>
+											<ColumnDefinition Width="*" />
+											<ColumnDefinition Width="Auto" />
+											<ColumnDefinition Width="*" />
+										</Grid.ColumnDefinitions>
+										<TextBox x:Name="Develop_TextBox_AspectWidth"
+										         Grid.Column="0"
+										         Margin="0,0,3,0"
+										         Background="Black"
+										         Foreground="White"
+										         BorderBrush="White"
+										         CaretBrush="White"
+										         Padding="4"
+										         Height="22"
+										         HorizontalAlignment="Stretch"
+										         VerticalAlignment="Center"
+										         HorizontalContentAlignment="Center"
+										         VerticalContentAlignment="Center" />
+										<TextBlock Text=":"
+										           Grid.Column="1"
+										           VerticalAlignment="Center"
+										           Foreground="White"
+										           FontSize="16"
+										           Margin="0,0,0,0" />
+										<TextBox x:Name="Develop_TextBox_AspectHeight"
+										         Grid.Column="2"
+										         Margin="3,0,0,0"
+										         Background="Black"
+										         Foreground="White"
+										         BorderBrush="White"
+										         CaretBrush="White"
+										         Padding="4"
+										         Height="22"
+										         HorizontalAlignment="Stretch"
+										         VerticalAlignment="Center"
+										         HorizontalContentAlignment="Center"
+										         VerticalContentAlignment="Center" />
+									</Grid>
 
-                    <GridSplitter Grid.Column="3"
-                                  Grid.RowSpan="2"
-                                  Width="1"
-                                  HorizontalAlignment="Stretch"
-                                  VerticalAlignment="Stretch"
-                                  Background="#2a2a2a"
-                                  ResizeBehavior="PreviousAndNext"
-                                  ResizeDirection="Columns"/>
-
-                    <!-- Right panel - sliders for all adjustments -->
-                    <Grid Grid.Row="0"
-                          Grid.Column="4"
-                          Grid.RowSpan="2"
-                          Background="Black">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-
-                        <ScrollViewer x:Name="Develop_Slider_Scroll"
-                                      Grid.Row="0">
-                            <StackPanel x:Name="Develop_Sliders_Panel"
-                                        Orientation="Vertical">
-                                <StackPanel x:Name="Develop_Sliders_Panel_Basic"
-	                                    Orientation="Vertical"
-	                                    Margin="10,5">
-                                    <TextBlock Text="Basic adjustments"
-	                                   Margin="0,0,0,8"
-	                                   FontWeight="Bold"
-	                                   FontSize="16"/>
-
-                                    <!-- Exposure -->
-                                    <Grid Margin="0,0,0,0">
-                                        <TextBlock Text="Exposure"
-	                                       Grid.Column="0"
-	                                       VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding ElementName=Develop_Slider_Exposure, Path=Value, Converter={StaticResource PlusSignValueConverter}, ConverterParameter=2}"
-	                                       Grid.Column="1"
-	                                       HorizontalAlignment="Right"
-	                                       VerticalAlignment="Center"/>
-                                    </Grid>
-                                    <Slider x:Name="Develop_Slider_Exposure"
-	                                Minimum="-5"
-	                                Maximum="5"
-	                                Value="0"
-	                                TickFrequency="0.1"
-	                                ValueChanged="Develop_Slider_ValueChanged"
-	                                Thumb.DragStarted="Develop_Slider_DragStarted"
-	                                Thumb.DragCompleted="Develop_Slider_DragCompleted"
-	                                IsSnapToTickEnabled="True"
-	                                LargeChange="0.3"/>
-
-                                    <!-- Brightness -->
-                                    <Grid Margin="0,8,0,0">
-                                        <TextBlock Text="Brightness"
-	                                       Grid.Column="0"
-	                                       VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding ElementName=Develop_Slider_Brightness, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
-	                                       Grid.Column="1"
-	                                       HorizontalAlignment="Right"
-	                                       VerticalAlignment="Center"/>
-                                    </Grid>
-                                    <Slider x:Name="Develop_Slider_Brightness"
-	                                Minimum="-100"
-	                                Maximum="100"
-	                                Value="0"
-	                                TickFrequency="1"
-	                                ValueChanged="Develop_Slider_ValueChanged"
-	                                Thumb.DragStarted="Develop_Slider_DragStarted"
-	                                Thumb.DragCompleted="Develop_Slider_DragCompleted"
-	                                IsSnapToTickEnabled="True"
-	                                LargeChange="5"/>
-
-                                    <!-- Contrast -->
-                                    <Grid Margin="0,8,0,0">
-                                        <TextBlock Text="Contrast"
-		                                   Grid.Column="0"
-		                                   VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding ElementName=Develop_Slider_Contrast, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
-		                                   Grid.Column="1"
-		                                   HorizontalAlignment="Right"
-		                                   VerticalAlignment="Center"/>
-                                    </Grid>
-                                    <Slider x:Name="Develop_Slider_Contrast"
-	                                Minimum="-100"
-	                                Maximum="100"
-	                                Value="0"
-	                                TickFrequency="1"
-	                                ValueChanged="Develop_Slider_ValueChanged"
-	                                Thumb.DragStarted="Develop_Slider_DragStarted"
-	                                Thumb.DragCompleted="Develop_Slider_DragCompleted"
-	                                IsSnapToTickEnabled="True"
-	                                LargeChange="5"/>
-
-                                    <!-- White Balance (Temp) -->
-                                    <Grid Margin="0,8,0,0">
-                                        <TextBlock Text="White Balance (Temp)"
-	                                       Grid.Column="0"
-	                                       VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding ElementName=Develop_Slider_WhiteBalance, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
-	                                       Grid.Column="1"
-	                                       HorizontalAlignment="Right"
-	                                       VerticalAlignment="Center"/>
-                                    </Grid>
-                                    <Slider x:Name="Develop_Slider_WhiteBalance"
-	                                Minimum="-100"
-	                                Maximum="100"
-	                                Value="0"
-	                                TickFrequency="1"
-	                                ValueChanged="Develop_Slider_ValueChanged"
-	                                Thumb.DragStarted="Develop_Slider_DragStarted"
-	                                Thumb.DragCompleted="Develop_Slider_DragCompleted"
-	                                IsSnapToTickEnabled="True"
-	                                LargeChange="5"/>
-
-                                    <!-- White Balance (Tint) -->
-                                    <Grid Margin="0,8,0,0">
-                                        <TextBlock Text="White Balance (Tint)"
-	                                       Grid.Column="0"
-	                                       VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding ElementName=Develop_Slider_WhiteBalanceTint, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
-	                                       Grid.Column="1"
-	                                       HorizontalAlignment="Right"
-	                                       VerticalAlignment="Center"/>
-                                    </Grid>
-                                    <Slider x:Name="Develop_Slider_WhiteBalanceTint"
-	                                Minimum="-100"
-	                                Maximum="100"
-	                                Value="0"
-	                                TickFrequency="1"
-	                                ValueChanged="Develop_Slider_ValueChanged"
-	                                Thumb.DragStarted="Develop_Slider_DragStarted"
-	                                Thumb.DragCompleted="Develop_Slider_DragCompleted"
-	                                IsSnapToTickEnabled="True"
-	                                LargeChange="5"/>
-
-                                    <!-- Highlights -->
-                                    <Grid Margin="0,8,0,0">
-                                        <TextBlock Text="Highlights"
-	                                       Grid.Column="0"
-	                                       VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding ElementName=Develop_Slider_Highlights, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
-	                                       Grid.Column="1"
-	                                       HorizontalAlignment="Right"
-	                                       VerticalAlignment="Center"/>
-                                    </Grid>
-                                    <Slider x:Name="Develop_Slider_Highlights"
-	                                Minimum="-100"
-	                                Maximum="100"
-	                                Value="0"
-	                                TickFrequency="1"
-	                                ValueChanged="Develop_Slider_ValueChanged"
-	                                Thumb.DragStarted="Develop_Slider_DragStarted"
-	                                Thumb.DragCompleted="Develop_Slider_DragCompleted"
-	                                IsSnapToTickEnabled="True"
-	                                LargeChange="5"/>
-
-                                    <!-- Shadows -->
-                                    <Grid Margin="0,8,0,0">
-                                        <TextBlock Text="Shadows"
-	                                       Grid.Column="0"
-	                                       VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding ElementName=Develop_Slider_Shadows, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
-	                                       Grid.Column="1"
-	                                       HorizontalAlignment="Right"
-	                                       VerticalAlignment="Center"/>
-                                    </Grid>
-                                    <Slider x:Name="Develop_Slider_Shadows"
-	                                Minimum="-100"
-	                                Maximum="100"
-	                                Value="0"
-	                                TickFrequency="1"
-	                                ValueChanged="Develop_Slider_ValueChanged"
-	                                Thumb.DragStarted="Develop_Slider_DragStarted"
-	                                Thumb.DragCompleted="Develop_Slider_DragCompleted"
-	                                IsSnapToTickEnabled="True"
-	                                LargeChange="5"/>
-
-                                    <!-- Saturation -->
-                                    <Grid Margin="0,8,0,0">
-                                        <TextBlock Text="Saturation"
-	                                       Grid.Column="0"
-	                                       VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding ElementName=Develop_Slider_Saturation, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
-	                                       Grid.Column="1"
-	                                       HorizontalAlignment="Right"
-	                                       VerticalAlignment="Center"/>
-                                    </Grid>
-                                    <Slider x:Name="Develop_Slider_Saturation"
-	                                Minimum="-100"
-	                                Maximum="100"
-	                                Value="0"
-	                                TickFrequency="1"
-	                                ValueChanged="Develop_Slider_ValueChanged"
-	                                Thumb.DragStarted="Develop_Slider_DragStarted"
-	                                Thumb.DragCompleted="Develop_Slider_DragCompleted"
-	                                IsSnapToTickEnabled="True"
-	                                LargeChange="5"/>
-
-                                    <!-- Hue -->
-                                    <Grid Margin="0,8,0,0">
-                                        <TextBlock Text="Hue"
-	                                       Grid.Column="0"
-	                                       VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding ElementName=Develop_Slider_Hue, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
-	                                       Grid.Column="1"
-	                                       HorizontalAlignment="Right"
-	                                       VerticalAlignment="Center"/>
-                                    </Grid>
-                                    <Slider x:Name="Develop_Slider_Hue"
-	                                Minimum="-180"
-	                                Maximum="180"
-	                                Value="0"
-	                                TickFrequency="1"
-	                                ValueChanged="Develop_Slider_ValueChanged"
-	                                Thumb.DragStarted="Develop_Slider_DragStarted"
-	                                Thumb.DragCompleted="Develop_Slider_DragCompleted"
-	                                IsSnapToTickEnabled="True"
-	                                LargeChange="5"/>
-                                </StackPanel>
-
-                                <!-- Sliders for detail -->
-								<StackPanel x:Name="Develop_Sliders_Panel_Detail"
-											Orientation="Vertical"
-											Margin="10,5">
-								    <TextBlock Text="Detail adjustments"
-								               Margin="0,12,0,8"
-								               FontWeight="Bold"
-								               FontSize="16"/>
-
-								    <!-- Sharpness -->
-								    <Grid Margin="0,0,0,0">
-								        <TextBlock Text="Sharpness"
-								                   Grid.Column="0"
-								                   VerticalAlignment="Center"/>
-								        <TextBlock Text="{Binding ElementName=Develop_Slider_Sharpness, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
-								                   Grid.Column="1"
-								                   HorizontalAlignment="Right"
-								                   VerticalAlignment="Center"/>
-								    </Grid>
-								    <Slider x:Name="Develop_Slider_Sharpness"
-								            Minimum="-100"
-								            Maximum="100"
-								            Value="0"
-								            TickFrequency="1"
-								            ValueChanged="Develop_Slider_ValueChanged"
-								            Thumb.DragStarted="Develop_Slider_DragStarted"
-								            Thumb.DragCompleted="Develop_Slider_DragCompleted"
-								            IsSnapToTickEnabled="True"
-								            LargeChange="5"/>
-
-								    <!-- Vignette -->
-								    <Grid Margin="0,8,0,0">
-								        <TextBlock Text="Vignette"
-								                   Grid.Column="0"
-								                   VerticalAlignment="Center"/>
-								        <TextBlock Text="{Binding ElementName=Develop_Slider_Vignette, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
-								                   Grid.Column="1"
-								                   HorizontalAlignment="Right"
-								                   VerticalAlignment="Center"/>
-								    </Grid>
-								    <Slider x:Name="Develop_Slider_Vignette"
-								            Minimum="-100"
-								            Maximum="100"
-								            Value="0"
-								            TickFrequency="1"
-								            ValueChanged="Develop_Slider_ValueChanged"
-								            Thumb.DragStarted="Develop_Slider_DragStarted"
-								            Thumb.DragCompleted="Develop_Slider_DragCompleted"
-								            IsSnapToTickEnabled="True"
-								            LargeChange="5"/>
-
-								    <!-- Noise -->
-								    <Grid Margin="0,8,0,0">
-								        <TextBlock Text="Noise"
-								                   Grid.Column="0"
-								                   VerticalAlignment="Center"/>
-								        <TextBlock Text="{Binding ElementName=Develop_Slider_Noise, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
-								                   Grid.Column="1"
-								                   HorizontalAlignment="Right"
-								                   VerticalAlignment="Center"/>
-								    </Grid>
-								    <Slider x:Name="Develop_Slider_Noise"
-								            Minimum="0"
-								            Maximum="100"
-								            Value="0"
-								            TickFrequency="1"
-								            ValueChanged="Develop_Slider_ValueChanged"
-								            Thumb.DragStarted="Develop_Slider_DragStarted"
-								            Thumb.DragCompleted="Develop_Slider_DragCompleted"
-								            IsSnapToTickEnabled="True"
-								            LargeChange="5"/>
+									<Button Content="Flip X"
+									        x:Name="Develop_Button_FlipX"
+									        Height="22"
+									        FontWeight="Bold"
+									        Margin="0,0,0,10"
+									        Click="Develop_Button_FlipX_Click" />
 								</StackPanel>
 
-                                <StackPanel x:Name="Develop_Sliders_Panel_Colors"
-											Orientation="Vertical"
-											Margin="10,5">
-                                    <TextBlock Text="Adjust by color (slow!)"
-                                               Margin="0,12,0,8"
-                                               FontWeight="Bold"
-                                               FontSize="16"/>
+								<StackPanel Grid.Column="1"
+								            Orientation="Vertical"
+								            Margin="5,0,0,0">
+									<TextBlock Text=" "
+									           VerticalAlignment="Center"
+									           Margin="0,0,0,6" />
+									<Button Content="Rotate"
+									        x:Name="Develop_Button_Rotate"
+									        Height="22"
+									        FontWeight="Bold"
+									        Margin="0,0,0,10"
+									        Click="Develop_Button_Rotate_Click" />
+									<Button Content="Flip Y"
+									        x:Name="Develop_Button_FlipY"
+									        Height="22"
+									        FontWeight="Bold"
+									        Margin="0,0,0,10"
+									        Click="Develop_Button_FlipY_Click" />
 
-                                    <!-- Segmented control for color-specific HSL -->
-                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,8">
-                                        <RadioButton GroupName="ColorAdjustmentType" Content="Hue" IsChecked="True" Margin="8,0"
-                                                 Checked="ColorAdjustmentTypeRadio_Checked"/>
-                                        <RadioButton GroupName="ColorAdjustmentType" Content="Saturation" Margin="8,0"
-                                                 Checked="ColorAdjustmentTypeRadio_Checked"/>
-                                        <RadioButton GroupName="ColorAdjustmentType" Content="Luminance" Margin="8,0"
-                                                 Checked="ColorAdjustmentTypeRadio_Checked"/>
-                                    </StackPanel>
+								</StackPanel>
+							</Grid>
+						</StackPanel>
 
-                                    <!-- Red -->
-                                    <Grid Margin="0,0,0,0">
-                                        <TextBlock Text="Red"
-                                               Grid.Column="0"
-                                               VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding ElementName=Develop_Slider_Red, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
-                                               Grid.Column="1"
-                                               HorizontalAlignment="Right"
-                                               VerticalAlignment="Center"/>
-                                    </Grid>
-                                    <Slider x:Name="Develop_Slider_Red"
-                                        Tag="Red"
-                                        Minimum="-100"
-                                        Maximum="100"
-                                        Value="0"
-                                        TickFrequency="1"
-                                        ValueChanged="Develop_ColorSlider_ValueChanged"
-                                        Thumb.DragStarted="Develop_Slider_DragStarted"
-                                        Thumb.DragCompleted="Develop_ColorSlider_DragCompleted"
-                                        IsSnapToTickEnabled="True"
-                                        LargeChange="5"
-                                        local:SliderHelper.TrackRepeatButtonBackground="#FC3434"/>
+						<!-- Crop/Resize trigger -->
+						<ToggleButton Content="Toggle crop mode"
+						              x:Name="Develop_Toggle_Crop"
+						              Grid.Row="2"
+						              Style="{StaticResource ToggleButtonAsButtonStyle}"
+						              Height="30"
+						              Margin="10,0,10,10"
+						              Checked="Develop_Toggle_Crop_Checked"
+						              Unchecked="Develop_Toggle_Crop_Unchecked" />
+					</Grid>
 
-                                    <!-- Orange -->
-                                    <Grid Margin="0,8,0,0">
-                                        <TextBlock Text="Orange"
-	                                       Grid.Column="0"
-	                                       VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding ElementName=Develop_Slider_Orange, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
-	                                       Grid.Column="1"
-	                                       HorizontalAlignment="Right"
-	                                       VerticalAlignment="Center"/>
-                                    </Grid>
-                                    <Slider x:Name="Develop_Slider_Orange"
-                                        Tag="Orange"
-                                        Minimum="-100"
-                                        Maximum="100"
-                                        Value="0"
-                                        TickFrequency="1"
-                                        ValueChanged="Develop_ColorSlider_ValueChanged"
-                                        Thumb.DragStarted="Develop_Slider_DragStarted"
-                                        Thumb.DragCompleted="Develop_ColorSlider_DragCompleted"
-                                        IsSnapToTickEnabled="True"
-                                        LargeChange="5"
-                                        local:SliderHelper.TrackRepeatButtonBackground="#FC8734"/>
+					<GridSplitter Grid.Column="1"
+					              Grid.RowSpan="2"
+					              Width="1"
+					              HorizontalAlignment="Stretch"
+					              VerticalAlignment="Stretch"
+					              Background="#2a2a2a"
+					              ResizeBehavior="PreviousAndNext"
+					              ResizeDirection="Columns" />
 
-                                    <!-- Yellow -->
-                                    <Grid Margin="0,8,0,0">
-                                        <TextBlock Text="Yellow"
-	                                       Grid.Column="0"
-	                                       VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding ElementName=Develop_Slider_Yellow, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
-	                                       Grid.Column="1"
-	                                       HorizontalAlignment="Right"
-	                                       VerticalAlignment="Center"/>
-                                    </Grid>
-                                    <Slider x:Name="Develop_Slider_Yellow"
-                                        Tag="Yellow"
-                                        Minimum="-100"
-                                        Maximum="100"
-                                        Value="0"
-                                        TickFrequency="1"
-                                        ValueChanged="Develop_ColorSlider_ValueChanged"
-                                        Thumb.DragStarted="Develop_Slider_DragStarted"
-                                        Thumb.DragCompleted="Develop_ColorSlider_DragCompleted"
-                                        IsSnapToTickEnabled="True"
-                                        LargeChange="5"
-                                        local:SliderHelper.TrackRepeatButtonBackground="#FCD734"/>
+					<!-- Actual rendered RAW -->
+					<Grid x:Name="Develop_Image_Container" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch"
+					      HorizontalAlignment="Stretch" ClipToBounds="True">
+						<Image x:Name="Develop_Image"
+						       RenderTransformOrigin="0.5,0.5"
+						       MouseLeftButtonDown="Develop_Image_MouseLeftButtonDown"
+						       MouseLeftButtonUp="Develop_Image_MouseLeftButtonUp"
+						       MouseMove="Develop_Image_MouseMove"
+						       Stretch="Uniform"
+						       MouseWheel="Develop_Image_MouseWheel" />
+						<Canvas x:Name="Develop_Image_OverlayCanvas"
+						        IsHitTestVisible="True"
+						        Background="Transparent"
+						        Visibility="Collapsed"
+						        Panel.ZIndex="10" />
 
-                                    <!-- Green -->
-                                    <Grid Margin="0,8,0,0">
-                                        <TextBlock Text="Green"
-                                           Grid.Column="0"
-                                           VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding ElementName=Develop_Slider_Green, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
-                                           Grid.Column="1"
-                                           HorizontalAlignment="Right"
-                                           VerticalAlignment="Center"/>
-                                    </Grid>
-                                    <Slider x:Name="Develop_Slider_Green"
-                                        Tag="Green"
-                                        Minimum="-100"
-                                        Maximum="100"
-                                        Value="0"
-                                        TickFrequency="1"
-                                        ValueChanged="Develop_ColorSlider_ValueChanged"
-                                        Thumb.DragStarted="Develop_Slider_DragStarted"
-                                        Thumb.DragCompleted="Develop_ColorSlider_DragCompleted"
-                                        IsSnapToTickEnabled="True"
-                                        LargeChange="5"
-                                        local:SliderHelper.TrackRepeatButtonBackground="#77FC34"/>
+						<StackPanel x:Name="Develop_ZoomPanel"
+						            Orientation="Horizontal"
+						            HorizontalAlignment="Center"
+						            VerticalAlignment="Bottom"
+						            Panel.ZIndex="20">
+							<Button x:Name="ZoomOut_Button" Content="-" Width="40" Margin="5,0" Click="ZoomOut_Button_Click" />
+							<Button x:Name="ZoomReset_Button" Content="Reset" Width="60" Margin="5,0" Click="ZoomReset_Button_Click" />
+							<Button x:Name="ZoomIn_Button" Content="+" Width="40" Margin="5,0" Click="ZoomIn_Button_Click" />
+						</StackPanel>
+					</Grid>
 
-                                    <!-- Cyan -->
-                                    <Grid Margin="0,8,0,0">
-                                        <TextBlock Text="Aqua"
-	                                       Grid.Column="0"
-	                                       VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding ElementName=Develop_Slider_Aqua, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
-	                                       Grid.Column="1"
-	                                       HorizontalAlignment="Right"
-	                                       VerticalAlignment="Center"/>
-                                    </Grid>
-                                    <Slider x:Name="Develop_Slider_Aqua"
-                                        Tag="Aqua"
-                                        Minimum="-100"
-                                        Maximum="100"
-                                        Value="0"
-                                        TickFrequency="1"
-                                        ValueChanged="Develop_ColorSlider_ValueChanged"
-                                        Thumb.DragStarted="Develop_Slider_DragStarted"
-                                        Thumb.DragCompleted="Develop_ColorSlider_DragCompleted"
-                                        IsSnapToTickEnabled="True"
-                                        LargeChange="5"
-                                        local:SliderHelper.TrackRepeatButtonBackground="#34EEFC"/>
+					<GridSplitter Grid.Column="3"
+					              Grid.RowSpan="2"
+					              Width="1"
+					              HorizontalAlignment="Stretch"
+					              VerticalAlignment="Stretch"
+					              Background="#2a2a2a"
+					              ResizeBehavior="PreviousAndNext"
+					              ResizeDirection="Columns" />
 
-                                    <!-- Blue -->
-                                    <Grid Margin="0,8,0,0">
-                                        <TextBlock Text="Blue"
-                                           Grid.Column="0"
-                                           VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding ElementName=Develop_Slider_Blue, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
-                                           Grid.Column="1"
-                                           HorizontalAlignment="Right"
-                                           VerticalAlignment="Center"/>
-                                    </Grid>
-                                    <Slider x:Name="Develop_Slider_Blue"
-                                        Tag="Blue"
-                                        Minimum="-100"
-                                        Maximum="100"
-                                        Value="0"
-                                        TickFrequency="1"
-                                        ValueChanged="Develop_ColorSlider_ValueChanged"
-                                        Thumb.DragStarted="Develop_Slider_DragStarted"
-                                        Thumb.DragCompleted="Develop_ColorSlider_DragCompleted"
-                                        IsSnapToTickEnabled="True"
-                                        LargeChange="5"
-                                        local:SliderHelper.TrackRepeatButtonBackground="#346DFC"/>
+					<!-- Right panel - sliders for all adjustments -->
+					<Grid Grid.Row="0"
+					      Grid.Column="4"
+					      Grid.RowSpan="2"
+					      Background="Black">
+						<Grid.RowDefinitions>
+							<RowDefinition Height="*" />
+							<RowDefinition Height="Auto" />
+						</Grid.RowDefinitions>
 
-                                    <!-- Purple -->
-                                    <Grid Margin="0,8,0,0">
-                                        <TextBlock Text="Purple"
-	                                       Grid.Column="0"
-	                                       VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding ElementName=Develop_Slider_Purple, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
-	                                       Grid.Column="1"
-	                                       HorizontalAlignment="Right"
-	                                       VerticalAlignment="Center"/>
-                                    </Grid>
-                                    <Slider x:Name="Develop_Slider_Purple"
-                                        Tag="Purple"
-                                        Minimum="-100"
-                                        Maximum="100"
-                                        Value="0"
-                                        TickFrequency="1"
-                                        ValueChanged="Develop_ColorSlider_ValueChanged"
-                                        Thumb.DragStarted="Develop_Slider_DragStarted"
-                                        Thumb.DragCompleted="Develop_ColorSlider_DragCompleted"
-                                        IsSnapToTickEnabled="True"
-                                        LargeChange="5"
-                                        local:SliderHelper.TrackRepeatButtonBackground="#9E34FC"/>
+						<ScrollViewer x:Name="Develop_Slider_Scroll"
+						              Grid.Row="0">
+							<StackPanel x:Name="Develop_Sliders_Panel"
+							            Orientation="Vertical">
+								<StackPanel x:Name="Develop_Sliders_Panel_Basic"
+								            Orientation="Vertical"
+								            Margin="10,5">
+									<TextBlock Text="Basic adjustments"
+									           Margin="0,0,0,8"
+									           FontWeight="Bold"
+									           FontSize="16" />
 
-                                    <!-- Magenta -->
-                                    <Grid Margin="0,8,0,0">
-                                        <TextBlock Text="Magenta"
-	                                       Grid.Column="0"
-	                                       VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding ElementName=Develop_Slider_Magenta, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
-	                                       Grid.Column="1"
-	                                       HorizontalAlignment="Right"
-	                                       VerticalAlignment="Center"/>
-                                    </Grid>
-                                    <Slider x:Name="Develop_Slider_Magenta"
-                                        Tag="Magenta"
-                                        Minimum="-100"
-                                        Maximum="100"
-                                        Value="0"
-                                        TickFrequency="1"
-                                        ValueChanged="Develop_ColorSlider_ValueChanged"
-                                        Thumb.DragStarted="Develop_Slider_DragStarted"
-                                        Thumb.DragCompleted="Develop_ColorSlider_DragCompleted"
-                                        IsSnapToTickEnabled="True"
-                                        LargeChange="5"
-                                        local:SliderHelper.TrackRepeatButtonBackground="#FC34E8"/>
-                                </StackPanel>
+									<!-- Exposure -->
+									<Grid Margin="0,0,0,0">
+										<TextBlock Text="Exposure"
+										           Grid.Column="0"
+										           VerticalAlignment="Center" />
+										<TextBlock
+											Text="{Binding ElementName=Develop_Slider_Exposure, Path=Value, Converter={StaticResource PlusSignValueConverter}, ConverterParameter=2}"
+											Grid.Column="1"
+											HorizontalAlignment="Right"
+											VerticalAlignment="Center" />
+									</Grid>
+									<Slider x:Name="Develop_Slider_Exposure"
+									        Minimum="-5"
+									        Maximum="5"
+									        Value="0"
+									        TickFrequency="0.1"
+									        ValueChanged="Develop_Slider_ValueChanged"
+									        Thumb.DragStarted="Develop_Slider_DragStarted"
+									        Thumb.DragCompleted="Develop_Slider_DragCompleted"
+									        IsSnapToTickEnabled="True"
+									        LargeChange="0.3" />
+
+									<!-- Brightness -->
+									<Grid Margin="0,8,0,0">
+										<TextBlock Text="Brightness"
+										           Grid.Column="0"
+										           VerticalAlignment="Center" />
+										<TextBlock
+											Text="{Binding ElementName=Develop_Slider_Brightness, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+											Grid.Column="1"
+											HorizontalAlignment="Right"
+											VerticalAlignment="Center" />
+									</Grid>
+									<Slider x:Name="Develop_Slider_Brightness"
+									        Minimum="-100"
+									        Maximum="100"
+									        Value="0"
+									        TickFrequency="1"
+									        ValueChanged="Develop_Slider_ValueChanged"
+									        Thumb.DragStarted="Develop_Slider_DragStarted"
+									        Thumb.DragCompleted="Develop_Slider_DragCompleted"
+									        IsSnapToTickEnabled="True"
+									        LargeChange="5" />
+
+									<!-- Contrast -->
+									<Grid Margin="0,8,0,0">
+										<TextBlock Text="Contrast"
+										           Grid.Column="0"
+										           VerticalAlignment="Center" />
+										<TextBlock
+											Text="{Binding ElementName=Develop_Slider_Contrast, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+											Grid.Column="1"
+											HorizontalAlignment="Right"
+											VerticalAlignment="Center" />
+									</Grid>
+									<Slider x:Name="Develop_Slider_Contrast"
+									        Minimum="-100"
+									        Maximum="100"
+									        Value="0"
+									        TickFrequency="1"
+									        ValueChanged="Develop_Slider_ValueChanged"
+									        Thumb.DragStarted="Develop_Slider_DragStarted"
+									        Thumb.DragCompleted="Develop_Slider_DragCompleted"
+									        IsSnapToTickEnabled="True"
+									        LargeChange="5" />
+
+									<!-- White Balance (Temp) -->
+									<Grid Margin="0,8,0,0">
+										<TextBlock Text="White Balance (Temp)"
+										           Grid.Column="0"
+										           VerticalAlignment="Center" />
+										<TextBlock
+											Text="{Binding ElementName=Develop_Slider_WhiteBalance, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+											Grid.Column="1"
+											HorizontalAlignment="Right"
+											VerticalAlignment="Center" />
+									</Grid>
+									<Slider x:Name="Develop_Slider_WhiteBalance"
+									        Minimum="-100"
+									        Maximum="100"
+									        Value="0"
+									        TickFrequency="1"
+									        ValueChanged="Develop_Slider_ValueChanged"
+									        Thumb.DragStarted="Develop_Slider_DragStarted"
+									        Thumb.DragCompleted="Develop_Slider_DragCompleted"
+									        IsSnapToTickEnabled="True"
+									        LargeChange="5" />
+
+									<!-- White Balance (Tint) -->
+									<Grid Margin="0,8,0,0">
+										<TextBlock Text="White Balance (Tint)"
+										           Grid.Column="0"
+										           VerticalAlignment="Center" />
+										<TextBlock
+											Text="{Binding ElementName=Develop_Slider_WhiteBalanceTint, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+											Grid.Column="1"
+											HorizontalAlignment="Right"
+											VerticalAlignment="Center" />
+									</Grid>
+									<Slider x:Name="Develop_Slider_WhiteBalanceTint"
+									        Minimum="-100"
+									        Maximum="100"
+									        Value="0"
+									        TickFrequency="1"
+									        ValueChanged="Develop_Slider_ValueChanged"
+									        Thumb.DragStarted="Develop_Slider_DragStarted"
+									        Thumb.DragCompleted="Develop_Slider_DragCompleted"
+									        IsSnapToTickEnabled="True"
+									        LargeChange="5" />
+
+									<!-- Highlights -->
+									<Grid Margin="0,8,0,0">
+										<TextBlock Text="Highlights"
+										           Grid.Column="0"
+										           VerticalAlignment="Center" />
+										<TextBlock
+											Text="{Binding ElementName=Develop_Slider_Highlights, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+											Grid.Column="1"
+											HorizontalAlignment="Right"
+											VerticalAlignment="Center" />
+									</Grid>
+									<Slider x:Name="Develop_Slider_Highlights"
+									        Minimum="-100"
+									        Maximum="100"
+									        Value="0"
+									        TickFrequency="1"
+									        ValueChanged="Develop_Slider_ValueChanged"
+									        Thumb.DragStarted="Develop_Slider_DragStarted"
+									        Thumb.DragCompleted="Develop_Slider_DragCompleted"
+									        IsSnapToTickEnabled="True"
+									        LargeChange="5" />
+
+									<!-- Shadows -->
+									<Grid Margin="0,8,0,0">
+										<TextBlock Text="Shadows"
+										           Grid.Column="0"
+										           VerticalAlignment="Center" />
+										<TextBlock
+											Text="{Binding ElementName=Develop_Slider_Shadows, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+											Grid.Column="1"
+											HorizontalAlignment="Right"
+											VerticalAlignment="Center" />
+									</Grid>
+									<Slider x:Name="Develop_Slider_Shadows"
+									        Minimum="-100"
+									        Maximum="100"
+									        Value="0"
+									        TickFrequency="1"
+									        ValueChanged="Develop_Slider_ValueChanged"
+									        Thumb.DragStarted="Develop_Slider_DragStarted"
+									        Thumb.DragCompleted="Develop_Slider_DragCompleted"
+									        IsSnapToTickEnabled="True"
+									        LargeChange="5" />
+
+									<!-- Saturation -->
+									<Grid Margin="0,8,0,0">
+										<TextBlock Text="Saturation"
+										           Grid.Column="0"
+										           VerticalAlignment="Center" />
+										<TextBlock
+											Text="{Binding ElementName=Develop_Slider_Saturation, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+											Grid.Column="1"
+											HorizontalAlignment="Right"
+											VerticalAlignment="Center" />
+									</Grid>
+									<Slider x:Name="Develop_Slider_Saturation"
+									        Minimum="-100"
+									        Maximum="100"
+									        Value="0"
+									        TickFrequency="1"
+									        ValueChanged="Develop_Slider_ValueChanged"
+									        Thumb.DragStarted="Develop_Slider_DragStarted"
+									        Thumb.DragCompleted="Develop_Slider_DragCompleted"
+									        IsSnapToTickEnabled="True"
+									        LargeChange="5" />
+
+									<!-- Hue -->
+									<Grid Margin="0,8,0,0">
+										<TextBlock Text="Hue"
+										           Grid.Column="0"
+										           VerticalAlignment="Center" />
+										<TextBlock
+											Text="{Binding ElementName=Develop_Slider_Hue, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+											Grid.Column="1"
+											HorizontalAlignment="Right"
+											VerticalAlignment="Center" />
+									</Grid>
+									<Slider x:Name="Develop_Slider_Hue"
+									        Minimum="-180"
+									        Maximum="180"
+									        Value="0"
+									        TickFrequency="1"
+									        ValueChanged="Develop_Slider_ValueChanged"
+									        Thumb.DragStarted="Develop_Slider_DragStarted"
+									        Thumb.DragCompleted="Develop_Slider_DragCompleted"
+									        IsSnapToTickEnabled="True"
+									        LargeChange="5" />
+								</StackPanel>
+
+								<!-- Sliders for detail -->
+								<StackPanel x:Name="Develop_Sliders_Panel_Detail"
+								            Orientation="Vertical"
+								            Margin="10,5">
+									<TextBlock Text="Detail adjustments"
+									           Margin="0,12,0,8"
+									           FontWeight="Bold"
+									           FontSize="16" />
+
+									<!-- Sharpness -->
+									<Grid Margin="0,0,0,0">
+										<TextBlock Text="Sharpness"
+										           Grid.Column="0"
+										           VerticalAlignment="Center" />
+										<TextBlock
+											Text="{Binding ElementName=Develop_Slider_Sharpness, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+											Grid.Column="1"
+											HorizontalAlignment="Right"
+											VerticalAlignment="Center" />
+									</Grid>
+									<Slider x:Name="Develop_Slider_Sharpness"
+									        Minimum="-100"
+									        Maximum="100"
+									        Value="0"
+									        TickFrequency="1"
+									        ValueChanged="Develop_Slider_ValueChanged"
+									        Thumb.DragStarted="Develop_Slider_DragStarted"
+									        Thumb.DragCompleted="Develop_Slider_DragCompleted"
+									        IsSnapToTickEnabled="True"
+									        LargeChange="5" />
+
+									<!-- Vignette -->
+									<Grid Margin="0,8,0,0">
+										<TextBlock Text="Vignette"
+										           Grid.Column="0"
+										           VerticalAlignment="Center" />
+										<TextBlock
+											Text="{Binding ElementName=Develop_Slider_Vignette, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+											Grid.Column="1"
+											HorizontalAlignment="Right"
+											VerticalAlignment="Center" />
+									</Grid>
+									<Slider x:Name="Develop_Slider_Vignette"
+									        Minimum="-100"
+									        Maximum="100"
+									        Value="0"
+									        TickFrequency="1"
+									        ValueChanged="Develop_Slider_ValueChanged"
+									        Thumb.DragStarted="Develop_Slider_DragStarted"
+									        Thumb.DragCompleted="Develop_Slider_DragCompleted"
+									        IsSnapToTickEnabled="True"
+									        LargeChange="5" />
+
+									<!-- Noise -->
+									<Grid Margin="0,8,0,0">
+										<TextBlock Text="Noise"
+										           Grid.Column="0"
+										           VerticalAlignment="Center" />
+										<TextBlock
+											Text="{Binding ElementName=Develop_Slider_Noise, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+											Grid.Column="1"
+											HorizontalAlignment="Right"
+											VerticalAlignment="Center" />
+									</Grid>
+									<Slider x:Name="Develop_Slider_Noise"
+									        Minimum="0"
+									        Maximum="100"
+									        Value="0"
+									        TickFrequency="1"
+									        ValueChanged="Develop_Slider_ValueChanged"
+									        Thumb.DragStarted="Develop_Slider_DragStarted"
+									        Thumb.DragCompleted="Develop_Slider_DragCompleted"
+									        IsSnapToTickEnabled="True"
+									        LargeChange="5" />
+								</StackPanel>
+
+								<StackPanel x:Name="Develop_Sliders_Panel_Colors"
+								            Orientation="Vertical"
+								            Margin="10,5">
+									<TextBlock Text="Adjust by color (slow!)"
+									           Margin="0,12,0,8"
+									           FontWeight="Bold"
+									           FontSize="16" />
+
+									<!-- Segmented control for color-specific HSL -->
+									<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,8">
+										<RadioButton GroupName="ColorAdjustmentType" Content="Hue" IsChecked="True" Margin="8,0"
+										             Checked="ColorAdjustmentTypeRadio_Checked" />
+										<RadioButton GroupName="ColorAdjustmentType" Content="Saturation" Margin="8,0"
+										             Checked="ColorAdjustmentTypeRadio_Checked" />
+										<RadioButton GroupName="ColorAdjustmentType" Content="Luminance" Margin="8,0"
+										             Checked="ColorAdjustmentTypeRadio_Checked" />
+									</StackPanel>
+
+									<!-- Red -->
+									<Grid Margin="0,0,0,0">
+										<TextBlock Text="Red"
+										           Grid.Column="0"
+										           VerticalAlignment="Center" />
+										<TextBlock
+											Text="{Binding ElementName=Develop_Slider_Red, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+											Grid.Column="1"
+											HorizontalAlignment="Right"
+											VerticalAlignment="Center" />
+									</Grid>
+									<Slider x:Name="Develop_Slider_Red"
+									        Tag="Red"
+									        Minimum="-100"
+									        Maximum="100"
+									        Value="0"
+									        TickFrequency="1"
+									        ValueChanged="Develop_ColorSlider_ValueChanged"
+									        Thumb.DragStarted="Develop_Slider_DragStarted"
+									        Thumb.DragCompleted="Develop_ColorSlider_DragCompleted"
+									        IsSnapToTickEnabled="True"
+									        LargeChange="5"
+									        local:SliderHelper.TrackRepeatButtonBackground="#FC3434" />
+
+									<!-- Orange -->
+									<Grid Margin="0,8,0,0">
+										<TextBlock Text="Orange"
+										           Grid.Column="0"
+										           VerticalAlignment="Center" />
+										<TextBlock
+											Text="{Binding ElementName=Develop_Slider_Orange, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+											Grid.Column="1"
+											HorizontalAlignment="Right"
+											VerticalAlignment="Center" />
+									</Grid>
+									<Slider x:Name="Develop_Slider_Orange"
+									        Tag="Orange"
+									        Minimum="-100"
+									        Maximum="100"
+									        Value="0"
+									        TickFrequency="1"
+									        ValueChanged="Develop_ColorSlider_ValueChanged"
+									        Thumb.DragStarted="Develop_Slider_DragStarted"
+									        Thumb.DragCompleted="Develop_ColorSlider_DragCompleted"
+									        IsSnapToTickEnabled="True"
+									        LargeChange="5"
+									        local:SliderHelper.TrackRepeatButtonBackground="#FC8734" />
+
+									<!-- Yellow -->
+									<Grid Margin="0,8,0,0">
+										<TextBlock Text="Yellow"
+										           Grid.Column="0"
+										           VerticalAlignment="Center" />
+										<TextBlock
+											Text="{Binding ElementName=Develop_Slider_Yellow, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+											Grid.Column="1"
+											HorizontalAlignment="Right"
+											VerticalAlignment="Center" />
+									</Grid>
+									<Slider x:Name="Develop_Slider_Yellow"
+									        Tag="Yellow"
+									        Minimum="-100"
+									        Maximum="100"
+									        Value="0"
+									        TickFrequency="1"
+									        ValueChanged="Develop_ColorSlider_ValueChanged"
+									        Thumb.DragStarted="Develop_Slider_DragStarted"
+									        Thumb.DragCompleted="Develop_ColorSlider_DragCompleted"
+									        IsSnapToTickEnabled="True"
+									        LargeChange="5"
+									        local:SliderHelper.TrackRepeatButtonBackground="#FCD734" />
+
+									<!-- Green -->
+									<Grid Margin="0,8,0,0">
+										<TextBlock Text="Green"
+										           Grid.Column="0"
+										           VerticalAlignment="Center" />
+										<TextBlock
+											Text="{Binding ElementName=Develop_Slider_Green, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+											Grid.Column="1"
+											HorizontalAlignment="Right"
+											VerticalAlignment="Center" />
+									</Grid>
+									<Slider x:Name="Develop_Slider_Green"
+									        Tag="Green"
+									        Minimum="-100"
+									        Maximum="100"
+									        Value="0"
+									        TickFrequency="1"
+									        ValueChanged="Develop_ColorSlider_ValueChanged"
+									        Thumb.DragStarted="Develop_Slider_DragStarted"
+									        Thumb.DragCompleted="Develop_ColorSlider_DragCompleted"
+									        IsSnapToTickEnabled="True"
+									        LargeChange="5"
+									        local:SliderHelper.TrackRepeatButtonBackground="#77FC34" />
+
+									<!-- Cyan -->
+									<Grid Margin="0,8,0,0">
+										<TextBlock Text="Aqua"
+										           Grid.Column="0"
+										           VerticalAlignment="Center" />
+										<TextBlock
+											Text="{Binding ElementName=Develop_Slider_Aqua, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+											Grid.Column="1"
+											HorizontalAlignment="Right"
+											VerticalAlignment="Center" />
+									</Grid>
+									<Slider x:Name="Develop_Slider_Aqua"
+									        Tag="Aqua"
+									        Minimum="-100"
+									        Maximum="100"
+									        Value="0"
+									        TickFrequency="1"
+									        ValueChanged="Develop_ColorSlider_ValueChanged"
+									        Thumb.DragStarted="Develop_Slider_DragStarted"
+									        Thumb.DragCompleted="Develop_ColorSlider_DragCompleted"
+									        IsSnapToTickEnabled="True"
+									        LargeChange="5"
+									        local:SliderHelper.TrackRepeatButtonBackground="#34EEFC" />
+
+									<!-- Blue -->
+									<Grid Margin="0,8,0,0">
+										<TextBlock Text="Blue"
+										           Grid.Column="0"
+										           VerticalAlignment="Center" />
+										<TextBlock
+											Text="{Binding ElementName=Develop_Slider_Blue, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+											Grid.Column="1"
+											HorizontalAlignment="Right"
+											VerticalAlignment="Center" />
+									</Grid>
+									<Slider x:Name="Develop_Slider_Blue"
+									        Tag="Blue"
+									        Minimum="-100"
+									        Maximum="100"
+									        Value="0"
+									        TickFrequency="1"
+									        ValueChanged="Develop_ColorSlider_ValueChanged"
+									        Thumb.DragStarted="Develop_Slider_DragStarted"
+									        Thumb.DragCompleted="Develop_ColorSlider_DragCompleted"
+									        IsSnapToTickEnabled="True"
+									        LargeChange="5"
+									        local:SliderHelper.TrackRepeatButtonBackground="#346DFC" />
+
+									<!-- Purple -->
+									<Grid Margin="0,8,0,0">
+										<TextBlock Text="Purple"
+										           Grid.Column="0"
+										           VerticalAlignment="Center" />
+										<TextBlock
+											Text="{Binding ElementName=Develop_Slider_Purple, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+											Grid.Column="1"
+											HorizontalAlignment="Right"
+											VerticalAlignment="Center" />
+									</Grid>
+									<Slider x:Name="Develop_Slider_Purple"
+									        Tag="Purple"
+									        Minimum="-100"
+									        Maximum="100"
+									        Value="0"
+									        TickFrequency="1"
+									        ValueChanged="Develop_ColorSlider_ValueChanged"
+									        Thumb.DragStarted="Develop_Slider_DragStarted"
+									        Thumb.DragCompleted="Develop_ColorSlider_DragCompleted"
+									        IsSnapToTickEnabled="True"
+									        LargeChange="5"
+									        local:SliderHelper.TrackRepeatButtonBackground="#9E34FC" />
+
+									<!-- Magenta -->
+									<Grid Margin="0,8,0,0">
+										<TextBlock Text="Magenta"
+										           Grid.Column="0"
+										           VerticalAlignment="Center" />
+										<TextBlock
+											Text="{Binding ElementName=Develop_Slider_Magenta, Path=Value, Converter={StaticResource PlusSignValueConverter}}"
+											Grid.Column="1"
+											HorizontalAlignment="Right"
+											VerticalAlignment="Center" />
+									</Grid>
+									<Slider x:Name="Develop_Slider_Magenta"
+									        Tag="Magenta"
+									        Minimum="-100"
+									        Maximum="100"
+									        Value="0"
+									        TickFrequency="1"
+									        ValueChanged="Develop_ColorSlider_ValueChanged"
+									        Thumb.DragStarted="Develop_Slider_DragStarted"
+									        Thumb.DragCompleted="Develop_ColorSlider_DragCompleted"
+									        IsSnapToTickEnabled="True"
+									        LargeChange="5"
+									        local:SliderHelper.TrackRepeatButtonBackground="#FC34E8" />
+								</StackPanel>
 
 
-	                            <!-- Artistic adjustments and filters -->
-                                <StackPanel x:Name="Develop_Sliders_Panel_Effects"
-                                        Orientation="Vertical"
-                                        Margin="10,5">
-                                    <TextBlock Text="Special effects"
-	                                       Margin="0,12,0,8"
-	                                       FontWeight="Bold"
-	                                       FontSize="16"/>
+								<!-- Artistic adjustments and filters -->
+								<StackPanel x:Name="Develop_Sliders_Panel_Effects"
+								            Orientation="Vertical"
+								            Margin="10,5">
+									<TextBlock Text="Special effects"
+									           Margin="0,12,0,8"
+									           FontWeight="Bold"
+									           FontSize="16" />
 
-                                    <Grid Margin="0,0,0,0">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
+									<Grid Margin="0,0,0,0">
+										<Grid.ColumnDefinitions>
+											<ColumnDefinition Width="*" />
+											<ColumnDefinition Width="*" />
+										</Grid.ColumnDefinitions>
 
-                                        <!-- Border color and effect toggles (left) -->
-                                        <StackPanel Grid.Column="0"
-                                                Orientation="Vertical"
-                                                Margin="0,0,8,0">
-                                            <TextBlock Text="Border color (hex)"
-                                                   VerticalAlignment="Center"/>
-                                            <TextBox x:Name="Develop_BorderColor_TextBox"
-                                                 Text="{Binding CurrentImage.ProcessParams.BorderColor, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
-                                                 Margin="0,6,0,10"
-                                                 Background="Black"
-                                                 Foreground="White"
-                                                 BorderBrush="White"
-                                                 CaretBrush="White"
-                                                 Padding="4"
-                                                 HorizontalAlignment="Stretch"
-                                                 VerticalAlignment="Center"
-                                                 LostFocus="Develop_BorderColor_TextBox_LostFocus"/>
+										<!-- Border color and effect toggles (left) -->
+										<StackPanel Grid.Column="0"
+										            Orientation="Vertical"
+										            Margin="0,0,8,0">
+											<TextBlock Text="Border color (hex)"
+											           VerticalAlignment="Center" />
+											<TextBox x:Name="Develop_BorderColor_TextBox"
+											         Text="{Binding CurrentImage.ProcessParams.BorderColor, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+											         Margin="0,6,0,10"
+											         Background="Black"
+											         Foreground="White"
+											         BorderBrush="White"
+											         CaretBrush="White"
+											         Padding="4"
+											         HorizontalAlignment="Stretch"
+											         VerticalAlignment="Center"
+											         LostFocus="Develop_BorderColor_TextBox_LostFocus" />
 
-                                            <ToggleButton x:Name="Develop_Toggle_Grayscale"
-                                                          Style="{StaticResource ToggleButtonAsButtonStyle}"
-                                                          Content="Grayscale"
-                                                          IsChecked="{Binding CurrentImage.ProcessParams.UseGrayscale, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                          Click="Develop_Toggle_Special_Click"/>
-                                            <ToggleButton x:Name="Develop_Toggle_Solarize"
-                                                          Style="{StaticResource ToggleButtonAsButtonStyle}"
-                                                          Content="Solarize"
-                                                          IsChecked="{Binding CurrentImage.ProcessParams.UseSolarize, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                          Click="Develop_Toggle_Special_Click"/>
-                                            <ToggleButton x:Name="Develop_Toggle_OilPaint"
-                                                          Style="{StaticResource ToggleButtonAsButtonStyle}"
-                                                          Content="Oilpaint"
-                                                          IsChecked="{Binding CurrentImage.ProcessParams.UseOilPaint, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                          Click="Develop_Toggle_Special_Click"/>
-                                            <ToggleButton x:Name="Develop_Toggle_Posterize"
-                                                          Style="{StaticResource ToggleButtonAsButtonStyle}"
-                                                          Content="Posterize"
-                                                          IsChecked="{Binding CurrentImage.ProcessParams.UsePosterize, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                          Click="Develop_Toggle_Special_Click"/>
-                                        </StackPanel>
+											<ToggleButton x:Name="Develop_Toggle_Grayscale"
+											              Style="{StaticResource ToggleButtonAsButtonStyle}"
+											              Content="Grayscale"
+											              IsChecked="{Binding CurrentImage.ProcessParams.UseGrayscale, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Window}}"
+											              Click="Develop_Toggle_Special_Click" />
+											<ToggleButton x:Name="Develop_Toggle_Solarize"
+											              Style="{StaticResource ToggleButtonAsButtonStyle}"
+											              Content="Solarize"
+											              IsChecked="{Binding CurrentImage.ProcessParams.UseSolarize, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Window}}"
+											              Click="Develop_Toggle_Special_Click" />
+											<ToggleButton x:Name="Develop_Toggle_OilPaint"
+											              Style="{StaticResource ToggleButtonAsButtonStyle}"
+											              Content="Oilpaint"
+											              IsChecked="{Binding CurrentImage.ProcessParams.UseOilPaint, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Window}}"
+											              Click="Develop_Toggle_Special_Click" />
+											<ToggleButton x:Name="Develop_Toggle_Posterize"
+											              Style="{StaticResource ToggleButtonAsButtonStyle}"
+											              Content="Posterize"
+											              IsChecked="{Binding CurrentImage.ProcessParams.UsePosterize, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Window}}"
+											              Click="Develop_Toggle_Special_Click" />
+										</StackPanel>
 
-                                        <!-- Border width and effect toggles (right) -->
-                                        <StackPanel Grid.Column="1"
-                                                Orientation="Vertical"
-                                                Margin="8,0,0,0">
-                                            <TextBlock Text="Border size (px)"
-                                                   VerticalAlignment="Center"/>
-                                            <TextBox x:Name="Develop_BorderWidth_TextBox"
-                                                 Text="{Binding CurrentImage.ProcessParams.BorderWidth, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
-                                                 Margin="0,6,0,10"
-                                                 Background="Black"
-                                                 Foreground="White"
-                                                 BorderBrush="White"
-                                                 CaretBrush="White"
-                                                 Padding="4"
-                                                 HorizontalAlignment="Stretch"
-                                                 VerticalAlignment="Center"
-                                                 LostFocus="Develop_BorderWidth_TextBox_LostFocus"
-                                                 PreviewTextInput="Develop_BorderWidth_TextBox_PreviewTextInput"/>
+										<!-- Border width and effect toggles (right) -->
+										<StackPanel Grid.Column="1"
+										            Orientation="Vertical"
+										            Margin="8,0,0,0">
+											<TextBlock Text="Border size (px)"
+											           VerticalAlignment="Center" />
+											<TextBox x:Name="Develop_BorderWidth_TextBox"
+											         Text="{Binding CurrentImage.ProcessParams.BorderWidth, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+											         Margin="0,6,0,10"
+											         Background="Black"
+											         Foreground="White"
+											         BorderBrush="White"
+											         CaretBrush="White"
+											         Padding="4"
+											         HorizontalAlignment="Stretch"
+											         VerticalAlignment="Center"
+											         LostFocus="Develop_BorderWidth_TextBox_LostFocus"
+											         PreviewTextInput="Develop_BorderWidth_TextBox_PreviewTextInput" />
 
-                                            <ToggleButton x:Name="Develop_Toggle_Sepia"
-                                                          Style="{StaticResource ToggleButtonAsButtonStyle}"
-                                                          Content="Sepia"
-                                                          IsChecked="{Binding CurrentImage.ProcessParams.UseSepia, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                          Click="Develop_Toggle_Special_Click"/>
-                                            <ToggleButton x:Name="Develop_Toggle_Invert"
-                                                          Style="{StaticResource ToggleButtonAsButtonStyle}"
-                                                          Content="Invert"
-                                                          IsChecked="{Binding CurrentImage.ProcessParams.UseInvert, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                          Click="Develop_Toggle_Special_Click"/>
-                                            <ToggleButton x:Name="Develop_Toggle_Charcoal"
-                                                          Style="{StaticResource ToggleButtonAsButtonStyle}"
-                                                          Content="Charcoal"
-                                                          IsChecked="{Binding CurrentImage.ProcessParams.UseCharcoal, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                          Click="Develop_Toggle_Special_Click"/>
-                                            <ToggleButton x:Name="Develop_Toggle_Sketch"
-                                                          Style="{StaticResource ToggleButtonAsButtonStyle}"
-                                                          Content="Sketch"
-                                                          IsChecked="{Binding CurrentImage.ProcessParams.UseSketch, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                          Click="Develop_Toggle_Special_Click"/>
-                                        </StackPanel>
-                                    </Grid>
-                                </StackPanel>
-                            </StackPanel>
-                        </ScrollViewer>
-                    </Grid>
+											<ToggleButton x:Name="Develop_Toggle_Sepia"
+											              Style="{StaticResource ToggleButtonAsButtonStyle}"
+											              Content="Sepia"
+											              IsChecked="{Binding CurrentImage.ProcessParams.UseSepia, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Window}}"
+											              Click="Develop_Toggle_Special_Click" />
+											<ToggleButton x:Name="Develop_Toggle_Invert"
+											              Style="{StaticResource ToggleButtonAsButtonStyle}"
+											              Content="Invert"
+											              IsChecked="{Binding CurrentImage.ProcessParams.UseInvert, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Window}}"
+											              Click="Develop_Toggle_Special_Click" />
+											<ToggleButton x:Name="Develop_Toggle_Charcoal"
+											              Style="{StaticResource ToggleButtonAsButtonStyle}"
+											              Content="Charcoal"
+											              IsChecked="{Binding CurrentImage.ProcessParams.UseCharcoal, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Window}}"
+											              Click="Develop_Toggle_Special_Click" />
+											<ToggleButton x:Name="Develop_Toggle_Sketch"
+											              Style="{StaticResource ToggleButtonAsButtonStyle}"
+											              Content="Sketch"
+											              IsChecked="{Binding CurrentImage.ProcessParams.UseSketch, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Window}}"
+											              Click="Develop_Toggle_Special_Click" />
+										</StackPanel>
+									</Grid>
+								</StackPanel>
+							</StackPanel>
+						</ScrollViewer>
+					</Grid>
 
-                    <!-- Progress bar active when the adjustments are being computed -->
-                    <ProgressBar x:Name="Develop_Process_ProgressBar"
-                                 IsIndeterminate="False"
-                                 Grid.Row="1"
-                                 Grid.Column="2"
-                                 Height="10"
-                                 Margin="10,0,10,0"
-                                 Background="Black"
-                                 BorderBrush="#4a4a4a"/>
-                </Grid>
-            </TabItem>
-        </TabControl>
-    </Grid>
+					<!-- Progress bar active when the adjustments are being computed -->
+					<ProgressBar x:Name="Develop_Process_ProgressBar"
+					             IsIndeterminate="False"
+					             Grid.Row="1"
+					             Grid.Column="2"
+					             Height="10"
+					             Margin="10,0,10,0"
+					             Background="Black"
+					             BorderBrush="#4a4a4a" />
+				</Grid>
+			</TabItem>
+		</TabControl>
+	</Grid>
 </Window>

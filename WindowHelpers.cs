@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 
 namespace rawinator
@@ -131,7 +126,7 @@ namespace rawinator
         }
 
         public static void ClampRectToCanvas(ref double x, ref double y, ref double w, ref double h,
-                                      double offsetX, double offsetY, double maxW, double maxH)
+                                             double offsetX, double offsetY, double maxW, double maxH)
         {
             if (w < 0)
             {
@@ -168,7 +163,7 @@ namespace rawinator
         }
 
         public static void ClampRectToBounds(ref double x, ref double y, ref double w, ref double h,
-                                      double xMin, double yMin, double maxW, double maxH)
+                                             double xMin, double yMin, double maxW, double maxH)
         {
             double xMax = xMin + maxW;
             double yMax = yMin + maxH;

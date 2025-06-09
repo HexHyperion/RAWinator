@@ -5,392 +5,392 @@
              StartupUri="MainWindow.xaml">
 
 	<Application.Resources>
-        <Style TargetType="MenuItem">
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Background" Value="Black"/>
-            <Setter Property="BorderBrush" Value="Black"/>
-            <Setter Property="Padding" Value="5"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="MenuItem">
-                        <Border x:Name="Border"
-                        Background="{TemplateBinding Background}"
-                        BorderBrush="{TemplateBinding BorderBrush}"
-                        BorderThickness="1">
-                            <Grid>
-                                <ContentPresenter ContentSource="Header"
-                                          RecognizesAccessKey="True"
-                                          Margin="8,4"/>
-                                <Popup x:Name="PART_Popup"
-                               Placement="Bottom"
-                               IsOpen="{TemplateBinding IsSubmenuOpen}"
-                               AllowsTransparency="True"
-                               Focusable="False"
-                               PopupAnimation="Fade">
-                                    <Border Background="Black"
-                                    BorderBrush="#2a2a2a"
-                                    BorderThickness="1"
-                                    SnapsToDevicePixels="True"
-                                    Padding="2"
-                                    MinWidth="100">
-                                        <StackPanel IsItemsHost="True"
-                                            KeyboardNavigation.DirectionalNavigation="Cycle"/>
-                                    </Border>
-                                </Popup>
-                            </Grid>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsHighlighted" Value="True">
-                                <Setter TargetName="Border"
-                                Property="Background"
-                                Value="#222"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Foreground" Value="#4a4a4a"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+		<Style TargetType="MenuItem">
+			<Setter Property="Foreground" Value="White" />
+			<Setter Property="Background" Value="Black" />
+			<Setter Property="BorderBrush" Value="Black" />
+			<Setter Property="Padding" Value="5" />
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="MenuItem">
+						<Border x:Name="Border"
+						        Background="{TemplateBinding Background}"
+						        BorderBrush="{TemplateBinding BorderBrush}"
+						        BorderThickness="1">
+							<Grid>
+								<ContentPresenter ContentSource="Header"
+								                  RecognizesAccessKey="True"
+								                  Margin="8,4" />
+								<Popup x:Name="PART_Popup"
+								       Placement="Bottom"
+								       IsOpen="{TemplateBinding IsSubmenuOpen}"
+								       AllowsTransparency="True"
+								       Focusable="False"
+								       PopupAnimation="Fade">
+									<Border Background="Black"
+									        BorderBrush="#2a2a2a"
+									        BorderThickness="1"
+									        SnapsToDevicePixels="True"
+									        Padding="2"
+									        MinWidth="100">
+										<StackPanel IsItemsHost="True"
+										            KeyboardNavigation.DirectionalNavigation="Cycle" />
+									</Border>
+								</Popup>
+							</Grid>
+						</Border>
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsHighlighted" Value="True">
+								<Setter TargetName="Border"
+								        Property="Background"
+								        Value="#222" />
+							</Trigger>
+							<Trigger Property="IsEnabled" Value="False">
+								<Setter Property="Foreground" Value="#4a4a4a" />
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
 
-	    <Style TargetType="TabItem">
-            <Setter Property="Foreground" Value="White" />
-            <Setter Property="Background" Value="Black" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TabItem">
-                        <Border Name="TabBorder"
-		                BorderThickness="1,1,1,0"
-		                BorderBrush="Transparent">
-                            <TextBlock Name="TabHeader"
-                               FontSize="14"
-                               Foreground="{TemplateBinding Foreground}">
-                        <ContentPresenter x:Name="ContentSite"
-                                          VerticalAlignment="Center"
-                                          HorizontalAlignment="Center"
-                                          ContentSource="Header"
-                                          Margin="10,2,2,10"/>
-                            </TextBlock>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsSelected" Value="False">
-                                <Setter TargetName="TabHeader"
-                                Property="Foreground"
-                                Value="Gray"/>
-                            </Trigger>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="TabHeader"
-                                Property="Foreground"
-                                Value="White"/>
-                                <Setter TargetName="TabHeader"
-                                Property="FontWeight"
-                                Value="Bold"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="TabHeader"
-                                Property="Foreground"
-                                Value="#3a3a3a"/>
-                            </Trigger>
-                            <MultiTrigger>
-                                <MultiTrigger.Conditions>
-                                    <Condition Property="IsMouseOver" Value="True"/>
-                                    <Condition Property="IsSelected" Value="False"/>
-                                </MultiTrigger.Conditions>
-                                <Setter TargetName="TabHeader"
-                                Property="Foreground"
-                                Value="#aaa"/>
-                            </MultiTrigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+		<Style TargetType="TabItem">
+			<Setter Property="Foreground" Value="White" />
+			<Setter Property="Background" Value="Black" />
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="TabItem">
+						<Border Name="TabBorder"
+						        BorderThickness="1,1,1,0"
+						        BorderBrush="Transparent">
+							<TextBlock Name="TabHeader"
+							           FontSize="14"
+							           Foreground="{TemplateBinding Foreground}">
+								<ContentPresenter x:Name="ContentSite"
+								                  VerticalAlignment="Center"
+								                  HorizontalAlignment="Center"
+								                  ContentSource="Header"
+								                  Margin="10,2,2,10" />
+							</TextBlock>
+						</Border>
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsSelected" Value="False">
+								<Setter TargetName="TabHeader"
+								        Property="Foreground"
+								        Value="Gray" />
+							</Trigger>
+							<Trigger Property="IsSelected" Value="True">
+								<Setter TargetName="TabHeader"
+								        Property="Foreground"
+								        Value="White" />
+								<Setter TargetName="TabHeader"
+								        Property="FontWeight"
+								        Value="Bold" />
+							</Trigger>
+							<Trigger Property="IsEnabled" Value="False">
+								<Setter TargetName="TabHeader"
+								        Property="Foreground"
+								        Value="#3a3a3a" />
+							</Trigger>
+							<MultiTrigger>
+								<MultiTrigger.Conditions>
+									<Condition Property="IsMouseOver" Value="True" />
+									<Condition Property="IsSelected" Value="False" />
+								</MultiTrigger.Conditions>
+								<Setter TargetName="TabHeader"
+								        Property="Foreground"
+								        Value="#aaa" />
+							</MultiTrigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
 
-	    <Style TargetType="Button">
-		    <Setter Property="Foreground" Value="White" />
-		    <Setter Property="Background" Value="Black" />
-		    <Setter Property="BorderBrush" Value="White" />
-		    <Setter Property="Template">
-			    <Setter.Value>
-				    <ControlTemplate TargetType="{x:Type Button}">
-					    <Border 
-						    Background="{TemplateBinding Background}" 
-						    BorderBrush="{TemplateBinding BorderBrush}" 
-						    BorderThickness="1">
-						    <ContentPresenter x:Name="MyContentPresenter" 
-						                      Content="{TemplateBinding Content}"
-						                      HorizontalAlignment="Center" 
-						                      VerticalAlignment="Center" />
-					    </Border>
-				    </ControlTemplate>
-			    </Setter.Value>
-		    </Setter>
+		<Style TargetType="Button">
+			<Setter Property="Foreground" Value="White" />
+			<Setter Property="Background" Value="Black" />
+			<Setter Property="BorderBrush" Value="White" />
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="{x:Type Button}">
+						<Border
+							Background="{TemplateBinding Background}"
+							BorderBrush="{TemplateBinding BorderBrush}"
+							BorderThickness="1">
+							<ContentPresenter x:Name="MyContentPresenter"
+							                  Content="{TemplateBinding Content}"
+							                  HorizontalAlignment="Center"
+							                  VerticalAlignment="Center" />
+						</Border>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
 
-		    <Style.Triggers>
-			    <Trigger Property="IsEnabled" Value="False">
-				    <Setter Property="BorderBrush" Value="#4a4a4a"/>
-				    <Setter Property="Foreground" Value="#4a4a4a"/>
-			    </Trigger>
-			    <Trigger Property="IsMouseOver" Value="True">
-				    <Setter Property="BorderBrush" Value="#aaa"/>
-			    </Trigger>
-		    </Style.Triggers>
-	    </Style>
+			<Style.Triggers>
+				<Trigger Property="IsEnabled" Value="False">
+					<Setter Property="BorderBrush" Value="#4a4a4a" />
+					<Setter Property="Foreground" Value="#4a4a4a" />
+				</Trigger>
+				<Trigger Property="IsMouseOver" Value="True">
+					<Setter Property="BorderBrush" Value="#aaa" />
+				</Trigger>
+			</Style.Triggers>
+		</Style>
 
-        <Style x:Key="SliderTrackRepeatButtonStyle"
-	           TargetType="RepeatButton">
-		    <Setter Property="Height" Value="2"/>
-		    <Setter Property="OverridesDefaultStyle" Value="True"/>
-		    <Setter Property="Template">
-			    <Setter.Value>
-				    <ControlTemplate TargetType="RepeatButton">
-					    <Border Background="{TemplateBinding Background}"
-					            Height="{TemplateBinding Height}" />
-				    </ControlTemplate>
-			    </Setter.Value>
-		    </Setter>
-	    </Style>
+		<Style x:Key="SliderTrackRepeatButtonStyle"
+		       TargetType="RepeatButton">
+			<Setter Property="Height" Value="2" />
+			<Setter Property="OverridesDefaultStyle" Value="True" />
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="RepeatButton">
+						<Border Background="{TemplateBinding Background}"
+						        Height="{TemplateBinding Height}" />
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
 
-        <Style TargetType="Slider">
-		    <Setter Property="Foreground" Value="White"/>
-		    <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="local:SliderHelper.TrackRepeatButtonBackground" Value="#aaa"/>
-            <Setter Property="Template">
-			    <Setter.Value>
-				    <ControlTemplate TargetType="Slider">
-					    <Grid>
-						    <Track x:Name="PART_Track"
-						           IsDirectionReversed="{TemplateBinding IsDirectionReversed}"
-						           Focusable="False">
-							    <Track.DecreaseRepeatButton>
-								    <RepeatButton Command="Slider.DecreaseLarge"
-								                  Style="{StaticResource SliderTrackRepeatButtonStyle}"
-								                  IsTabStop="False"
-								                  Background="{Binding RelativeSource={RelativeSource AncestorType=Slider}, Path=(local:SliderHelper.TrackRepeatButtonBackground)}"/>
-							    </Track.DecreaseRepeatButton>
-							    <Track.Thumb>
-                                    <Thumb x:Name="Thumb"
-								           Background="White"
-								           BorderBrush="Transparent"
-								           BorderThickness="0"
-								           Height="16"
-								           Width="8"/>
-                                </Track.Thumb>
-							    <Track.IncreaseRepeatButton>
-								    <RepeatButton Command="Slider.IncreaseLarge"
-								                  Style="{StaticResource SliderTrackRepeatButtonStyle}"
-								                  IsTabStop="False"
-								                  Background="{Binding RelativeSource={RelativeSource AncestorType=Slider}, Path=(local:SliderHelper.TrackRepeatButtonBackground)}"/>
-							    </Track.IncreaseRepeatButton>
-						    </Track>
-					    </Grid>
-				    </ControlTemplate>
-			    </Setter.Value>
-		    </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsEnabled" Value="False">
-                    <Setter Property="local:SliderHelper.TrackRepeatButtonBackground" Value="#4a4a4a"/>
-                </Trigger>
-            </Style.Triggers>
-	    </Style>
+		<Style TargetType="Slider">
+			<Setter Property="Foreground" Value="White" />
+			<Setter Property="Background" Value="Transparent" />
+			<Setter Property="local:SliderHelper.TrackRepeatButtonBackground" Value="#aaa" />
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="Slider">
+						<Grid>
+							<Track x:Name="PART_Track"
+							       IsDirectionReversed="{TemplateBinding IsDirectionReversed}"
+							       Focusable="False">
+								<Track.DecreaseRepeatButton>
+									<RepeatButton Command="Slider.DecreaseLarge"
+									              Style="{StaticResource SliderTrackRepeatButtonStyle}"
+									              IsTabStop="False"
+									              Background="{Binding RelativeSource={RelativeSource AncestorType=Slider}, Path=(local:SliderHelper.TrackRepeatButtonBackground)}" />
+								</Track.DecreaseRepeatButton>
+								<Track.Thumb>
+									<Thumb x:Name="Thumb"
+									       Background="White"
+									       BorderBrush="Transparent"
+									       BorderThickness="0"
+									       Height="16"
+									       Width="8" />
+								</Track.Thumb>
+								<Track.IncreaseRepeatButton>
+									<RepeatButton Command="Slider.IncreaseLarge"
+									              Style="{StaticResource SliderTrackRepeatButtonStyle}"
+									              IsTabStop="False"
+									              Background="{Binding RelativeSource={RelativeSource AncestorType=Slider}, Path=(local:SliderHelper.TrackRepeatButtonBackground)}" />
+								</Track.IncreaseRepeatButton>
+							</Track>
+						</Grid>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+			<Style.Triggers>
+				<Trigger Property="IsEnabled" Value="False">
+					<Setter Property="local:SliderHelper.TrackRepeatButtonBackground" Value="#4a4a4a" />
+				</Trigger>
+			</Style.Triggers>
+		</Style>
 
-        <Style TargetType="ScrollBar">
-            <Setter Property="SnapsToDevicePixels"
-                    Value="True"/>
-            <Setter Property="OverridesDefaultStyle"
-                    Value="True"/>
-            <Setter Property="Background"
-                    Value="Black"/>
-            <Setter Property="BorderThickness"
-                    Value="1"/>
-            <Setter Property="Width"
-                    Value="5"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ScrollBar">
-                        <ControlTemplate.Resources>
-                            <Style TargetType="Track">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Orientation, RelativeSource={RelativeSource AncestorType=ScrollBar}}"
-                                                 Value="Vertical">
-                                        <Setter Property="IsDirectionReversed"
-                                                Value="True"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                            <Style x:Key="ScrollBarRepeatButtonHoverStyle"
-                                   TargetType="RepeatButton">
-                                <Setter Property="Background"
-                                        Value="Transparent"/>
-                                <Setter Property="BorderThickness"
-                                        Value="0"/>
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="RepeatButton">
-                                            <Border Background="{TemplateBinding Background}"
-                                                    BorderThickness="0">
-                                                <ContentPresenter HorizontalAlignment="Center"
-                                                                  VerticalAlignment="Center"/>
-                                            </Border>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </ControlTemplate.Resources>
+		<Style TargetType="ScrollBar">
+			<Setter Property="SnapsToDevicePixels"
+			        Value="True" />
+			<Setter Property="OverridesDefaultStyle"
+			        Value="True" />
+			<Setter Property="Background"
+			        Value="Black" />
+			<Setter Property="BorderThickness"
+			        Value="1" />
+			<Setter Property="Width"
+			        Value="5" />
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="ScrollBar">
+						<ControlTemplate.Resources>
+							<Style TargetType="Track">
+								<Style.Triggers>
+									<DataTrigger Binding="{Binding Orientation, RelativeSource={RelativeSource AncestorType=ScrollBar}}"
+									             Value="Vertical">
+										<Setter Property="IsDirectionReversed"
+										        Value="True" />
+									</DataTrigger>
+								</Style.Triggers>
+							</Style>
+							<Style x:Key="ScrollBarRepeatButtonHoverStyle"
+							       TargetType="RepeatButton">
+								<Setter Property="Background"
+								        Value="Transparent" />
+								<Setter Property="BorderThickness"
+								        Value="0" />
+								<Setter Property="Template">
+									<Setter.Value>
+										<ControlTemplate TargetType="RepeatButton">
+											<Border Background="{TemplateBinding Background}"
+											        BorderThickness="0">
+												<ContentPresenter HorizontalAlignment="Center"
+												                  VerticalAlignment="Center" />
+											</Border>
+										</ControlTemplate>
+									</Setter.Value>
+								</Setter>
+							</Style>
+						</ControlTemplate.Resources>
 
-                        <Grid x:Name="BgGrid"
-                              Background="{TemplateBinding Background}">
-                            <Track x:Name="PART_Track"
-                                   Focusable="false">
-                                <Track.DecreaseRepeatButton>
-                                    <RepeatButton Command="ScrollBar.LineUpCommand" 
-                                                  Style="{StaticResource ScrollBarRepeatButtonHoverStyle}"
-                                                  IsTabStop="False"
-                                                  Background="Transparent"
-                                                  BorderThickness="0"/>
-                                </Track.DecreaseRepeatButton>
-                                <Track.Thumb>
-                                    <Thumb x:Name="Thumb"
-                                           Background="White"
-                                           SnapsToDevicePixels="True">
-                                        <Thumb.Style>
-                                            <Style TargetType="Thumb">
-                                                <Setter Property="Background"
-                                                        Value="White"/>
-                                                <Setter Property="Template">
-                                                    <Setter.Value>
-                                                        <ControlTemplate TargetType="Thumb">
-                                                            <Border Background="{TemplateBinding Background}"
-                                                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                                                    CornerRadius="3"/>
-                                                        </ControlTemplate>
-                                                    </Setter.Value>
-                                                </Setter>
-                                            </Style>
-                                        </Thumb.Style>
-                                    </Thumb>
-                                </Track.Thumb>
-                                <Track.IncreaseRepeatButton>
-                                    <RepeatButton Command="ScrollBar.LineDownCommand"
-                                                  Style="{StaticResource ScrollBarRepeatButtonHoverStyle}"
-                                                  IsTabStop="False"
-                                                  Background="Transparent"
-                                                  BorderThickness="0"/>
-                                </Track.IncreaseRepeatButton>
-                            </Track>
-                        </Grid>
+						<Grid x:Name="BgGrid"
+						      Background="{TemplateBinding Background}">
+							<Track x:Name="PART_Track"
+							       Focusable="false">
+								<Track.DecreaseRepeatButton>
+									<RepeatButton Command="ScrollBar.LineUpCommand"
+									              Style="{StaticResource ScrollBarRepeatButtonHoverStyle}"
+									              IsTabStop="False"
+									              Background="Transparent"
+									              BorderThickness="0" />
+								</Track.DecreaseRepeatButton>
+								<Track.Thumb>
+									<Thumb x:Name="Thumb"
+									       Background="White"
+									       SnapsToDevicePixels="True">
+										<Thumb.Style>
+											<Style TargetType="Thumb">
+												<Setter Property="Background"
+												        Value="White" />
+												<Setter Property="Template">
+													<Setter.Value>
+														<ControlTemplate TargetType="Thumb">
+															<Border Background="{TemplateBinding Background}"
+															        BorderBrush="{TemplateBinding BorderBrush}"
+															        BorderThickness="{TemplateBinding BorderThickness}"
+															        CornerRadius="3" />
+														</ControlTemplate>
+													</Setter.Value>
+												</Setter>
+											</Style>
+										</Thumb.Style>
+									</Thumb>
+								</Track.Thumb>
+								<Track.IncreaseRepeatButton>
+									<RepeatButton Command="ScrollBar.LineDownCommand"
+									              Style="{StaticResource ScrollBarRepeatButtonHoverStyle}"
+									              IsTabStop="False"
+									              Background="Transparent"
+									              BorderThickness="0" />
+								</Track.IncreaseRepeatButton>
+							</Track>
+						</Grid>
 
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="Orientation" Value="Horizontal">
-                                <Setter TargetName="BgGrid"
-                                        Property="Width"
-                                        Value="Auto"/>
-                                <Setter TargetName="BgGrid"
-                                        Property="Height"
-                                        Value="5"/>
-                                <Setter Property="Height"
-                                        Value="5"/>
-                                <Setter Property="Width"
-                                        Value="Auto"/>
-                            </Trigger>
-                            <Trigger Property="Orientation" Value="Vertical">
-                                <Setter TargetName="BgGrid"
-                                        Property="Width"
-                                        Value="5"/>
-                                <Setter TargetName="BgGrid"
-                                        Property="Height"
-                                        Value="Auto"/>
-                                <Setter Property="Width"
-                                        Value="5"/>
-                                <Setter Property="Height"
-                                        Value="Auto"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+						<ControlTemplate.Triggers>
+							<Trigger Property="Orientation" Value="Horizontal">
+								<Setter TargetName="BgGrid"
+								        Property="Width"
+								        Value="Auto" />
+								<Setter TargetName="BgGrid"
+								        Property="Height"
+								        Value="5" />
+								<Setter Property="Height"
+								        Value="5" />
+								<Setter Property="Width"
+								        Value="Auto" />
+							</Trigger>
+							<Trigger Property="Orientation" Value="Vertical">
+								<Setter TargetName="BgGrid"
+								        Property="Width"
+								        Value="5" />
+								<Setter TargetName="BgGrid"
+								        Property="Height"
+								        Value="Auto" />
+								<Setter Property="Width"
+								        Value="5" />
+								<Setter Property="Height"
+								        Value="Auto" />
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
 
-        <Style TargetType="RadioButton">
-            <Setter Property="Foreground" Value="White" />
-            <Setter Property="Background" Value="Black" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="RadioButton">
-                        <ContentPresenter HorizontalAlignment="Center"
-                                          VerticalAlignment="Center"
-                                          RecognizesAccessKey="True"/>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsChecked" Value="False">
-                                <Setter Property="Foreground" Value="Gray"/>
-                            </Trigger>
-                            <Trigger Property="IsChecked" Value="True">
-                                <Setter Property="Foreground" Value="White"/>
-                                <Setter Property="FontWeight" Value="Bold"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Foreground" Value="#3a3a3a"/>
-                            </Trigger>
-                            <MultiTrigger>
-                                <MultiTrigger.Conditions>
-                                    <Condition Property="IsMouseOver" Value="True"/>
-                                    <Condition Property="IsChecked" Value="False"/>
-                                </MultiTrigger.Conditions>
-                                <Setter Property="Foreground" Value="#aaa"/>
-                            </MultiTrigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+		<Style TargetType="RadioButton">
+			<Setter Property="Foreground" Value="White" />
+			<Setter Property="Background" Value="Black" />
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="RadioButton">
+						<ContentPresenter HorizontalAlignment="Center"
+						                  VerticalAlignment="Center"
+						                  RecognizesAccessKey="True" />
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsChecked" Value="False">
+								<Setter Property="Foreground" Value="Gray" />
+							</Trigger>
+							<Trigger Property="IsChecked" Value="True">
+								<Setter Property="Foreground" Value="White" />
+								<Setter Property="FontWeight" Value="Bold" />
+							</Trigger>
+							<Trigger Property="IsEnabled" Value="False">
+								<Setter Property="Foreground" Value="#3a3a3a" />
+							</Trigger>
+							<MultiTrigger>
+								<MultiTrigger.Conditions>
+									<Condition Property="IsMouseOver" Value="True" />
+									<Condition Property="IsChecked" Value="False" />
+								</MultiTrigger.Conditions>
+								<Setter Property="Foreground" Value="#aaa" />
+							</MultiTrigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
 
-        <Style x:Key="ToggleButtonAsButtonStyle" TargetType="ToggleButton">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderBrush" Value="#8a8a8a"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Height" Value="22"/>
-            <Setter Property="HorizontalAlignment" Value="Stretch"/>
-            <Setter Property="Margin" Value="0,0,0,10"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ToggleButton">
-                        <Border Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsChecked" Value="True">
-                    <Setter Property="BorderBrush" Value="White"/>
-                    <Setter Property="Foreground" Value="White"/>
-                </Trigger>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="BorderBrush" Value="#fff"/>
-                </Trigger>
-                <MultiTrigger>
-                    <MultiTrigger.Conditions>
-                        <Condition Property="IsChecked" Value="True"/>
-                        <Condition Property="IsEnabled" Value="False"/>
-                    </MultiTrigger.Conditions>
-                    <Setter Property="Foreground" Value="#6a6a6a"/>
-                    <Setter Property="BorderBrush" Value="#6a6a6a"/>
-                </MultiTrigger>
-                <MultiTrigger>
-                    <MultiTrigger.Conditions>
-                        <Condition Property="IsChecked" Value="False"/>
-                        <Condition Property="IsEnabled" Value="False"/>
-                    </MultiTrigger.Conditions>
-                    <Setter Property="Foreground" Value="#4a4a4a"/>
-                    <Setter Property="BorderBrush" Value="#4a4a4a"/>
-                </MultiTrigger>
-            </Style.Triggers>
-        </Style>
-    </Application.Resources>
+		<Style x:Key="ToggleButtonAsButtonStyle" TargetType="ToggleButton">
+			<Setter Property="Background" Value="Transparent" />
+			<Setter Property="BorderBrush" Value="#8a8a8a" />
+			<Setter Property="Foreground" Value="White" />
+			<Setter Property="BorderThickness" Value="1" />
+			<Setter Property="FontWeight" Value="Bold" />
+			<Setter Property="Height" Value="22" />
+			<Setter Property="HorizontalAlignment" Value="Stretch" />
+			<Setter Property="Margin" Value="0,0,0,10" />
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="ToggleButton">
+						<Border Background="{TemplateBinding Background}"
+						        BorderBrush="{TemplateBinding BorderBrush}"
+						        BorderThickness="{TemplateBinding BorderThickness}">
+							<ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+						</Border>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+			<Style.Triggers>
+				<Trigger Property="IsChecked" Value="True">
+					<Setter Property="BorderBrush" Value="White" />
+					<Setter Property="Foreground" Value="White" />
+				</Trigger>
+				<Trigger Property="IsMouseOver" Value="True">
+					<Setter Property="BorderBrush" Value="#fff" />
+				</Trigger>
+				<MultiTrigger>
+					<MultiTrigger.Conditions>
+						<Condition Property="IsChecked" Value="True" />
+						<Condition Property="IsEnabled" Value="False" />
+					</MultiTrigger.Conditions>
+					<Setter Property="Foreground" Value="#6a6a6a" />
+					<Setter Property="BorderBrush" Value="#6a6a6a" />
+				</MultiTrigger>
+				<MultiTrigger>
+					<MultiTrigger.Conditions>
+						<Condition Property="IsChecked" Value="False" />
+						<Condition Property="IsEnabled" Value="False" />
+					</MultiTrigger.Conditions>
+					<Setter Property="Foreground" Value="#4a4a4a" />
+					<Setter Property="BorderBrush" Value="#4a4a4a" />
+				</MultiTrigger>
+			</Style.Triggers>
+		</Style>
+	</Application.Resources>
 </Application>

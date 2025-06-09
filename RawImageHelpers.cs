@@ -267,7 +267,7 @@ namespace rawinator
                 editedImage.AddNoise(NoiseType.Gaussian, noiseStrength);
             }
 
-            
+
             // ===== Special effects =====
             if (developSettings.UseGrayscale)
             {

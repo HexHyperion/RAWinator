@@ -1,11 +1,8 @@
 ﻿using ImageMagick;
-using ImageMagick.Formats;
 using Microsoft.Win32;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 using System.Windows;
@@ -79,8 +76,7 @@ namespace rawinator
                 (Develop_Slider_Magenta, HslColorRange.Magenta),
             ];
 
-            Develop_Image.RenderTransform = new TransformGroup
-            {
+            Develop_Image.RenderTransform = new TransformGroup {
                 Children = [
                     new ScaleTransform(1, 1),
                     new TranslateTransform(0, 0)
@@ -134,6 +130,14 @@ namespace rawinator
         protected void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
 
+
+        //  ██      ██ ██████  ██████   █████  ██████  ██    ██ 
+        //  ██      ██ ██   ██ ██   ██ ██   ██ ██   ██  ██  ██  
+        //  ██      ██ ██████  ██████  ███████ ██████    ████   
+        //  ██      ██ ██   ██ ██   ██ ██   ██ ██   ██    ██    
+        //  ███████ ██ ██████  ██   ██ ██   ██ ██   ██    ██    
+
+        // ===== Image import =====
         private void Library_Import_Button_Click(object sender, RoutedEventArgs e)
         {
             if (!ConfirmImportOverwrite())
@@ -151,6 +155,47 @@ namespace rawinator
             }
         }
 
+        private void ImportImages(string[] filenames)
+        {
+            Dispatcher.Invoke(() => {
+                ImportedImages.Clear();
+                Library_Import_ProgressBar.Maximum = filenames.Length;
+                Library_Import_ProgressBar.Value = 0;
+                Library_Import_Status.Visibility = Visibility.Visible;
+                Library_Import_Button.Content = "Importing...";
+                Library_Import_Button.IsEnabled = false;
+            });
+
+            var parallelOptions = new ParallelOptions {
+                MaxDegreeOfParallelism = (int)Math.Round(Environment.ProcessorCount / 1.5)
+            };
+            Parallel.For(0, filenames.Length, parallelOptions, i => {
+                var image = new RawImage(filenames[i]);
+                Dispatcher.Invoke(() => {
+                    ImportedImages[i] = image;
+                    Library_Import_ProgressBar.Value++;
+                });
+            });
+
+            Dispatcher.Invoke(() => {
+                Library_Import_Status.Visibility = Visibility.Collapsed;
+                Library_Import_Button.Content = "Import...";
+                Library_Import_Button.IsEnabled = true;
+                Library_Import_ProgressBar.Value = 0;
+                Library_Import_ProgressBar.Maximum = 1;
+            });
+        }
+
+        private void FilterNonEmptyRawImages(object sender, FilterEventArgs e)
+        {
+            if (e.Item is RawImage img)
+                e.Accepted = img.SmallThumbnail != null;
+            else
+                e.Accepted = false;
+        }
+
+
+        // ===== Image export =====
         private void Library_Export_Button_Click(object sender, RoutedEventArgs e)
         {
             OpenFolderDialog saveToFolderDialog = new() {
@@ -166,6 +211,64 @@ namespace rawinator
             }
         }
 
+        private void ExportImages(List<RawImage> images, string exportPath)
+        {
+            Dispatcher.Invoke(() => {
+                Library_Import_ProgressBar.Maximum = images.Count;
+                Library_Import_ProgressBar.Value = 0;
+                Library_Import_Status.Visibility = Visibility.Visible;
+                Library_Export_Button.Content = "Exporting...";
+                Library_Export_Button.IsEnabled = false;
+                Library_Import_Button.IsEnabled = false;
+            });
+
+            var parallelOptions = new ParallelOptions {
+                MaxDegreeOfParallelism = (int)Math.Round(Environment.ProcessorCount / 1.5)
+            };
+            bool errorOccurred = false;
+
+            Parallel.For(0, images.Count, parallelOptions, (i, state) => {
+                var img = images[i];
+                try
+                {
+                    using var rawImage = RawImageHelpers.ApplyAdjustments(img.GetRawImage(), img.ProcessParams);
+                    rawImage.ColorSpace = ColorSpace.sRGB;
+                    rawImage.Format = MagickFormat.Jpeg;
+                    string outputFileName = System.IO.Path.GetFileNameWithoutExtension(img.Filename) + ".jpg";
+                    string outputPath = System.IO.Path.Combine(exportPath, outputFileName);
+                    rawImage.Write(outputPath);
+                }
+                catch (Exception ex)
+                {
+                    if (!errorOccurred)
+                    {
+                        errorOccurred = true;
+                        Dispatcher.Invoke(() => {
+                            MessageBox.Show($"Failed to export image {img.Filename}: {ex.Message}", "Export Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
+                    }
+                    state.Stop();
+                }
+                finally
+                {
+                    Dispatcher.Invoke(() => {
+                        Library_Import_ProgressBar.Value++;
+                    });
+                }
+            });
+
+            Dispatcher.Invoke(() => {
+                Library_Import_Status.Visibility = Visibility.Collapsed;
+                Library_Export_Button.Content = "Export...";
+                Library_Export_Button.IsEnabled = true;
+                Library_Import_Button.IsEnabled = true;
+                Library_Import_ProgressBar.Value = 0;
+                Library_Import_ProgressBar.Maximum = 1;
+            });
+        }
+
+
+        // ===== Image deletion =====
         private void Library_Image_Grid_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Delete && Library_Image_Grid.SelectedItems != null)
@@ -190,6 +293,7 @@ namespace rawinator
             }
         }
 
+        // ===== Image selection =====
         private void Library_Image_Grid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (Library_Image_Grid.SelectedItem is RawImage selectedImage)
@@ -212,6 +316,7 @@ namespace rawinator
             }
         }
 
+        // ===== Image double-click to develop =====
         private void Library_Image_Grid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             if (Library_Image_Grid.SelectedItem is RawImage selectedImage)
@@ -230,6 +335,13 @@ namespace rawinator
 
 
 
+        //  ██    ██ ██ ███████ ██     ██ 
+        //  ██    ██ ██ ██      ██     ██ 
+        //  ██    ██ ██ █████   ██  █  ██ 
+        //   ██  ██  ██ ██      ██ ███ ██ 
+        //    ████   ██ ███████  ███ ███  
+
+        // ===== Arrow key image browsing =====
         private void Tabs_View_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Left)
@@ -248,6 +360,7 @@ namespace rawinator
             }
         }
 
+        // ===== Image list selection and metadata display =====
         private void View_Image_List_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (View_Image_List.SelectedItem is RawImage selected)
@@ -265,6 +378,7 @@ namespace rawinator
             }
         }
 
+        // ===== Horizontal scroll handling =====
         private void View_Image_List_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
             if (sender is ListBox listBox)
@@ -282,11 +396,17 @@ namespace rawinator
 
 
 
+        //  ██████  ███████ ██    ██ ███████ ██       ██████  ██████  
+        //  ██   ██ ██      ██    ██ ██      ██      ██    ██ ██   ██ 
+        //  ██   ██ █████   ██    ██ █████   ██      ██    ██ ██████  
+        //  ██   ██ ██       ██  ██  ██      ██      ██    ██ ██      
+        //  ██████  ███████   ████   ███████ ███████  ██████  ██      
+
+        // ===== Standard adjustment sliders =====
         private void Develop_Slider_DragStarted(object sender, DragStartedEventArgs e)
         {
             isSliderDragged = true;
         }
-
         private void Develop_Slider_DragCompleted(object sender, DragCompletedEventArgs e)
         {
             isSliderDragged = false;
@@ -316,7 +436,7 @@ namespace rawinator
             }
         }
 
-
+        // ===== Color-specific adjustment sliders =====
         private void ColorAdjustmentTypeRadio_Checked(object sender, RoutedEventArgs e)
         {
             if (sender is RadioButton rb && rb.Content is string type)
@@ -372,6 +492,73 @@ namespace rawinator
         }
 
 
+        // ===== Border controls =====
+        private void Develop_BorderColor_TextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (CurrentImage == null) return;
+            if (sender is not TextBox tb) return;
+            string input = tb.Text.Trim();
+            // Validate hex color (allow #RGB, #RRGGBB, #AARRGGBB)
+            if (System.Text.RegularExpressions.Regex.IsMatch(input, @"^#([0-9a-fA-F]{3,8})$"))
+            {
+                if (CurrentImage.ProcessParams.BorderColor != input)
+                {
+                    UpdateUndoHistory();
+                    CurrentImage.ProcessParams.BorderColor = input;
+                    UpdateDevelopImage();
+                }
+            }
+            else
+            {
+                tb.Text = CurrentImage.ProcessParams.BorderColor ?? "#ffffff";
+                return;
+            }
+        }
+
+        private void Develop_BorderWidth_TextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (CurrentImage == null) return;
+            if (sender is not TextBox tb) return;
+            string input = tb.Text.Trim();
+            if (!uint.TryParse(input, out uint px) || px < 0)
+            {
+                tb.Text = (CurrentImage.ProcessParams.BorderWidth).ToString();
+                return;
+            }
+            if (CurrentImage.ProcessParams.BorderWidth != px)
+            {
+                UpdateUndoHistory();
+                CurrentImage.ProcessParams.BorderWidth = px;
+                UpdateDevelopImage();
+            }
+        }
+
+        private void Develop_BorderWidth_TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            e.Handled = !int.TryParse(e.Text, out _);
+        }
+
+
+        // ===== Special effect toggles =====
+        private void Develop_Toggle_Special_Click(object sender, RoutedEventArgs e)
+        {
+            if (CurrentImage == null) return;
+            if (sender is not ToggleButton toggle) return;
+            string? toggleName = toggle.Name;
+            if (string.IsNullOrEmpty(toggleName) || !toggleName.StartsWith("Develop_Toggle_")) return;
+            string propertyName = "Use" + toggleName["Develop_Toggle_".Length..];
+
+            var prop = typeof(RawImageProcessParams).GetProperty(propertyName);
+            if (prop != null)
+            {
+                UpdateUndoHistory();
+                prop.SetValue(CurrentImage.ProcessParams, toggle.IsChecked == true);
+                UpdateDevelopImage();
+            }
+        }
+
+
+        // ===== Slider disabling and resetting =====
         private void ResetDevelopSliders()
         {
             foreach (var (slider, _) in developSliders)
@@ -394,6 +581,8 @@ namespace rawinator
             Develop_BorderWidth_TextBox.IsEnabled = enabled;
         }
 
+
+        // ===== Slider value updating =====
         private void SetDevelopSliders()
         {
             if (CurrentImage == null)
@@ -469,6 +658,8 @@ namespace rawinator
             SetColorSliders();
         }
 
+
+        // ===== Developed image refreshing =====
         private void UpdateDevelopImage(bool isNew = false)
         {
             if (CurrentImage == null)
@@ -499,69 +690,8 @@ namespace rawinator
             });
         }
 
-        private void Develop_BorderColor_TextBox_LostFocus(object sender, RoutedEventArgs e)
-        {
-            if (CurrentImage == null) return;
-            if (sender is not TextBox tb) return;
-            string input = tb.Text.Trim();
-            // Validate hex color (allow #RGB, #RRGGBB, #AARRGGBB)
-            if (System.Text.RegularExpressions.Regex.IsMatch(input, @"^#([0-9a-fA-F]{3,8})$"))
-            {
-                if (CurrentImage.ProcessParams.BorderColor != input)
-                {
-                    UpdateUndoHistory();
-                    CurrentImage.ProcessParams.BorderColor = input;
-                    UpdateDevelopImage();
-                }
-            }
-            else
-            {
-                tb.Text = CurrentImage.ProcessParams.BorderColor ?? "#ffffff";
-                return;
-            }
-        }
 
-        private void Develop_BorderWidth_TextBox_LostFocus(object sender, RoutedEventArgs e)
-        {
-            if (CurrentImage == null) return;
-            if (sender is not TextBox tb) return;
-            string input = tb.Text.Trim();
-            if (!uint.TryParse(input, out uint px) || px < 0)
-            {
-                tb.Text = (CurrentImage.ProcessParams.BorderWidth).ToString();
-                return;
-            }
-            if (CurrentImage.ProcessParams.BorderWidth != px)
-            {
-                UpdateUndoHistory();
-                CurrentImage.ProcessParams.BorderWidth = px;
-                UpdateDevelopImage();
-            }
-        }
-
-        private void Develop_BorderWidth_TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
-        {
-            e.Handled = !int.TryParse(e.Text, out _);
-        }
-
-        private void Develop_Toggle_Special_Click(object sender, RoutedEventArgs e)
-        {
-            if (CurrentImage == null) return;
-            if (sender is not ToggleButton toggle) return;
-            string? toggleName = toggle.Name;
-            if (string.IsNullOrEmpty(toggleName) || !toggleName.StartsWith("Develop_Toggle_")) return;
-            string propertyName = "Use" + toggleName["Develop_Toggle_".Length..];
-
-            var prop = typeof(RawImageProcessParams).GetProperty(propertyName);
-            if (prop != null)
-            {
-                UpdateUndoHistory();
-                prop.SetValue(CurrentImage.ProcessParams, toggle.IsChecked == true);
-                UpdateDevelopImage();
-            }
-        }
-
-
+        // ===== Zoom controls =====
         private void ZoomIn_Button_Click(object sender, RoutedEventArgs e)
         {
             SetImageZoom(imageZoom * ZoomStep);
@@ -599,6 +729,15 @@ namespace rawinator
             }
         }
 
+        private void Develop_Image_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            double zoomFactor = (e.Delta > 0) ? ZoomStep : (1.0 / ZoomStep);
+            SetImageZoom(imageZoom * zoomFactor);
+            e.Handled = true;
+        }
+
+
+        // ===== Zoomed image pan handling =====
         private void Develop_Image_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (imageZoom != 1.0)
@@ -626,168 +765,8 @@ namespace rawinator
             }
         }
 
-        private void Develop_Image_MouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            double zoomFactor = (e.Delta > 0) ? ZoomStep : (1.0 / ZoomStep);
-            SetImageZoom(imageZoom * zoomFactor);
-            e.Handled = true;
-        }
 
-
-
-        private void Menu_File_Open_Click(object sender, RoutedEventArgs e)
-        {
-            ImportAndGoToLibrary();
-        }
-
-        private void Menu_File_Save_Click(object sender, RoutedEventArgs e)
-        {
-            ExportSelectedAndGoToLibrary();
-        }
-
-        private void Menu_File_Exit_Click(object sender, RoutedEventArgs e)
-        {
-            ExitWithConfirmation();
-        }
-
-        private void Menu_Edit_Undo_Click(object sender, RoutedEventArgs e)
-        {
-            UndoDevelopEdit();
-        }
-
-        private void Menu_Edit_Redo_Click(object sender, RoutedEventArgs e)
-        {
-            RedoDevelopEdit();
-        }
-
-        private void Menu_Help_About_Click(object sender, RoutedEventArgs e)
-        {
-            var about = new AboutWindow {
-                Owner = this
-            };
-            about.ShowDialog();
-        }
-
-
-
-        private void App_TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (App_TabControl.SelectedItem is TabItem selectedTab)
-            {
-                if (selectedTab.Name == "Tabs_Develop")
-                {
-                    if (CurrentImage != null)
-                    {
-                        UpdateDevelopImage(true);
-                    }
-                }
-                else if (selectedTab.Name == "Tabs_View")
-                {
-                    if (CurrentImage != null)
-                    {
-                        Task.Run(() => {
-                            var thumbnail = CurrentImage.GetFullThumbnail();
-                            Dispatcher.Invoke(() => {
-                                View_Image.Source = thumbnail;
-                            });
-                        });
-                        OnPropertyChanged(nameof(CurrentImage));
-                    }
-                }
-            }
-        }
-
-
-
-        private void ImportImages(string[] filenames)
-        {
-            Dispatcher.Invoke(() => {
-                ImportedImages.Clear();
-                Library_Import_ProgressBar.Maximum = filenames.Length;
-                Library_Import_ProgressBar.Value = 0;
-                Library_Import_Status.Visibility = Visibility.Visible;
-                Library_Import_Button.Content = "Importing...";
-                Library_Import_Button.IsEnabled = false;
-            });
-
-            var parallelOptions = new ParallelOptions {
-                MaxDegreeOfParallelism = (int)Math.Round(Environment.ProcessorCount / 1.5)
-            };
-            Parallel.For(0, filenames.Length, parallelOptions, i => {
-                var image = new RawImage(filenames[i]);
-                Dispatcher.Invoke(() => {
-                    ImportedImages[i] = image;
-                    Library_Import_ProgressBar.Value++;
-                });
-            });
-
-            Dispatcher.Invoke(() => {
-                Library_Import_Status.Visibility = Visibility.Collapsed;
-                Library_Import_Button.Content = "Import...";
-                Library_Import_Button.IsEnabled = true;
-                Library_Import_ProgressBar.Value = 0;
-                Library_Import_ProgressBar.Maximum = 1;
-            });
-        }
-
-
-        private void ExportImages(List<RawImage> images, string exportPath)
-        {
-            Dispatcher.Invoke(() => {
-                Library_Import_ProgressBar.Maximum = images.Count;
-                Library_Import_ProgressBar.Value = 0;
-                Library_Import_Status.Visibility = Visibility.Visible;
-                Library_Export_Button.Content = "Exporting...";
-                Library_Export_Button.IsEnabled = false;
-                Library_Import_Button.IsEnabled = false;
-            });
-
-            var parallelOptions = new ParallelOptions {
-                MaxDegreeOfParallelism = (int)Math.Round(Environment.ProcessorCount / 1.5)
-            };
-            bool errorOccurred = false;
-
-            Parallel.For(0, images.Count, parallelOptions, (i, state) => {
-                var img = images[i];
-                try
-                {
-                    using var rawImage = RawImageHelpers.ApplyAdjustments(img.GetRawImage(), img.ProcessParams);
-                    rawImage.ColorSpace = ColorSpace.sRGB;
-                    rawImage.Format = MagickFormat.Jpeg;
-                    string outputFileName = System.IO.Path.GetFileNameWithoutExtension(img.Filename) + ".jpg";
-                    string outputPath = System.IO.Path.Combine(exportPath, outputFileName);
-                    rawImage.Write(outputPath);
-                }
-                catch (Exception ex)
-                {
-                    if (!errorOccurred)
-                    {
-                        errorOccurred = true;
-                        Dispatcher.Invoke(() => {
-                            MessageBox.Show($"Failed to export image {img.Filename}: {ex.Message}", "Export Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                        });
-                    }
-                    state.Stop();
-                }
-                finally
-                {
-                    Dispatcher.Invoke(() => {
-                        Library_Import_ProgressBar.Value++;
-                    });
-                }
-            });
-
-            Dispatcher.Invoke(() => {
-                Library_Import_Status.Visibility = Visibility.Collapsed;
-                Library_Export_Button.Content = "Export...";
-                Library_Export_Button.IsEnabled = true;
-                Library_Import_Button.IsEnabled = true;
-                Library_Import_ProgressBar.Value = 0;
-                Library_Import_ProgressBar.Maximum = 1;
-            });
-        }
-
-
+        // ===== Crop/transform mode handling =====
         private void Develop_Toggle_Crop_Checked(object sender, RoutedEventArgs e)
         {
             if (CurrentImage == null || CurrentDevelopImage == null)
@@ -838,6 +817,8 @@ namespace rawinator
             }
         }
 
+
+        // ===== Crop rectangle drawing =====
         private void OverlayCanvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (!isCropModeActive) return;
@@ -965,6 +946,8 @@ namespace rawinator
             return (imgW, imgH, canvasW, canvasH, scale, offsetX, offsetY);
         }
 
+
+        // ===== Non-crop transformations =====
         // These are usually used for one-time corrections and are not destructive,
         // so we can apply them directly to the current image.
         private void Develop_Button_Rotate_Click(object sender, RoutedEventArgs e)
@@ -987,6 +970,91 @@ namespace rawinator
         }
 
 
+        // ===== Preset management =====
+        private void Add_Preset_Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (CurrentImage == null) return;
+            var dialog = new InputDialog("Enter preset name:") {
+                Owner = this
+            };
+            if (dialog.ShowDialog() == true)
+            {
+                string? name = dialog.ResponseText?.Trim();
+                if (!string.IsNullOrEmpty(name))
+                {
+                    var existing = Presets.FirstOrDefault(p => p.Name == name);
+                    if (existing != null)
+                    {
+                        Presets.Remove(existing);
+                    }
+
+                    Presets.Add(new Preset(name, CurrentImage.ProcessParams));
+                    SavePresets();
+                }
+            }
+        }
+
+        private void Preset_ListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (Preset_ListBox.SelectedItem is Preset preset && CurrentImage != null)
+            {
+                UpdateUndoHistory();
+                CurrentImage.ProcessParams.CopyFrom(preset.Params);
+                SetAllDevelopSliders();
+                UpdateDevelopImage();
+            }
+        }
+
+        private void Preset_ListBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Delete && Preset_ListBox.SelectedItems.Count > 0)
+            {
+                foreach (var item in Preset_ListBox.SelectedItems.OfType<Preset>().ToList())
+                {
+                    Presets.Remove(item);
+                }
+                SavePresets();
+            }
+        }
+
+        private void SavePresets()
+        {
+            try
+            {
+                var list = Presets.Select(p => new PresetDTO { Name = p.Name, Params = p.Params }).ToList();
+                File.WriteAllText("presets.json", JsonSerializer.Serialize(list));
+            }
+            catch { }
+        }
+
+        private void LoadPresets()
+        {
+            try
+            {
+                if (File.Exists("presets.json"))
+                {
+                    var list = JsonSerializer.Deserialize<List<PresetDTO>>(File.ReadAllText("presets.json"));
+                    if (list != null)
+                    {
+                        Presets.Clear();
+                        foreach (var dto in list)
+                        {
+                            Presets.Add(new Preset(dto.Name, dto.Params));
+                        }
+                    }
+                }
+            }
+            catch { }
+        }
+
+        private class PresetDTO
+        {
+            public required string Name { get; set; }
+            public required RawImageProcessParams Params { get; set; }
+        }
+
+
+        // ===== Undo/Redo history management =====
         private void UpdateUndoHistory()
         {
             if (CurrentImage == null) return;
@@ -1016,6 +1084,64 @@ namespace rawinator
             UpdateDevelopImage();
         }
 
+
+
+        //   ██████  ███████ ███    ██ ███████ ██████   █████  ██      
+        //  ██       ██      ████   ██ ██      ██   ██ ██   ██ ██      
+        //  ██   ███ █████   ██ ██  ██ █████   ██████  ███████ ██      
+        //  ██    ██ ██      ██  ██ ██ ██      ██   ██ ██   ██ ██      
+        //   ██████  ███████ ██   ████ ███████ ██   ██ ██   ██ ███████ 
+
+        // ===== Top menu item action handling =====
+        private void Menu_File_Open_Click(object sender, RoutedEventArgs e) => ImportAndGoToLibrary();
+
+        private void Menu_File_Save_Click(object sender, RoutedEventArgs e) => ExportSelectedAndGoToLibrary();
+
+        private void Menu_File_Exit_Click(object sender, RoutedEventArgs e) => ExitWithConfirmation();
+
+        private void Menu_Edit_Undo_Click(object sender, RoutedEventArgs e) => UndoDevelopEdit();
+
+        private void Menu_Edit_Redo_Click(object sender, RoutedEventArgs e) => RedoDevelopEdit();
+
+        private void Menu_Help_About_Click(object sender, RoutedEventArgs e)
+        {
+            var about = new AboutWindow {
+                Owner = this
+            };
+            about.ShowDialog();
+        }
+
+
+        // ===== Tab change handling =====
+        private void App_TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (App_TabControl.SelectedItem is TabItem selectedTab)
+            {
+                if (selectedTab.Name == "Tabs_Develop")
+                {
+                    if (CurrentImage != null)
+                    {
+                        UpdateDevelopImage(true);
+                    }
+                }
+                else if (selectedTab.Name == "Tabs_View")
+                {
+                    if (CurrentImage != null)
+                    {
+                        Task.Run(() => {
+                            var thumbnail = CurrentImage.GetFullThumbnail();
+                            Dispatcher.Invoke(() => {
+                                View_Image.Source = thumbnail;
+                            });
+                        });
+                        OnPropertyChanged(nameof(CurrentImage));
+                    }
+                }
+            }
+        }
+
+
+        // ===== Keyboard shortcut handling =====
         private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (Keyboard.FocusedElement is TextBoxBase)
@@ -1099,6 +1225,8 @@ namespace rawinator
             Library_Export_Button.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
         }
 
+
+        // ===== Window closing confirmation =====
         private bool ConfirmExit()
         {
             if (ImportedImages.Count > 0)
@@ -1128,98 +1256,6 @@ namespace rawinator
             {
                 e.Cancel = true;
             }
-        }
-
-
-        private void Add_Preset_Button_Click(object sender, RoutedEventArgs e)
-        {
-            if (CurrentImage == null) return;
-            var dialog = new InputDialog("Enter preset name:") {
-                Owner = this
-            };
-            if (dialog.ShowDialog() == true)
-            {
-                string? name = dialog.ResponseText?.Trim();
-                if (!string.IsNullOrEmpty(name))
-                {
-                    var existing = Presets.FirstOrDefault(p => p.Name == name);
-                    if (existing != null)
-                    {
-                        Presets.Remove(existing);
-                    }
-
-                    Presets.Add(new Preset(name, CurrentImage.ProcessParams));
-                    SavePresets();
-                }
-            }
-        }
-
-        private void Preset_ListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            if (Preset_ListBox.SelectedItem is Preset preset && CurrentImage != null)
-            {
-                UpdateUndoHistory();
-                CurrentImage.ProcessParams.CopyFrom(preset.Params);
-                SetAllDevelopSliders();
-                UpdateDevelopImage();
-            }
-        }
-
-        private void Preset_ListBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Delete && Preset_ListBox.SelectedItems.Count > 0)
-            {
-                foreach (var item in Preset_ListBox.SelectedItems.OfType<Preset>().ToList())
-                {
-                    Presets.Remove(item);
-                }
-                SavePresets();
-            }
-        }
-
-        private void SavePresets()
-        {
-            try
-            {
-                var list = Presets.Select(p => new PresetDTO { Name = p.Name, Params = p.Params }).ToList();
-                File.WriteAllText("presets.json", JsonSerializer.Serialize(list));
-            }
-            catch {}
-        }
-
-        private void LoadPresets()
-        {
-            try
-            {
-                if (File.Exists("presets.json"))
-                {
-                    var list = JsonSerializer.Deserialize<List<PresetDTO>>(File.ReadAllText("presets.json"));
-                    if (list != null)
-                    {
-                        Presets.Clear();
-                        foreach (var dto in list)
-                        {
-                            Presets.Add(new Preset(dto.Name, dto.Params));
-                        }
-                    }
-                }
-            }
-            catch {}
-        }
-
-        private class PresetDTO
-        {
-            public required string Name { get; set; }
-            public required RawImageProcessParams Params { get; set; }
-        }
-
-
-        private void FilterNonEmptyRawImages(object sender, FilterEventArgs e)
-        {
-            if (e.Item is RawImage img)
-                e.Accepted = img.SmallThumbnail != null;
-            else
-                e.Accepted = false;
         }
     }
 }

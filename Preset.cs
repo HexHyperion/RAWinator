@@ -1,19 +1,9 @@
-using System;
-
 namespace rawinator
 {
-    public class Preset
+    public class Preset(string name, RawImageProcessParams processParams)
     {
-        public string Name { get; set; }
-        public RawImageProcessParams Params { get; set; }
-
-        public Preset() { }
-
-        public Preset(string name, RawImageProcessParams processParams)
-        {
-            Name = name;
-            Params = processParams.Clone();
-        }
+        public string Name { get; set; } = name;
+        public RawImageProcessParams Params { get; set; } = processParams.Clone();
 
         public override string ToString() => Name;
     }
