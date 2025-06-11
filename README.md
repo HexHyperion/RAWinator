@@ -1,6 +1,8 @@
 # RAWinator
 A (relatively) simple ~and lightweight~ RAW file processing software with some additional functions, written in .NET using Magick.NET, as a project for AiTP lessons.
 
+It allows for viewing, manipulating and saving of images of many camera RAW formats from all standard manufacturers. You can precisely adjust tones and specific colors, crop, apply filters, automatically denoise high-ISO pictures, and even save the settings as reusable presets!
+
 ## Installation
 To build the project, you need to clone it to your machine either using
 ```
