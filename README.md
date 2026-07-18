@@ -4,15 +4,13 @@ A (relatively) simple ~and lightweight~ RAW file processing software with some a
 It allows for viewing, manipulating and saving of images of many camera RAW formats from all standard manufacturers. You can precisely adjust tones and specific colors, crop, apply filters, automatically denoise high-ISO pictures, and even save the settings as reusable presets!
 
 ## Installation
-To build the project, you need to clone it to your machine either using
+The project now provides a prebuilt version of the app, which can be downloaded from the Releases page. There are two versions available - both are contained in a single .exe file, but the "portable" package doesn't require the .NET 8.0 runtime to be installed on your machine, in exchange for a significantly larger file size.
+
+To acquire the project for development, you need to clone it to your machine either using
 ```
 git clone https://github.com/HexHyperion/RAWinator.git
 ```
-or with the built-in Git integrations in your editor, and then open the **solution** (not the folder) with Visual Studio, Rider or other .NET IDE.
-
-**.NET 8.0 runtime needs to be installed on your machine in order to run this app.** To try out the app, build and run the project with what's usually a big, green "play" button - all dependencies should get installed automatically and after a while the window should appear.
-
-Maybe someday I'll compile it into an .exe for mortals, but for now I fail to create a file that will want to run on my 2 Windows devices, let alone _all_ Windows devices...
+or with the built-in Git integrations in your editor, and then open the **solution** (not the folder) with Visual Studio, Rider or another .NET IDE.
 
 ## Functionality
 Honestly, I feared that the app won't be much and absolutely won't be suitable for "real" editing, and while obviously it's no competition for any serious processing software, it turned out quite nice, and can give really high quality effects, if you have ~patience~ a remotely good computer obviously :)
